@@ -1,0 +1,40 @@
+/* :root {
+  --hl-text: #1e1e1e;
+  --hl-bg: #ffffff;
+  --hl-brand: #c7a46b;
+  --hl-muted: #6b5e3f;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--hl-text);
+  background: var(--hl-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+} */
+@import "tailwindcss";
+/* * {
+  box-sizing: border-box;
+} */
+audio::-webkit-media-controls-panel {
+  background-color: #d2b48c; /* nâu nhạt */
+  border-radius: 12px;
+}
+
+/* body {
+  margin: 0;
+  min-width: 320px;
+} */
+/* 
+a {
+  color: inherit;
+} */
+
+/* h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--hl-text);
+} */
