@@ -4,6 +4,11 @@ import watchPostPodcast from "./redux/auth/admin/post_postcard/postPoscastSaga";
 import watchFetchPodcast from "./redux/auth/admin/fetch_podcast/fetchPodcastSaga";
 import watchUpdatePodcast from "./redux/auth/admin/update_podcast/updatePodcastSaga";
 import watchDeletePodcast from "./redux/auth/admin/delete_podcast/deletePodcastSaga";
+import watchGetAllCart from "./redux/User/cartApi/fetchCart/getAllCartSaga";
+import watchUpdateCartItem from "./redux/User/cartApi/updateCartItem/updateCartItemSaga";
+import watchDeleteCartItem from "./redux/User/cartApi/deleteCartItem/deleteCartItemSaga";
+import watchGetAllProduct from "./redux/User/product/fetchProduct/getAllProductSaga";
+import watchAddToCart from "./redux/User/product/postProductToCart/postProductToCartSaga";
 export default function* rootSaga() {
   yield all([
     watchFetchLogin(),
@@ -12,5 +17,10 @@ export default function* rootSaga() {
     watchFetchPodcast(),
     watchUpdatePodcast(),
     watchDeletePodcast(),
+    watchGetAllCart(),
+    watchUpdateCartItem(),
+    watchDeleteCartItem(),
+    watchGetAllProduct(),
+    watchAddToCart(),
   ]);
 }
