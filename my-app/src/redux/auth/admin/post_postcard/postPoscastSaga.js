@@ -6,6 +6,7 @@ import {
   postPostcardFail,
   postPostcardSuccess,
 } from "./postPoscastSlice";
+import { fetchPodcastSuccess } from "../fetch_podcast/fetchPodcastSlice";
 
 const URL_API = import.meta.env.VITE_API_URL;
 
@@ -29,7 +30,23 @@ function* postPostcardSaga(action) {
     if (response.status === 200) {
       yield put(postPostcardSuccess(response.data));
       toast.success("Post postcard successfully");
-      console.log(response.data);
+      const page = action.payload?.page || 1;
+      const size = action.payload?.size || 10;
+
+      const apiUrl = `${URL_API}/podcasts?page=${page}&size=${size}`;
+
+      const fetch = yield call(axios.get, apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        // Extract content from paginated response
+        const podcasts = fetch.data.content || fetch.data;
+        yield put(fetchPodcastSuccess(podcasts));
+        toast.success("Cập nhật podcast thành công!");
+      }
     } else {
       yield put(postPostcardFail("Failed to post postcard"));
       toast.error("Failed to post postcard");

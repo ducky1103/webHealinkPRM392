@@ -25,7 +25,6 @@ const API_BASE = (
 
 export function* fetchLogin(action) {
   try {
-    // Fix: Backend expect passwordHash thay vì password
     const loginPayload = {
       username: action.payload.username,
       passwordHash: parseInt(action.payload.password), // Convert to number
@@ -57,8 +56,6 @@ export function* fetchLogin(action) {
           }
         );
 
-        console.log("👤 User Details:", userResponse.data);
-
         const fullUserData = userResponse.data;
 
         yield put(
@@ -70,7 +67,11 @@ export function* fetchLogin(action) {
 
         // Kiểm tra role để redirect
         const userRole = fullUserData.role;
-        console.log("🎭 User Role:", userRole);
+        if (userRole === "admin") {
+          if (action.payload.onSuccess) action.payload.onSuccess("/admin");
+        } else {
+          if (action.payload.onSuccess) action.payload.onSuccess("/");
+        }
 
         toast.success("Đăng nhập thành công!");
       } else {

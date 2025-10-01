@@ -2,13 +2,11 @@ import axios from "axios";
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import toast from "react-hot-toast";
 import { updatePodcastFail, updatePodcastSuccess } from "./updatePodcastSlice";
-import {
-  fetchPodcastFail,
-  fetchPodcastSuccess,
-} from "../fetch_podcast/fetchPodcastSlice";
+import { fetchPodcastSuccess } from "../fetch_podcast/fetchPodcastSlice";
 
 function* updatePodcastSaga(action) {
   const URL_API = import.meta.env.VITE_API_URL;
+
   try {
     const token = yield select((state) => state.account.token);
     const { id, updateData } = action.payload;
@@ -26,31 +24,50 @@ function* updatePodcastSaga(action) {
     );
 
     if (response.status === 200) {
-      const response = yield call(axios.get, `${URL_API}/podcasts`, {
+      yield put(updatePodcastSuccess(response.data));
+      const page = action.payload?.page || 1;
+      const size = action.payload?.size || 10;
+
+      const apiUrl = `${URL_API}/podcasts?page=${page}&size=${size}`;
+
+      const fetch = yield call(axios.get, apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 200) {
-        yield put(fetchPodcastSuccess(response.data));
-        toast.success("Fetch podcast successfully");
-      } else {
-        yield put(fetchPodcastFail("Failed to fetch podcast"));
-        toast.error("Failed to fetch podcast");
+        // Extract content from paginated response
+        const podcasts = fetch.data.content || fetch.data;
+        yield put(fetchPodcastSuccess(podcasts));
+        toast.success("Cập nhật podcast thành công!");
       }
-      yield put(updatePodcastSuccess(response.data));
-      toast.success("Update podcast successfully");
-      console.log(response.data);
     } else {
       yield put(updatePodcastFail("Failed to update podcast"));
-      toast.error("Failed to update podcast");
     }
   } catch (error) {
-    console.error("Update podcast error:", error);
-    yield put(
-      updatePodcastFail(error.response?.data?.message || error.message)
-    );
-    toast.error("An error occurred while updating the podcast");
+    let errorMessage = "Có lỗi xảy ra khi cập nhật podcast";
+
+    if (error.response) {
+      const status = error.response.status;
+      const serverMessage = error.response.data;
+
+      if (status === 400) {
+        errorMessage =
+          typeof serverMessage === "string"
+            ? serverMessage
+            : "Dữ liệu không hợp lệ";
+      } else if (status === 401) {
+        errorMessage = "Không có quyền truy cập. Vui lòng đăng nhập lại.";
+      } else if (status === 403) {
+        errorMessage = "Bạn không có quyền thực hiện hành động này.";
+      } else if (status === 404) {
+        errorMessage = "Không tìm thấy podcast.";
+      }
+    }
+
+    yield put(updatePodcastFail(error.response?.data || error.message));
+    toast.error(errorMessage);
   }
 }
 

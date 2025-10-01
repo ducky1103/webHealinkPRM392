@@ -41,16 +41,20 @@ const categoryColors = {
 
 const AdminPodcastPage = () => {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.postPodcast);
+  const { loading, error, createdPodcast } = useSelector(
+    (state) => state.postPodcast
+  );
   const {
     loading: fetchLoading,
     error: fetchError,
     fetchPodcast: fetchedPodcasts,
   } = useSelector((state) => state.fetchPodcast);
-  const { loading: deleteLoading, error: deleteError } = useSelector(
-    (state) => state.deletePodcast
-  );
-  const { updateLoading, updateError } = useSelector(
+  const {
+    loading: deleteLoading,
+    error: deleteError,
+    deletedPodcastId,
+  } = useSelector((state) => state.deletePodcast);
+  const { updateLoading, updateError, updatedPodcast } = useSelector(
     (state) => state.updatePodcast
   );
   const [podcasts, setPodcasts] = useState([]);
@@ -63,7 +67,7 @@ const AdminPodcastPage = () => {
 
   // Fetch podcasts on component mount
   useEffect(() => {
-    dispatch(fetchPostcastRequest());
+    dispatch(fetchPostcastRequest({ page: 1, size: 100 })); // Change from page: 0 to page: 1
   }, [dispatch]);
 
   // Update podcasts state when fetchedPodcasts changes
@@ -73,16 +77,40 @@ const AdminPodcastPage = () => {
     }
   }, [fetchedPodcasts]);
 
+  // Refetch after successful create
+  useEffect(() => {
+    if (createdPodcast) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [createdPodcast, dispatch]);
+
+  // Refetch after successful update
+  useEffect(() => {
+    if (updatedPodcast) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [updatedPodcast, dispatch]);
+
+  // Refetch after successful delete
+  useEffect(() => {
+    if (deletedPodcastId) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [deletedPodcastId, dispatch]);
+
   const handleAddPodcast = async () => {
     try {
       const values = await form.validateFields();
 
-      // Tạo FormData cho API upload
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
 
-      // Upload files nếu có
+      // ADD CATEGORY - This was missing!
+      if (values.category) {
+        formData.append("category", values.category);
+      }
+
       if (values.image?.fileList?.[0]?.originFileObj) {
         formData.append("imageFile", values.image.fileList[0].originFileObj);
       }
@@ -95,7 +123,6 @@ const AdminPodcastPage = () => {
 
       form.resetFields();
       setOpen(false);
-      message.success("Đang upload podcast...");
     } catch (error) {
       message.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
       console.error("Validation Failed:", error);
@@ -118,12 +145,12 @@ const AdminPodcastPage = () => {
     const audio = new Audio(audioUrl);
     audio
       .play()
-      .then(() => setCurrentAudio({ audio, url: audioUrl })) // Set the new audio as the current one
+      .then(() => setCurrentAudio({ audio, url: audioUrl }))
       .catch((error) => {
         message.error("Không thể phát âm thanh!");
       });
 
-    audio.onended = () => setCurrentAudio(null); // Reset when audio ends
+    audio.onended = () => setCurrentAudio(null);
   };
 
   const handleUpdatePodcast = (podcast) => {
@@ -200,102 +227,129 @@ const AdminPodcastPage = () => {
           </div>
         </div>
 
-        {/* Podcast Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {podcasts.map((podcast) => (
-            <Card
-              key={podcast.id}
-              hoverable
-              className="rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
-              cover={
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    alt={podcast.title}
-                    src={podcast.imageUrl || "/fallback-image.jpg"}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <Tag
-                      color={categoryColors[podcast.category]}
-                      className="mb-2"
-                    >
-                      {podcast.category}
-                    </Tag>
-                  </div>
-                </div>
-              }
-              actions={[
-                <Button
-                  type="text"
-                  icon={
-                    currentAudio?.url === podcast.audioUrl ? (
-                      <PauseCircleOutlined />
-                    ) : (
-                      <PlayCircleOutlined />
-                    )
-                  } // Toggle icon based on current audio
-                  className="text-blue-600 hover:text-blue-800 border-0"
-                  onClick={() => handlePlayAudio(podcast.audioUrl)} // Play or pause audio
-                >
-                  {currentAudio?.url === podcast.audioUrl ? "Dừng" : "Phát"}{" "}
-                  {/* Toggle button text */}
-                </Button>,
-                <Button
-                  type="text"
-                  icon={<FileImageOutlined />}
-                  className="text-green-600 hover:text-green-800 border-0"
-                  onClick={() => handleUpdatePodcast(podcast)}
-                >
-                  Sửa
-                </Button>,
-                <Popconfirm
-                  title="Xóa podcast"
-                  description="Bạn có chắc chắn muốn xóa podcast này?"
-                  onConfirm={() => {
-                    console.log("Podcast object:", podcast); // Debug line
-                    console.log("Podcast ID:", podcast?.id, typeof podcast?.id); // Debug line
-                    handleDeletePodcast(podcast?.id);
-                  }}
-                  okText="Xóa"
-                  cancelText="Hủy"
-                  okButtonProps={{ danger: true }}
-                >
-                  <Button
-                    type="text"
-                    icon={<DeleteOutlined />}
-                    danger
-                    className="hover:bg-red-50"
-                  >
-                    Xóa
-                  </Button>
-                </Popconfirm>,
-              ]}
-            >
-              <Meta
-                title={
-                  <div className="text-lg font-semibold text-gray-800 mb-2 line-clamp-1">
-                    {podcast.title}
-                  </div>
-                }
-                description={
-                  <div className="space-y-3">
-                    <p className="text-gray-600 text-sm line-clamp-3">
-                      {podcast.description}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <SoundOutlined />
-                        <span>{podcast.duration}</span>
-                      </div>
-                      <span>{podcast.createdAt}</span>
+        {/* Loading State */}
+        {fetchLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-500">Đang tải podcast...</p>
+            </div>
+          </div>
+        ) : podcasts.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="space-y-4">
+              <div className="text-6xl text-gray-300">🎧</div>
+              <h3 className="text-xl font-semibold text-gray-600">
+                Chưa có podcast nào
+              </h3>
+              <p className="text-gray-500">Hãy tạo podcast đầu tiên của bạn!</p>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 border-0"
+              >
+                Tạo Podcast Mới
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {podcasts.map((podcast) => (
+              <Card
+                key={podcast.id}
+                hoverable
+                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white"
+                cover={
+                  <div className="relative h-52 overflow-hidden">
+                    <img
+                      alt={podcast.title}
+                      src={
+                        podcast.imageUrl ||
+                        "https://via.placeholder.com/400x300?text=No+Image"
+                      }
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    <div className="absolute top-3 left-3">
+                      <Tag
+                        color={categoryColors[podcast.category] || "default"}
+                        className="px-3 py-1 rounded-full text-xs font-medium border-0 shadow-sm"
+                      >
+                        {podcast.category}
+                      </Tag>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+                        {podcast.title}
+                      </h3>
                     </div>
                   </div>
                 }
-              />
-            </Card>
-          ))}
-        </div>
+                bodyStyle={{ padding: "16px" }}
+              >
+                <div className="space-y-3">
+                  <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                    {podcast.description}
+                  </p>
+
+                  <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                    <div className="flex items-center space-x-1">
+                      <SoundOutlined className="text-blue-500" />
+                      <span>{podcast.duration || "N/A"}</span>
+                    </div>
+                    <span>
+                      {new Date(podcast.createdAt).toLocaleDateString("vi-VN")}
+                    </span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between pt-3 space-x-2">
+                    <Button
+                      type="text"
+                      icon={
+                        currentAudio?.url === podcast.audioUrl ? (
+                          <PauseCircleOutlined />
+                        ) : (
+                          <PlayCircleOutlined />
+                        )
+                      }
+                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-0 flex-1"
+                      onClick={() => handlePlayAudio(podcast.audioUrl)}
+                    >
+                      {currentAudio?.url === podcast.audioUrl ? "Dừng" : "Phát"}
+                    </Button>
+                    <Button
+                      type="text"
+                      icon={<FileImageOutlined />}
+                      className="text-green-600 hover:text-green-800 hover:bg-green-50 border-0"
+                      onClick={() => handleUpdatePodcast(podcast)}
+                    >
+                      Sửa
+                    </Button>
+                    <Popconfirm
+                      title="Xóa podcast"
+                      description="Bạn có chắc chắn muốn xóa podcast này?"
+                      onConfirm={() => handleDeletePodcast(podcast?.id)}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        danger
+                        className="hover:bg-red-50 border-0"
+                      >
+                        Xóa
+                      </Button>
+                    </Popconfirm>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Modal for Adding Podcast */}
         <Modal
