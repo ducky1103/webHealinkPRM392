@@ -9,6 +9,11 @@ import watchForgotPassword, {
   watchVerifyResetToken,
 } from "./redux/auth/forgotPassword/forgotPasswordSaga";
 import watchRegister from "./redux/auth/register/registerSaga";
+import watchGetAllCart from "./redux/User/cartApi/fetchCart/getAllCartSaga";
+import watchUpdateCartItem from "./redux/User/cartApi/updateCartItem/updateCartItemSaga";
+import watchDeleteCartItem from "./redux/User/cartApi/deleteCartItem/deleteCartItemSaga";
+import watchGetAllProduct from "./redux/User/product/fetchProduct/getAllProductSaga";
+import watchAddToCart from "./redux/User/product/postProductToCart/postProductToCartSaga";
 export default function* rootSaga() {
   yield all([
     watchFetchLogin(),
@@ -21,5 +26,10 @@ export default function* rootSaga() {
     watchForgotPassword(),
     watchVerifyResetToken(),
     watchResetPassword(),
+    watchGetAllCart(),
+    watchUpdateCartItem(),
+    watchDeleteCartItem(),
+    watchGetAllProduct(),
+    watchAddToCart(),
   ]);
 }

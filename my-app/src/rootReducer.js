@@ -7,6 +7,14 @@ import fetchPodcastReducer from "./redux/auth/admin/fetch_podcast/fetchPodcastSl
 import postPostcardReducer from "./redux/auth/admin/post_postcard/postPoscastSlice";
 import updatePodcastReducer from "./redux/auth/admin/update_podcast/updatePodcastSlice";
 
+import accountReducers from "./redux/auth/authSlice";
+import getAllCartReducer from "./redux/User/cartApi/fetchCart/getAllCartSlice";
+import updateCartItemReducer from "./redux/User/cartApi/updateCartItem/updateCartItemSlice";
+import deleteCartItemReducer from "./redux/User/cartApi/deleteCartItem/deleteCartItemSlice";
+import getAllProductReducer from "./redux/User/product/fetchProduct/getAllProductSlice";
+import addToCartReducer from "./redux/User/product/postProductToCart/postProductToCartSlice";
+
+
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -15,6 +23,11 @@ const rootReducer = combineReducers({
   fetchPodcast: fetchPodcastReducer,
   updatePodcast: updatePodcastReducer,
   deletePodcast: deletePodcastReducer,
+  cart: getAllCartReducer,
+  updateCart: updateCartItemReducer,
+  deleteCart: deleteCartItemReducer,
+  fetchProduct: getAllProductReducer,
+  addProduct: addToCartReducer,
 });
 
 export default rootReducer;
