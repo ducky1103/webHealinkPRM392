@@ -109,10 +109,9 @@ const AdminCategoryPage = () => {
     try {
       const values = await editForm.validateFields();
 
-      // Fix: Include both name and description
       const updateData = {
         name: values.name,
-        description: values.description || "", // Fix: Add description field
+        description: values.description || "",
       };
 
       console.log("Updating category:", {
