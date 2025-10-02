@@ -1,7 +1,8 @@
 export const FETCH_PODCAST_REQUEST = "FETCH_PODCAST_REQUEST";
 export const FETCH_PODCAST_SUCCESS = "FETCH_PODCAST_SUCCESS";
 export const FETCH_PODCAST_FAIL = "FETCH_PODCAST_FAIL";
-export const fetchPostcastRequest = (data) => ({
+export const fetchPostcastRequest = (data = { page: 1, size: 10 }) => ({
+  // Change default page to 1
   type: FETCH_PODCAST_REQUEST,
   payload: data,
 });
