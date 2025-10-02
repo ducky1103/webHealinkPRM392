@@ -1,8 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../../components/HomePage/HomePage";
 import Login from "../../components/LoginPage/Login";
-import RegisterdPage from "../../components/LoginPage/RegisterdPage";
-import RootLayout from "../../components/layout/RootLayout";
+import RegisterPage from "../../components/LoginPage/RegisterPage";
 import PrivateRoute from "./privateRoute";
 import AdminPage from "../../components/Admin/AdminPage";
 import AboutUs from "../../components/HomePage/AboutUs";
@@ -19,6 +18,11 @@ import AdminOrderPage from "../../components/Admin/AdminOrderPage";
 import HealingDiaryPage from "../../components/HealingDiaryPage/HealingDiaryPage";
 import TrackOrdersPage from "../../components/TrackOrdersPage/TrackOrdersPage";
 import OTPVerificationPage from "../../components/LoginPage/OTPVerificationPage";
+import ForgotPasswordPage from "../../components/LoginPage/ForgotPasswordPage";
+import ResetPasswordPage from "../../components/LoginPage/ResetPasswordPage";
+import RootLayout from "../../components/Root/RootLayout";
+import AdminProductPage from "../../components/Admin/AdminProduct";
+import AdminCategoryPage from "../../components/Admin/AdminCategoryPage";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +32,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "login", element: <Login /> },
       { path: "write-letter", element: <WriteLetterPage /> },
-      { path: "registered", element: <RegisterdPage /> },
+      { path: "register", element: <RegisterPage /> },
       { path: "about-us", element: <AboutUs /> },
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
@@ -36,8 +40,10 @@ const router = createBrowserRouter([
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
+      { path: "forgot-password", element: <ForgotPasswordPage /> },
+      { path: "reset-password", element: <ResetPasswordPage /> },
       {
-        element: <PrivateRoute allowedRoles={["User", "Admin"]} />,
+        element: <PrivateRoute allowedRoles={["User", "admin"]} />,
         children: [
           { path: "podcast/:id", element: <PodcastDetail /> },
           { path: "podcast", element: <PodcastPage /> },
@@ -47,16 +53,22 @@ const router = createBrowserRouter([
   },
   {
     path: "/Admin",
-    element: <PrivateRoute allowedRoles={["Admin"]} />, // Thêm PrivateRoute protection
+    element: <PrivateRoute Route allowedRoles={["Admin"]} />, // Make sure this matches resolveUserRole output
     children: [
       {
         path: "",
         element: <AdminLayout />,
         children: [
-          { index: true, element: <AdminPage /> }, // /admin
-          { path: "postcard", element: <AdminPodcastPage /> }, // /admin/postcard
-          { path: "packages", element: <AdminServicePage /> }, // /admin/packages
-          { path: "orders", element: <AdminOrderPage /> }, // /admin/orders
+          { index: true, element: <AdminPage /> },
+          { path: "postcard", element: <AdminPodcastPage /> },
+          { path: "packages", element: <AdminServicePage /> },
+          { path: "orders", element: <AdminOrderPage /> },
+          { path: "podcast", element: <AdminPodcastPage /> },
+          { path: "products", element: <AdminProductPage /> },
+          {
+            path: "categories",
+            element: <AdminCategoryPage />,
+          },
         ],
       },
     ],

@@ -20,6 +20,7 @@ const AdminLayout = () => {
     { label: "Các Gói", to: "packages" },
     { label: "Sản Phẩm", to: "products" },
     { label: "Podcast", to: "podcast" },
+    { label: "Categories", to: "categories" },
   ];
 
   return (
