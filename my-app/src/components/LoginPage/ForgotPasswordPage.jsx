@@ -5,7 +5,10 @@ import { MailOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import background from "../../img/background.jpg";
-import { forgotPasswordRequest } from "../../redux/auth/forgotPassword/forgotPasswordSlice";
+import {
+  forgotPasswordRequest,
+  checkEmailExistsRequest,
+} from "../../redux/auth/forgotPassword/forgotPasswordSlice";
 
 export default function ForgotPasswordPage() {
   const dispatch = useDispatch();
@@ -15,16 +18,26 @@ export default function ForgotPasswordPage() {
   );
 
   const [form] = Form.useForm();
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const onFinish = (values) => {
+    setSubmittedEmail(values.email);
+
+    // Chỉ cần check email - API này sẽ gửi OTP luôn
     dispatch(
-      forgotPasswordRequest({
+      checkEmailExistsRequest({
         email: values.email,
         onSuccess: () => {
-          // Success handled by saga
+          // Email tồn tại và OTP đã được gửi, navigate đến trang OTP luôn
+          navigate("/otp-verification", {
+            state: {
+              email: values.email,
+              isFromForgotPassword: true,
+            },
+          });
         },
         onError: (error) => {
-          console.error("Forgot password error:", error);
+          console.error("Email check failed:", error);
         },
       })
     );
@@ -33,52 +46,6 @@ export default function ForgotPasswordPage() {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-
-  if (emailSent) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={background} alt="" className="w-full h-full object-cover" />
-        </div>
-
-        <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
-          <Result
-            status="success"
-            title={
-              <span className="text-white text-xl">Email đã được gửi!</span>
-            }
-            subTitle={
-              <span className="text-purple-200">
-                Chúng tôi đã gửi link khôi phục mật khẩu đến email của bạn. Vui
-                lòng kiểm tra hộp thư và làm theo hướng dẫn.
-              </span>
-            }
-            extra={[
-              <Button
-                key="back"
-                type="primary"
-                onClick={() => navigate("/login")}
-                className="!bg-purple-600 hover:!bg-purple-700 border-0"
-              >
-                Quay lại đăng nhập
-              </Button>,
-              <Button
-                key="resend"
-                type="text"
-                onClick={() => {
-                  form.submit();
-                }}
-                className="!text-white hover:!text-purple-300"
-                loading={loading}
-              >
-                Gửi lại email
-              </Button>,
-            ]}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
@@ -95,7 +62,7 @@ export default function ForgotPasswordPage() {
           </div>
           <h2 className="text-3xl font-bold mb-2">Quên mật khẩu?</h2>
           <p className="text-sm text-purple-200">
-            Nhập email của bạn và chúng tôi sẽ gửi link để đặt lại mật khẩu
+            Nhập email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu
           </p>
         </div>
 
@@ -119,6 +86,7 @@ export default function ForgotPasswordPage() {
               placeholder="Nhập email của bạn"
               className="bg-white/20 text-white placeholder-gray-300 border-white/30"
               size="large"
+              disabled={loading}
             />
           </Form.Item>
 
@@ -129,7 +97,7 @@ export default function ForgotPasswordPage() {
             </div>
           )}
 
-          {/* Send Email Button */}
+          {/* Submit Button */}
           <Form.Item>
             <Button
               type="primary"
@@ -137,7 +105,7 @@ export default function ForgotPasswordPage() {
               loading={loading}
               className="w-full rounded-full !bg-purple-600 hover:!bg-purple-700 h-12 text-lg font-semibold"
             >
-              Gửi email khôi phục
+              Gửi mã OTP
             </Button>
           </Form.Item>
 
@@ -148,6 +116,7 @@ export default function ForgotPasswordPage() {
               onClick={() => navigate("/login")}
               className="!text-white hover:!text-purple-300 !p-0 font-semibold"
               icon={<ArrowLeftOutlined />}
+              disabled={loading}
             >
               Quay lại đăng nhập
             </Button>
@@ -159,7 +128,7 @@ export default function ForgotPasswordPage() {
           <p className="text-xs text-purple-100 text-center">
             💡 Kiểm tra cả hộp thư spam nếu không thấy email
             <br />
-            Link khôi phục có hiệu lực trong 15 phút
+            Mã OTP có hiệu lực trong 5 phút
           </p>
         </div>
       </div>

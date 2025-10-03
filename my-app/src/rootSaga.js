@@ -7,6 +7,7 @@ import watchDeleteCartItem from "./redux/User/cartApi/deleteCartItem/deleteCartI
 import watchGetAllProduct from "./redux/User/product/fetchProduct/getAllProductSaga";
 import watchAddToCart from "./redux/User/product/postProductToCart/postProductToCartSaga";
 import watchForgotPassword, {
+  watchCheckEmailExists,
   watchResetPassword,
   watchVerifyResetToken,
 } from "./redux/auth/forgotPassword/forgotPasswordSaga";
@@ -20,6 +21,7 @@ import watchPostCategorySaga from "./redux/auth/admin/Categories/post_category/p
 import watchFetchCategorySaga from "./redux/auth/admin/Categories/fetch_category/fetchCategorySaga";
 import watchDeleteCategory from "./redux/auth/admin/Categories/delete_category/deleteCategorySaga";
 import watchUpdateCategory from "./redux/auth/admin/Categories/update_category/updateCategorySaga";
+
 export default function* rootSaga() {
   yield all([
     watchFetchLogin(),
@@ -34,6 +36,7 @@ export default function* rootSaga() {
     watchDeleteCartItem(),
     watchGetAllProduct(),
     watchAddToCart(),
+    watchCheckEmailExists(),
     watchForgotPassword(),
     watchVerifyResetToken(),
     watchResetPassword(),

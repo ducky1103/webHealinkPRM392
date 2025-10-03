@@ -1,3 +1,7 @@
+export const CHECK_EMAIL_EXISTS_REQUEST = "CHECK_EMAIL_EXISTS_REQUEST";
+export const CHECK_EMAIL_EXISTS_SUCCESS = "CHECK_EMAIL_EXISTS_SUCCESS";
+export const CHECK_EMAIL_EXISTS_FAIL = "CHECK_EMAIL_EXISTS_FAIL";
+
 export const FORGOT_PASSWORD_REQUEST = "FORGOT_PASSWORD_REQUEST";
 export const FORGOT_PASSWORD_SUCCESS = "FORGOT_PASSWORD_SUCCESS";
 export const FORGOT_PASSWORD_FAIL = "FORGOT_PASSWORD_FAIL";
@@ -11,6 +15,21 @@ export const VERIFY_RESET_TOKEN_SUCCESS = "VERIFY_RESET_TOKEN_SUCCESS";
 export const VERIFY_RESET_TOKEN_FAIL = "VERIFY_RESET_TOKEN_FAIL";
 
 // Action creators
+export const checkEmailExistsRequest = (data) => ({
+  type: CHECK_EMAIL_EXISTS_REQUEST,
+  payload: data,
+});
+
+export const checkEmailExistsSuccess = (data) => ({
+  type: CHECK_EMAIL_EXISTS_SUCCESS,
+  payload: data,
+});
+
+export const checkEmailExistsFail = (error) => ({
+  type: CHECK_EMAIL_EXISTS_FAIL,
+  payload: error,
+});
+
 export const forgotPasswordRequest = (data) => ({
   type: FORGOT_PASSWORD_REQUEST,
   payload: data,
@@ -60,6 +79,7 @@ const initialState = {
   loading: false,
   error: null,
   message: null,
+  emailExists: false,
   emailSent: false,
   tokenValid: false,
   resetSuccess: false,
@@ -67,6 +87,28 @@ const initialState = {
 
 const forgotPasswordReducer = (state = initialState, action) => {
   switch (action.type) {
+    case CHECK_EMAIL_EXISTS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        emailExists: false,
+      };
+    case CHECK_EMAIL_EXISTS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        emailExists: true,
+        error: null,
+      };
+    case CHECK_EMAIL_EXISTS_FAIL:
+      return {
+        ...state,
+        loading: false,
+        emailExists: false,
+        error: action.payload,
+      };
+
     case FORGOT_PASSWORD_REQUEST:
       return {
         ...state,

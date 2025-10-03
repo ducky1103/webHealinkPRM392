@@ -25,16 +25,28 @@ const API_BASE = (
 
 export function* fetchLogin(action) {
   try {
+    console.log("🔄 Login attempt with:", {
+      username: action.payload.username,
+      password: "***hidden***",
+    });
+
     const loginPayload = {
       username: action.payload.username,
-      passwordHash: parseInt(action.payload.password), // Convert to number
+      passwordHash: action.payload.password, // Không convert thành số nữa!
     };
+
+    console.log("📤 Login payload:", {
+      username: loginPayload.username,
+      passwordHash: "***hidden***",
+    });
 
     const response = yield call(
       axios.post,
       `${API_BASE}/auth/login`,
-      loginPayload // Gửi payload đã convert
+      loginPayload
     );
+
+    console.log("📡 Login response status:", response.status);
 
     const token = response.data?.token;
 
@@ -81,6 +93,8 @@ export function* fetchLogin(action) {
       throw new Error("No token received");
     }
   } catch (error) {
+    console.error("❌ Login error:", error);
+
     let errorMessage = "Đăng nhập thất bại!";
 
     // Check specific error messages
@@ -94,6 +108,10 @@ export function* fetchLogin(action) {
 
     yield put(fetchFail(errorMessage));
     toast.error(errorMessage);
+
+    if (action.payload.onError) {
+      action.payload.onError(error);
+    }
   }
 }
 

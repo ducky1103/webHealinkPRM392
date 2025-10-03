@@ -20,6 +20,7 @@ const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
   register: registerReducer,
+  //podcast
   postPodcast: postPostcardReducer,
   fetchPodcast: fetchPodcastReducer,
   updatePodcast: updatePodcastReducer,
