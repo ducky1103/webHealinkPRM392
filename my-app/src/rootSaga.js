@@ -9,6 +9,10 @@ import watchUpdateCartItem from "./redux/User/cartApi/updateCartItem/updateCartI
 import watchDeleteCartItem from "./redux/User/cartApi/deleteCartItem/deleteCartItemSaga";
 import watchGetAllProduct from "./redux/User/product/fetchProduct/getAllProductSaga";
 import watchAddToCart from "./redux/User/product/postProductToCart/postProductToCartSaga";
+import watchGetAllOrder from "./redux/User/order/fetchOrder/getAllOrderSaga";
+import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderItemSaga";
+import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
+import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
 export default function* rootSaga() {
   yield all([
     watchFetchLogin(),
@@ -22,5 +26,9 @@ export default function* rootSaga() {
     watchDeleteCartItem(),
     watchGetAllProduct(),
     watchAddToCart(),
+    watchGetAllOrder(),
+    watchGetAllOrderItem(),
+    watchGetOrderUser(),
+    watchCheckoutCart(),
   ]);
 }

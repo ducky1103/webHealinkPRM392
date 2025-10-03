@@ -8,6 +8,10 @@ import updateCartItemReducer from "./redux/User/cartApi/updateCartItem/updateCar
 import deleteCartItemReducer from "./redux/User/cartApi/deleteCartItem/deleteCartItemSlice";
 import getAllProductReducer from "./redux/User/product/fetchProduct/getAllProductSlice";
 import addToCartReducer from "./redux/User/product/postProductToCart/postProductToCartSlice";
+import getAllOrderReducer from "./redux/User/order/fetchOrder/getAllOrderSlice";
+import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrderItemSlice";
+import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
+import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
 import { combineReducers } from "@reduxjs/toolkit";
 const rootReducer = combineReducers({
   account: accountReducers,
@@ -20,6 +24,10 @@ const rootReducer = combineReducers({
   deleteCart: deleteCartItemReducer,
   fetchProduct: getAllProductReducer,
   addProduct: addToCartReducer,
+  order: getAllOrderReducer,
+  orderItem: getAllOrderItemReducer,
+  orderUser: getOrderUserReducer,
+  checkoutCart: checkoutCartReducer,
 });
 
 export default rootReducer;
