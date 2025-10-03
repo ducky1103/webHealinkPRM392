@@ -6,6 +6,10 @@ import updateCartItemReducer from "./redux/User/cartApi/updateCartItem/updateCar
 import deleteCartItemReducer from "./redux/User/cartApi/deleteCartItem/deleteCartItemSlice";
 import getAllProductReducer from "./redux/User/product/fetchProduct/getAllProductSlice";
 import addToCartReducer from "./redux/User/product/postProductToCart/postProductToCartSlice";
+import getAllOrderReducer from "./redux/User/order/fetchOrder/getAllOrderSlice";
+import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrderItemSlice";
+import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
+import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
@@ -29,6 +33,10 @@ const rootReducer = combineReducers({
   deleteCart: deleteCartItemReducer,
   fetchProduct: getAllProductReducer,
   addProduct: addToCartReducer,
+  order: getAllOrderReducer,
+  orderItem: getAllOrderItemReducer,
+  orderUser: getOrderUserReducer,
+  checkoutCart: checkoutCartReducer,
   postProduct: postProductReducer,
   //category
   fetchCategory: fetchCategoryReducer,
