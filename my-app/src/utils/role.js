@@ -3,9 +3,9 @@ export const resolveUserRole = (user) => {
 
   const role = user.role;
 
-  if (role === "ADMIN" || role === "Admin") {
+  if (role === "ADMIN" || role === "Admin" || role === "admin") {
     return "Admin";
-  } else if (role === "USER" || role === "User") {
+  } else if (role === "USER" || role === "User" || role === "user") {
     return "User";
   }
 

@@ -1,11 +1,13 @@
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, Typography } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import background from "../../img/background.jpg";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchLogin } from "../../redux/auth/authSlice";
 import { resolveUserRole } from "../../utils/role";
+
+const { Text } = Typography;
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -89,9 +91,12 @@ export default function Login() {
                 Remember me
               </Checkbox>
             </Form.Item>
-            <a href="#" className="text-sm hover:!text-purple-700 !text-white">
+            <Link
+              to="/forgot-password"
+              className="text-sm hover:!text-purple-300 !text-white transition-colors"
+            >
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           {/* Login Button */}
@@ -106,16 +111,18 @@ export default function Login() {
             </Button>
           </Form.Item>
 
-          {/* Register */}
-          <p className="text-center text-sm">
-            Don’t have an account?{" "}
-            <a
-              href="/registered"
-              className="font-bold hover:underline text-white"
-            >
-              Register
-            </a>
-          </p>
+          {/* Register Link - Fix màu đen */}
+          <div className="text-center mt-6">
+            <span className="text-white">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-purple-300 hover:text-white font-semibold"
+              >
+                Register now
+              </Link>
+            </span>
+          </div>
         </Form>
       </div>
     </div>

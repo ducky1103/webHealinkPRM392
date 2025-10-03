@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { postPostcardRequest } from "../../redux/auth/admin/post_postcard/postPoscastSlice";
-import { fetchPostcastRequest } from "../../redux/auth/admin/fetch_podcast/fetchPodcastSlice";
+
 import {
   Modal,
   Form,
@@ -15,6 +14,9 @@ import {
   Tag,
   Popconfirm,
   message,
+  Checkbox,
+  Row,
+  Col,
 } from "antd";
 import {
   PlusOutlined,
@@ -25,8 +27,11 @@ import {
   FileImageOutlined,
   SoundOutlined,
 } from "@ant-design/icons";
-import { deletePodcastRequest } from "../../redux/auth/admin/delete_podcast/deletePodcastSlice";
-import { updatePodcastRequest } from "../../redux/auth/admin/update_podcast/updatePodcastSlice";
+import { postPostcardRequest } from "../../redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
+import { deletePodcastRequest } from "../../redux/auth/admin/Podcast/delete_podcast/deletePodcastSlice";
+import { updatePodcastRequest } from "../../redux/auth/admin/Podcast/update_podcast/updatePodcastSlice";
+import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
+import { fetchCategoryRequest } from "../../redux/auth/admin/Categories/fetch_category/fetchCategorySlice";
 
 const { TextArea } = Input;
 const { Meta } = Card;
@@ -41,18 +46,26 @@ const categoryColors = {
 
 const AdminPodcastPage = () => {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.postPodcast);
+  const { loading, error, createdPodcast } = useSelector(
+    (state) => state.postPodcast
+  );
   const {
     loading: fetchLoading,
     error: fetchError,
     fetchPodcast: fetchedPodcasts,
   } = useSelector((state) => state.fetchPodcast);
-  const { loading: deleteLoading, error: deleteError } = useSelector(
-    (state) => state.deletePodcast
-  );
-  const { updateLoading, updateError } = useSelector(
+  const {
+    loading: deleteLoading,
+    error: deleteError,
+    deletedPodcastId,
+  } = useSelector((state) => state.deletePodcast);
+  const { updateLoading, updateError, updatedPodcast } = useSelector(
     (state) => state.updatePodcast
   );
+  const { fetchCategory: categories } = useSelector(
+    (state) => state.fetchCategory
+  );
+
   const [podcasts, setPodcasts] = useState([]);
   const [open, setOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
@@ -63,7 +76,8 @@ const AdminPodcastPage = () => {
 
   // Fetch podcasts on component mount
   useEffect(() => {
-    dispatch(fetchPostcastRequest());
+    dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    dispatch(fetchCategoryRequest());
   }, [dispatch]);
 
   // Update podcasts state when fetchedPodcasts changes
@@ -73,29 +87,69 @@ const AdminPodcastPage = () => {
     }
   }, [fetchedPodcasts]);
 
+  // Refetch after successful create
+  useEffect(() => {
+    if (createdPodcast) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [createdPodcast, dispatch]);
+
+  // Refetch after successful update
+  useEffect(() => {
+    if (updatedPodcast) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [updatedPodcast, dispatch]);
+
+  // Refetch after successful delete
+  useEffect(() => {
+    if (deletedPodcastId) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [deletedPodcastId, dispatch]);
+
   const handleAddPodcast = async () => {
     try {
       const values = await form.validateFields();
 
-      // Tạo FormData cho API upload
+      console.log("Form values:", values); // Debug
+
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
 
-      // Upload files nếu có
-      if (values.image?.fileList?.[0]?.originFileObj) {
-        formData.append("imageFile", values.image.fileList[0].originFileObj);
+      // Fix: Handle multiple categories from checkbox
+      if (values.categories && values.categories.length > 0) {
+        // Convert array to JSON string for FormData
+        formData.append("categoryIds", JSON.stringify(values.categories));
+      } else {
+        message.error("Vui lòng chọn ít nhất một thể loại!");
+        return;
       }
 
-      if (values.audio?.fileList?.[0]?.originFileObj) {
-        formData.append("file", values.audio.fileList[0].originFileObj);
+      // Validate files
+      if (!values.image?.fileList?.[0]?.originFileObj) {
+        message.error("Vui lòng chọn ảnh thumbnail!");
+        return;
+      }
+      if (!values.audio?.fileList?.[0]?.originFileObj) {
+        message.error("Vui lòng chọn file âm thanh!");
+        return;
+      }
+
+      formData.append("imageFile", values.image.fileList[0].originFileObj);
+      formData.append("file", values.audio.fileList[0].originFileObj);
+
+      // Debug FormData
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value instanceof File ? `File: ${value.name}` : value);
       }
 
       dispatch(postPostcardRequest(formData));
 
       form.resetFields();
       setOpen(false);
-      message.success("Đang upload podcast...");
     } catch (error) {
       message.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
       console.error("Validation Failed:", error);
@@ -103,6 +157,11 @@ const AdminPodcastPage = () => {
   };
 
   const handleDeletePodcast = (id) => {
+    if (!id) {
+      message.error("ID podcast không hợp lệ!");
+      return;
+    }
+
     dispatch(deletePodcastRequest(id));
   };
 
@@ -118,19 +177,25 @@ const AdminPodcastPage = () => {
     const audio = new Audio(audioUrl);
     audio
       .play()
-      .then(() => setCurrentAudio({ audio, url: audioUrl })) // Set the new audio as the current one
+      .then(() => setCurrentAudio({ audio, url: audioUrl }))
       .catch((error) => {
         message.error("Không thể phát âm thanh!");
       });
 
-    audio.onended = () => setCurrentAudio(null); // Reset when audio ends
+    audio.onended = () => setCurrentAudio(null);
   };
 
   const handleUpdatePodcast = (podcast) => {
     setSelectedPodcast(podcast);
+
+    // Fix: Set multiple categories for update
+    const selectedCategories = podcast.categories
+      ? podcast.categories.map((cat) => cat.id.toString())
+      : [];
+
     updateForm.setFieldsValue({
       title: podcast.title,
-      category: podcast.category,
+      categories: selectedCategories, // Change from category to categories
       description: podcast.description,
     });
     setUpdateOpen(true);
@@ -140,13 +205,18 @@ const AdminPodcastPage = () => {
     try {
       const values = await updateForm.validateFields();
 
+      console.log("Update values:", values); // Debug
+
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
-      if (values.category) {
-        formData.append("category", values.category);
+
+      // Handle multiple categories for update
+      if (values.categories && values.categories.length > 0) {
+        formData.append("categoryIds", JSON.stringify(values.categories));
       }
 
+      // Files are optional for update
       if (values.image?.fileList?.[0]?.originFileObj) {
         formData.append("imageFile", values.image.fileList[0].originFileObj);
       }
@@ -200,102 +270,129 @@ const AdminPodcastPage = () => {
           </div>
         </div>
 
-        {/* Podcast Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {podcasts.map((podcast) => (
-            <Card
-              key={podcast.id}
-              hoverable
-              className="rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
-              cover={
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    alt={podcast.title}
-                    src={podcast.imageUrl || "/fallback-image.jpg"}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <Tag
-                      color={categoryColors[podcast.category]}
-                      className="mb-2"
-                    >
-                      {podcast.category}
-                    </Tag>
-                  </div>
-                </div>
-              }
-              actions={[
-                <Button
-                  type="text"
-                  icon={
-                    currentAudio?.url === podcast.audioUrl ? (
-                      <PauseCircleOutlined />
-                    ) : (
-                      <PlayCircleOutlined />
-                    )
-                  } // Toggle icon based on current audio
-                  className="text-blue-600 hover:text-blue-800 border-0"
-                  onClick={() => handlePlayAudio(podcast.audioUrl)} // Play or pause audio
-                >
-                  {currentAudio?.url === podcast.audioUrl ? "Dừng" : "Phát"}{" "}
-                  {/* Toggle button text */}
-                </Button>,
-                <Button
-                  type="text"
-                  icon={<FileImageOutlined />}
-                  className="text-green-600 hover:text-green-800 border-0"
-                  onClick={() => handleUpdatePodcast(podcast)}
-                >
-                  Sửa
-                </Button>,
-                <Popconfirm
-                  title="Xóa podcast"
-                  description="Bạn có chắc chắn muốn xóa podcast này?"
-                  onConfirm={() => {
-                    console.log("Podcast object:", podcast); // Debug line
-                    console.log("Podcast ID:", podcast?.id, typeof podcast?.id); // Debug line
-                    handleDeletePodcast(podcast?.id);
-                  }}
-                  okText="Xóa"
-                  cancelText="Hủy"
-                  okButtonProps={{ danger: true }}
-                >
-                  <Button
-                    type="text"
-                    icon={<DeleteOutlined />}
-                    danger
-                    className="hover:bg-red-50"
-                  >
-                    Xóa
-                  </Button>
-                </Popconfirm>,
-              ]}
-            >
-              <Meta
-                title={
-                  <div className="text-lg font-semibold text-gray-800 mb-2 line-clamp-1">
-                    {podcast.title}
-                  </div>
-                }
-                description={
-                  <div className="space-y-3">
-                    <p className="text-gray-600 text-sm line-clamp-3">
-                      {podcast.description}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-1">
-                        <SoundOutlined />
-                        <span>{podcast.duration}</span>
-                      </div>
-                      <span>{podcast.createdAt}</span>
+        {/* Loading State */}
+        {fetchLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-500">Đang tải podcast...</p>
+            </div>
+          </div>
+        ) : podcasts.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="space-y-4">
+              <div className="text-6xl text-gray-300">🎧</div>
+              <h3 className="text-xl font-semibold text-gray-600">
+                Chưa có podcast nào
+              </h3>
+              <p className="text-gray-500">Hãy tạo podcast đầu tiên của bạn!</p>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 border-0"
+              >
+                Tạo Podcast Mới
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {podcasts.map((podcast) => (
+              <Card
+                key={podcast.id}
+                hoverable
+                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white"
+                cover={
+                  <div className="relative h-52 overflow-hidden">
+                    <img
+                      alt={podcast.title}
+                      src={
+                        podcast.imageUrl ||
+                        "https://via.placeholder.com/400x300?text=No+Image"
+                      }
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    <div className="absolute top-3 left-3">
+                      <Tag
+                        color={categoryColors[podcast.category] || "default"}
+                        className="px-3 py-1 rounded-full text-xs font-medium border-0 shadow-sm"
+                      >
+                        {podcast.category}
+                      </Tag>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+                        {podcast.title}
+                      </h3>
                     </div>
                   </div>
                 }
-              />
-            </Card>
-          ))}
-        </div>
+                bodyStyle={{ padding: "16px" }}
+              >
+                <div className="space-y-3">
+                  <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                    {podcast.description}
+                  </p>
+
+                  <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                    <div className="flex items-center space-x-1">
+                      <SoundOutlined className="text-blue-500" />
+                      <span>{podcast.duration || "N/A"}</span>
+                    </div>
+                    <span>
+                      {new Date(podcast.createdAt).toLocaleDateString("vi-VN")}
+                    </span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between pt-3 space-x-2">
+                    <Button
+                      type="text"
+                      icon={
+                        currentAudio?.url === podcast.audioUrl ? (
+                          <PauseCircleOutlined />
+                        ) : (
+                          <PlayCircleOutlined />
+                        )
+                      }
+                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-0 flex-1"
+                      onClick={() => handlePlayAudio(podcast.audioUrl)}
+                    >
+                      {currentAudio?.url === podcast.audioUrl ? "Dừng" : "Phát"}
+                    </Button>
+                    <Button
+                      type="text"
+                      icon={<FileImageOutlined />}
+                      className="text-green-600 hover:text-green-800 hover:bg-green-50 border-0"
+                      onClick={() => handleUpdatePodcast(podcast)}
+                    >
+                      Sửa
+                    </Button>
+                    <Popconfirm
+                      title="Xóa podcast"
+                      description="Bạn có chắc chắn muốn xóa podcast này?"
+                      onConfirm={() => handleDeletePodcast(podcast?.id)}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        danger
+                        className="hover:bg-red-50 border-0"
+                      >
+                        Xóa
+                      </Button>
+                    </Popconfirm>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Modal for Adding Podcast */}
         <Modal
@@ -325,17 +422,34 @@ const AdminPodcastPage = () => {
             </Form.Item>
 
             <Form.Item
-              name="category"
+              name="categories"
               label="Thể loại"
-              rules={[{ required: true, message: "Vui lòng chọn thể loại" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn ít nhất một thể loại",
+                  type: "array",
+                  min: 1,
+                },
+              ]}
             >
-              <Select placeholder="Chọn thể loại">
-                <Select.Option value="Healing">Healing</Select.Option>
-                <Select.Option value="Giáo dục">Giáo dục</Select.Option>
-                <Select.Option value="Âm nhạc">Âm nhạc</Select.Option>
-                <Select.Option value="Tin tức">Tin tức</Select.Option>
-                <Select.Option value="Sức khỏe">Sức khỏe</Select.Option>
-              </Select>
+              <Checkbox.Group style={{ width: "100%" }}>
+                <Row gutter={[16, 8]}>
+                  {/* Dynamic categories from API */}
+                  {Array.isArray(categories) &&
+                    categories.length > 0 &&
+                    categories.map((cat) => (
+                      <Col span={12} key={cat.id}>
+                        <Checkbox
+                          value={cat.id.toString()}
+                          className="w-full p-2 border rounded hover:bg-blue-50"
+                        >
+                          <span className="ml-2">{cat.name}</span>
+                        </Checkbox>
+                      </Col>
+                    ))}
+                </Row>
+              </Checkbox.Group>
             </Form.Item>
 
             <Form.Item
@@ -401,17 +515,34 @@ const AdminPodcastPage = () => {
             </Form.Item>
 
             <Form.Item
-              name="category"
+              name="categories"
               label="Thể loại"
-              rules={[{ required: true, message: "Vui lòng chọn thể loại" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn ít nhất một thể loại",
+                  type: "array",
+                  min: 1,
+                },
+              ]}
             >
-              <Select placeholder="Chọn thể loại">
-                <Select.Option value="Healing">Healing</Select.Option>
-                <Select.Option value="Giáo dục">Giáo dục</Select.Option>
-                <Select.Option value="Âm nhạc">Âm nhạc</Select.Option>
-                <Select.Option value="Tin tức">Tin tức</Select.Option>
-                <Select.Option value="Sức khỏe">Sức khỏe</Select.Option>
-              </Select>
+              <Checkbox.Group style={{ width: "100%" }}>
+                <Row gutter={[16, 8]}>
+                  {/* Dynamic categories from API */}
+                  {Array.isArray(categories) &&
+                    categories.length > 0 &&
+                    categories.map((cat) => (
+                      <Col span={12} key={`update-${cat.id}`}>
+                        <Checkbox
+                          value={cat.id.toString()}
+                          className="w-full p-2 border rounded hover:bg-blue-50"
+                        >
+                          <span className="ml-2">{cat.name}</span>
+                        </Checkbox>
+                      </Col>
+                    ))}
+                </Row>
+              </Checkbox.Group>
             </Form.Item>
 
             <Form.Item

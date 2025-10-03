@@ -33,11 +33,19 @@ const CheckoutPage = () => {
   const orderList = orderUser?.content || [];
   const allItems = orderList.flatMap((order) => order.items || []);
 
-  // ✅ Tổng tiền
-  const totalAmount = orderList.reduce(
-    (sum, order) => sum + (order.totalAmount || 0),
+  // ✅ Tổng tiền = tính lại từ từng item
+  const totalAmount = allItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
     0
   );
+
+  // Format price for display
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
 
   // ✅ View detail
   const handleViewDetail = (itemId) => {
@@ -114,7 +122,7 @@ const CheckoutPage = () => {
                         {item.product.name}
                       </h3>
                       <p className="text-sm text-slate-600">
-                        Giá: {item.product.price.toLocaleString()} VND
+                        Giá: {formatPrice(item.product.price)}
                       </p>
                       <p className="text-sm text-slate-600">
                         Số lượng: {item.quantity}
@@ -132,13 +140,13 @@ const CheckoutPage = () => {
 
                 <div className="border-t pt-4">
                   <p className="text-sm text-slate-600">
-                    Tạm tính: {totalAmount.toLocaleString()} VND
+                    Tạm tính: {formatPrice(totalAmount)}
                   </p>
                   <p className="text-sm text-slate-600">
-                    Phí vận chuyển: 15,000 VND
+                    Phí vận chuyển: {formatPrice(15000)}
                   </p>
                   <p className="text-sm font-semibold text-slate-800">
-                    Tổng cộng: {(totalAmount + 15000).toLocaleString()} VND
+                    Tổng cộng: {formatPrice(totalAmount + 15000)}
                   </p>
                 </div>
 
@@ -173,7 +181,7 @@ const CheckoutPage = () => {
             />
             <h3 className="text-lg font-semibold">{orderItem.product.name}</h3>
             <p>Mô tả: {orderItem.product.description}</p>
-            <p>Giá: {orderItem.product.price.toLocaleString()} VND</p>
+            <p>Giá: {orderItem.product.price.toLocaleString("vi-VN")} đ</p>
             <p>Số lượng: {orderItem.quantity}</p>
             <p>Còn trong kho: {orderItem.product.stockQuantity}</p>
           </div>
