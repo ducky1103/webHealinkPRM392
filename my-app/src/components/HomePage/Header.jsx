@@ -1,164 +1,256 @@
-import React, { useEffect } from "react";
-import logo from "../../img/logo.jpg";
-import { useMemo, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { logoutRequest } from "../../redux/auth/authSlice";
 import { getDisplayName } from "../../utils/role";
-import { toast } from "react-toastify";
+import logo from "../../img/logo.jpg";
+import { Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
+
 function Header() {
   const { user } = useSelector((state) => state.account);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div>
-      <header className="sticky top-0 z-40 bg-[#5C4033]/95 backdrop-blur border-b border-[#d38245] transition-all duration-500 ">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="h-16 flex items-center justify-between">
-            <a
-              href="/"
-              className="flex items-center gap-2 font-extrabold hover:scale-105 transition-transform duration-500"
-            >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#8B5E3C] text-white shadow-md">
-                <img src={logo} alt="" />
-              </span>
-              <span className="text-white">Healink</span>
-            </a>
-            <nav className="hidden md:flex items-center gap-6 text-sm text-white">
-              <a
-                href="/"
-                className="hover:text-amber-200 transition-colors duration-300"
-              >
-                Trang chủ
-              </a>
-              <a
-                href="/podcast"
-                className="hover:text-amber-200 transition-colors duration-300"
-              >
-                Podcast
-              </a>
-              <a
-                href="/about-us"
-                className="hover:text-amber-200 transition-colors duration-300"
-              >
-                Về chúng tôi
-              </a>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[#BFAC82]/95 backdrop-blur-md shadow-lg border-b border-[#d38245]"
+          : "bg-[#BFAC82]/80 backdrop-blur-sm"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
+          <Logo />
 
-              <a
-                href="/store"
-                className="hover:text-amber-200 transition-colors duration-300"
-              >
-                Cửa hàng
-              </a>
-              <a
-                href="/cart"
-                className="hover:text-amber-200 transition-colors duration-300"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (!user) {
-                    toast.error("Vui lòng đăng nhập để xem giỏ hàng 🛒");
-                    return;
-                  } else {
-                    window.location.href = "/cart";
-                  }
-                }}
-              >
-                Giỏ hàng
-              </a>
-            </nav>
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-8 text-sm text-white">
+            <LinkItem href="/" label="Trang chủ" />
+            <LinkItem href="/podcast" label="Podcast" />
+            <LinkItem href="/about-us" label="Về chúng tôi" />
+            <LinkItem href="/store" label="Cửa hàng" />
+            <CartButton user={user} />
+          </nav>
 
+          {/* User menu + Mobile button */}
+          <div className="flex items-center gap-3">
             <UserMenu />
+            <button
+              className="md:hidden p-2 rounded-xl hover:bg-[#8B5E3C]/30 transition"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-white" />
+              ) : (
+                <Menu className="w-6 h-6 text-white" />
+              )}
+            </button>
           </div>
         </div>
-      </header>
-    </div>
+      </div>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-[#BFAC82]/95 backdrop-blur-md text-white border-t border-[#d38245]">
+          <div className="flex flex-col space-y-2 py-4 px-4">
+            <LinkItem
+              href="/"
+              label="Trang chủ"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <LinkItem
+              href="/podcast"
+              label="Podcast"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <LinkItem
+              href="/about-us"
+              label="Về chúng tôi"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <LinkItem
+              href="/store"
+              label="Cửa hàng"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <CartButton user={user} onClick={() => setMobileMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
 
 export default Header;
+
+function Logo() {
+  return (
+    <a href="/" className="flex items-center gap-2 group">
+      <div className="relative h-10 w-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#8B5E3C] to-[#d38245] rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition" />
+        <div className="relative h-10 w-10 rounded-xl bg-gradient-to-br from-[#8B5E3C] to-[#d38245] flex items-center justify-center text-white font-bold shadow-md">
+          <img
+            src={logo}
+            alt="Healink"
+            className="h-8 w-8 rounded-md object-cover"
+          />
+        </div>
+      </div>
+      <span className="text-xl font-bold bg-gradient-to-r from-white to-amber-100 bg-clip-text text-transparent">
+        Healink
+      </span>
+    </a>
+  );
+}
+
+function LinkItem({ href, label, onClick }) {
+  return (
+    <a
+      href={href}
+      onClick={onClick}
+      className="relative text-sm font-semibold transition-all duration-300 hover:text-amber-200 group"
+    >
+      {label}
+      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-300 transition-all duration-300 group-hover:w-full" />
+    </a>
+  );
+}
+
+function CartButton({ user, onClick }) {
+  const handleClick = (e) => {
+    if (!user) {
+      e.preventDefault();
+      toast.error("Vui lòng đăng nhập để xem giỏ hàng 🛒");
+    } else {
+      window.location.href = "/cart";
+    }
+  };
+
+  return (
+    <a
+      href="/cart"
+      onClick={(e) => {
+        handleClick(e);
+        onClick?.();
+      }}
+      className="relative flex items-center p-2 rounded-xl hover:bg-[#8B5E3C]/40 transition"
+    >
+      <ShoppingCart className="w-5 h-5 text-white" />
+      <span className="absolute -top-1 -right-1 bg-gradient-to-br from-[#d38245] to-[#8B5E3C] text-xs font-bold text-white rounded-full h-4 w-4 flex items-center justify-center shadow-md">
+        0
+      </span>
+    </a>
+  );
+}
+
 function UserMenu() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.account);
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const displayName = useMemo(() => getDisplayName(user), [user]);
 
   useEffect(() => {
-    function onDocClick(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target))
         setOpen(false);
-      }
-    }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const displayName = useMemo(() => getDisplayName(user), [user]);
 
   if (!user) {
     return (
-      <div className="hidden sm:flex items-center gap-3">
-        <a
-          href="/login"
-          className="inline-flex items-center rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800 transition-all duration-500 hover:scale-105 shadow-md"
-        >
-          Tài khoản
-        </a>
-      </div>
+      <a
+        href="/login"
+        className="hidden md:flex px-5 py-2.5 bg-[#8B5E3C] text-white font-semibold rounded-xl hover:bg-[#704a2f] transition-all duration-300 shadow-md"
+      >
+        Đăng nhập
+      </a>
     );
   }
 
   return (
-    <div className="hidden sm:flex items-center gap-3 relative" ref={menuRef}>
+    <div className="relative hidden md:block" ref={menuRef}>
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-semibold hover:bg-slate-800 transition-all duration-300 shadow-md"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-all duration-300 shadow-md"
       >
-        {displayName}
-        <svg className="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
-        </svg>
+        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#d38245] to-[#8B5E3C] flex items-center justify-center text-white font-semibold">
+          {displayName?.[0] || "U"}
+        </div>
+        <span className="truncate max-w-[120px]">{displayName}</span>
+        <ChevronDown
+          className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
+
       {open && (
-        <div className="absolute right-0 top-12 w-44 rounded-xl border border-slate-200 bg-white shadow-lg py-2 z-50">
-          <Link
-            to="/registered"
-            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            Profile
-          </Link>
-          <Link
-            to="/write-letter"
-            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            Viết thư cho tương lai
-          </Link>
-          <Link
-            to="/healing-diary"
-            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            Viết nhật ký chữa lành
-          </Link>
-          <Link
-            to="/track-orders"
-            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            Theo dõi đơn hàng
-          </Link>
-          <button
-            className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-            onClick={() => {
-              setOpen(false);
-              dispatch(logoutRequest());
-              navigate("/login");
-            }}
-          >
-            Logout
-          </button>
+        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden animate-fadeIn border border-slate-200">
+          <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 border-b border-slate-100">
+            <p className="font-semibold text-slate-800 truncate">
+              {displayName}
+            </p>
+            <p className="text-sm text-slate-600 truncate">{user?.email}</p>
+          </div>
+
+          <div className="py-2">
+            <MenuLink
+              to="/registered"
+              label="Hồ sơ"
+              onClick={() => setOpen(false)}
+            />
+            <MenuLink
+              to="/write-letter"
+              label="Viết thư cho tương lai"
+              onClick={() => setOpen(false)}
+            />
+            <MenuLink
+              to="/healing-diary"
+              label="Nhật ký chữa lành"
+              onClick={() => setOpen(false)}
+            />
+            <MenuLink
+              to="/track-orders"
+              label="Theo dõi đơn hàng"
+              onClick={() => setOpen(false)}
+            />
+          </div>
+
+          <div className="border-t border-slate-100 p-2">
+            <button
+              onClick={() => {
+                setOpen(false);
+                dispatch(logoutRequest());
+                navigate("/login");
+              }}
+              className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 font-medium text-sm"
+            >
+              Đăng xuất
+            </button>
+          </div>
         </div>
       )}
     </div>
+  );
+}
+
+function MenuLink({ to, label, onClick }) {
+  return (
+    <Link
+      to={to}
+      className="block px-4 py-2 text-slate-700 hover:bg-amber-50 transition-colors duration-200 text-sm font-medium"
+      onClick={onClick}
+    >
+      {label}
+    </Link>
   );
 }

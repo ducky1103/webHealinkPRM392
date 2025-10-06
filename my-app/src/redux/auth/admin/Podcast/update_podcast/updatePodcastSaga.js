@@ -1,78 +1,112 @@
 import axios from "axios";
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import toast from "react-hot-toast";
-import { updatePodcastFail, updatePodcastSuccess } from "./updatePodcastSlice";
+import {
+  UPDATE_PODCAST_REQUEST,
+  updatePodcastFail,
+  updatePodcastSuccess,
+} from "./updatePodcastSlice";
 import { fetchPodcastSuccess } from "../fetch_podcast/fetchPodcastSlice";
 
-function* updatePodcastSaga(action) {
-  const URL_API = import.meta.env.VITE_API_URL;
+const URL_API = import.meta.env.VITE_API_URL;
 
+function* updatePodcastSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
     const { id, updateData } = action.payload;
 
-    const response = yield call(
-      axios.put,
-      `${URL_API}/podcasts/${id}`,
-      updateData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+    console.log("Updating podcast:", { id, updateData }); // Debug log
+
+    // Fix: Extract categoryIds from FormData (same as post)
+    let categoryIds = [];
+    for (let [key, value] of updateData.entries()) {
+      if (key === "categoryIds") {
+        try {
+          categoryIds = JSON.parse(value); // Parse JSON array
+        } catch {
+          categoryIds = [value]; // Fallback: single value
+        }
+        updateData.delete("categoryIds"); // Remove from body
+        break;
       }
-    );
+    }
 
-    if (response.status === 200) {
+    console.log("Extracted categoryIds:", categoryIds); // Debug log
+
+    if (!categoryIds.length) {
+      throw new Error("Bạn phải chọn ít nhất một danh mục (category).");
+    }
+
+    // Fix: Build URL with query params (same as post)
+    const params = new URLSearchParams();
+    categoryIds.forEach((id) => params.append("categoryIds", id));
+    const url = `${URL_API}/podcasts/${id}?${params.toString()}`;
+
+    console.log("Update URL:", url); // Debug log
+
+    // Debug FormData contents
+    console.log("FormData contents:");
+    for (let [key, value] of updateData.entries()) {
+      console.log(key, value instanceof File ? `File: ${value.name}` : value);
+    }
+
+    const response = yield call(axios.put, url, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 30000, // Avoid hanging requests
+    });
+
+    console.log("Update response:", response); // Debug log
+
+    if ([200, 201].includes(response.status)) {
       yield put(updatePodcastSuccess(response.data));
-      const page = action.payload?.page || 1;
-      const size = action.payload?.size || 100;
+      toast.success("Cập nhật podcast thành công!");
 
-      const apiUrl = `${URL_API}/podcasts?page=${page}&size=${size}`;
+      // Refetch podcasts
+      const page = 1;
+      const size = 100;
+      const fetchUrl = `${URL_API}/podcasts?page=${page}&size=${size}`;
 
-      const fetch = yield call(axios.get, apiUrl, {
+      const fetchResponse = yield call(axios.get, fetchUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.status === 200) {
-        // Extract content from paginated response
-        const podcasts = fetch.data.content || fetch.data;
+      if (fetchResponse.status === 200) {
+        const podcasts = fetchResponse.data.content || fetchResponse.data;
         yield put(fetchPodcastSuccess(podcasts));
-        toast.success("Cập nhật podcast thành công!");
       }
     } else {
-      yield put(updatePodcastFail("Failed to update podcast"));
+      throw new Error("Cập nhật podcast thất bại!");
     }
   } catch (error) {
-    let errorMessage = "Có lỗi xảy ra khi cập nhật podcast";
+    console.error("❌ Update Podcast Error:", error);
 
-    if (error.response) {
-      const status = error.response.status;
-      const serverMessage = error.response.data;
+    let errorMessage = "Lỗi không xác định";
 
-      if (status === 400) {
-        errorMessage =
-          typeof serverMessage === "string"
-            ? serverMessage
-            : "Dữ liệu không hợp lệ";
-      } else if (status === 401) {
-        errorMessage = "Không có quyền truy cập. Vui lòng đăng nhập lại.";
-      } else if (status === 403) {
-        errorMessage = "Bạn không có quyền thực hiện hành động này.";
-      } else if (status === 404) {
-        errorMessage = "Không tìm thấy podcast.";
-      }
+    if (error.code === "ERR_NETWORK") {
+      errorMessage = "Lỗi mạng - Không thể kết nối server.";
+    } else if (error.response) {
+      errorMessage =
+        error.response.data?.message ||
+        error.response.data ||
+        `HTTP ${error.response.status}: ${error.response.statusText}`;
+    } else if (error.request) {
+      errorMessage = "CORS error - Server không cho phép request.";
+    } else {
+      errorMessage = error.message;
     }
 
-    yield put(updatePodcastFail(error.response?.data || error.message));
-    toast.error(errorMessage);
+    yield put(updatePodcastFail(errorMessage));
+    toast.error(`Lỗi cập nhật podcast: ${errorMessage}`);
   }
 }
 
 function* watchUpdatePodcast() {
-  yield takeLatest("UPDATE_PODCAST_REQUEST", updatePodcastSaga);
+  yield takeLatest(UPDATE_PODCAST_REQUEST, updatePodcastSaga);
 }
 
 export default watchUpdatePodcast;

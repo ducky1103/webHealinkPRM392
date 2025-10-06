@@ -97,6 +97,7 @@ const AdminPodcastPage = () => {
   // Refetch after successful update
   useEffect(() => {
     if (updatedPodcast) {
+      console.log("Podcast updated successfully:", updatedPodcast);
       dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
     }
   }, [updatedPodcast, dispatch]);
@@ -211,9 +212,12 @@ const AdminPodcastPage = () => {
       formData.append("title", values.title);
       formData.append("description", values.description);
 
-      // Handle multiple categories for update
+      // Fix: Handle multiple categories for update (same as post)
       if (values.categories && values.categories.length > 0) {
         formData.append("categoryIds", JSON.stringify(values.categories));
+      } else {
+        message.error("Vui lòng chọn ít nhất một thể loại!");
+        return;
       }
 
       // Files are optional for update
@@ -225,6 +229,12 @@ const AdminPodcastPage = () => {
         formData.append("file", values.audio.fileList[0].originFileObj);
       }
 
+      // Debug FormData
+      console.log("Update FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value instanceof File ? `File: ${value.name}` : value);
+      }
+
       dispatch(
         updatePodcastRequest({ id: selectedPodcast.id, updateData: formData })
       );
@@ -234,7 +244,7 @@ const AdminPodcastPage = () => {
       setSelectedPodcast(null);
     } catch (error) {
       message.error("Vui lòng điền đầy đủ thông tin!");
-      console.log(error);
+      console.error("Update validation error:", error);
     }
   };
 

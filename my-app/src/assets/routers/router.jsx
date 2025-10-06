@@ -40,6 +40,7 @@ const router = createBrowserRouter([
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
+      { path: "otp-verification", element: <OTPVerificationPage /> }, // Thêm route này
       { path: "forgot-password", element: <ForgotPasswordPage /> },
       { path: "reset-password", element: <ResetPasswordPage /> },
       {
@@ -53,7 +54,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/Admin",
-    element: <PrivateRoute Route allowedRoles={["Admin"]} />, // Make sure this matches resolveUserRole output
+    element: <PrivateRoute Route allowedRoles={["Admin"]} />,
     children: [
       {
         path: "",

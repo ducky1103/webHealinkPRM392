@@ -6,7 +6,6 @@ import {
   getAllProductSuccess,
   getAllProductFail,
 } from "./getAllProductSlice";
-import { toast } from "react-toastify";
 
 const URL_API = import.meta.env.VITE_API_URL;
 function* getAllProductSaga(action) {
@@ -24,7 +23,6 @@ function* getAllProductSaga(action) {
     });
     if (response.status === 200 || response.status === 201) {
       yield put(getAllProductSuccess(response.data));
-      console.log(response.data);
     } else {
       yield put(getAllProductFail(response.status));
     }
@@ -32,7 +30,6 @@ function* getAllProductSaga(action) {
     yield put(
       getAllProductFail(error.response?.data?.message || error.message)
     );
-    console.log(error.response?.data?.message || error.message);
   }
 }
 function* watchGetAllProduct() {
