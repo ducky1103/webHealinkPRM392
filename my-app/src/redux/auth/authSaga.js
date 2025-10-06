@@ -32,13 +32,8 @@ export function* fetchLogin(action) {
 
     const loginPayload = {
       username: action.payload.username,
-      passwordHash: action.payload.password, // Không convert thành số nữa!
+      passwordHash: action.payload.password,
     };
-
-    console.log("📤 Login payload:", {
-      username: loginPayload.username,
-      passwordHash: "***hidden***",
-    });
 
     const response = yield call(
       axios.post,

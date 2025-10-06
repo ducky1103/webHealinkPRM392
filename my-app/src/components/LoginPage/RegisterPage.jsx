@@ -6,11 +6,10 @@ import {
   MailOutlined,
   LockOutlined,
   PhoneOutlined,
-  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import background from "../../img/background.jpg";
+import background from "../../img/bg3.webp";
 import { registerRequest } from "../../redux/auth/register/registerSlice";
 
 const { Title, Text } = Typography;
@@ -22,19 +21,15 @@ export default function RegisterPage() {
 
   const [form] = Form.useForm();
 
-  // Reset register state when component mounts
   useEffect(() => {
     dispatch({ type: "RESET_REGISTER_STATE" });
   }, [dispatch]);
 
-  // Handle successful registration
   useEffect(() => {
     if (success) {
-      // Auto navigate to login after 2 seconds
       const timer = setTimeout(() => {
         navigate("/login");
       }, 2000);
-
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
@@ -64,12 +59,16 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={background} alt="" />
+          <img
+            src={background}
+            alt=""
+            className="w-full h-full object-cover opacity-60"
+          />
         </div>
 
-        <Card className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl">
+        <Card className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
           <div className="text-center">
             <div className="mb-4">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -99,7 +98,7 @@ export default function RegisterPage() {
             <Button
               type="primary"
               onClick={() => navigate("/login")}
-              className="w-full rounded-full !bg-purple-600 hover:!bg-purple-700"
+              className="w-full rounded-full !bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !h-12 border-0 shadow-lg"
             >
               Đến trang đăng nhập ngay
             </Button>
@@ -110,15 +109,18 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
       <div className="absolute inset-0">
-        <img src={background} alt="" />
+        <img
+          src={background}
+          alt=""
+          className="w-full h-full object-cover opacity-60"
+        />
       </div>
 
-      {/* Register Card - Same style as Login */}
-      <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
-        <h2 className="text-3xl font-bold text-center mb-6 text-white">
-          Register
+      <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
+        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+          Đăng ký
         </h2>
 
         <Form
@@ -129,140 +131,137 @@ export default function RegisterPage() {
           onFinishFailed={onFinishFailed}
           layout="vertical"
         >
-          {/* Full Name */}
           <Form.Item
             name="fullName"
             rules={[
-              { required: true, message: "⚠ Please input your Full Name!" },
-              { min: 2, message: "Full name must be at least 2 characters!" },
+              { required: true, message: "⚠ Vui lòng nhập họ tên!" },
+              { min: 2, message: "Họ tên phải có ít nhất 2 ký tự!" },
             ]}
           >
             <Input
-              prefix={<UserOutlined />}
-              placeholder="Full Name"
+              prefix={<UserOutlined className="text-gray-400" />}
+              placeholder="Họ và tên"
               autoComplete="name"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Username */}
           <Form.Item
             name="username"
             rules={[
-              { required: true, message: "⚠ Please input your Username!" },
-              { min: 3, message: "Username must be at least 3 characters!" },
+              { required: true, message: "⚠ Vui lòng nhập tên đăng nhập!" },
+              { min: 3, message: "Tên đăng nhập phải có ít nhất 3 ký tự!" },
               {
                 pattern: /^[a-zA-Z0-9_]+$/,
-                message:
-                  "Username can only contain letters, numbers and underscore!",
+                message: "Tên đăng nhập chỉ chứa chữ, số và gạch dưới!",
               },
             ]}
           >
             <Input
-              prefix={<UserOutlined />}
-              placeholder="Username"
+              prefix={<UserOutlined className="text-gray-400" />}
+              placeholder="Tên đăng nhập"
               autoComplete="username"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Email */}
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: "⚠ Please input your Email!" },
-              { type: "email", message: "Please enter a valid email!" },
+              { required: true, message: "⚠ Vui lòng nhập email!" },
+              { type: "email", message: "Email không hợp lệ!" },
             ]}
           >
             <Input
-              prefix={<MailOutlined />}
+              prefix={<MailOutlined className="text-gray-400" />}
               placeholder="Email"
               autoComplete="email"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Phone Number */}
           <Form.Item
             name="phoneNumber"
             rules={[
-              { required: true, message: "⚠ Please input your Phone Number!" },
+              { required: true, message: "⚠ Vui lòng nhập số điện thoại!" },
               {
                 pattern: /^(84|0[3|5|7|8|9])+([0-9]{8})$/,
-                message:
-                  "Invalid phone number! (Ex: 0987654321 or 84987654321)",
+                message: "Số điện thoại không hợp lệ! (VD: 0987654321)",
               },
             ]}
           >
             <Input
-              prefix={<PhoneOutlined />}
-              placeholder="Phone Number (Ex: 0987654321)"
+              prefix={<PhoneOutlined className="text-gray-400" />}
+              placeholder="Số điện thoại (VD: 0987654321)"
               autoComplete="tel"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Password */}
           <Form.Item
             name="password"
             rules={[
-              { required: true, message: "⚠ Please input your Password!" },
-              { min: 6, message: "Password must be at least 6 characters!" },
+              { required: true, message: "⚠ Vui lòng nhập mật khẩu!" },
+              { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Password"
+              prefix={<LockOutlined className="text-gray-400" />}
+              placeholder="Mật khẩu"
               autoComplete="new-password"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Confirm Password */}
           <Form.Item
             name="confirmPassword"
             dependencies={["password"]}
             rules={[
-              { required: true, message: "⚠ Please confirm your Password!" },
+              { required: true, message: "⚠ Vui lòng xác nhận mật khẩu!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Passwords do not match!"));
+                  return Promise.reject(new Error("Mật khẩu không khớp!"));
                 },
               }),
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Confirm Password"
+              prefix={<LockOutlined className="text-gray-400" />}
+              placeholder="Xác nhận mật khẩu"
               autoComplete="new-password"
-              className="bg-transparent text-white placeholder-gray-300"
+              size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Register Button */}
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
               loading={loading}
-              className="w-full rounded-full !bg-purple-600 hover:!bg-purple-700"
+              size="large"
+              className="w-full rounded-full !bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !h-12 !text-base font-semibold shadow-lg hover:shadow-xl transition-all border-0"
             >
-              {loading ? "Creating Account..." : "Register"}
+              {loading ? "Đang tạo tài khoản..." : "Đăng ký"}
             </Button>
           </Form.Item>
 
-          {/* Login Link */}
           <div className="text-center mt-6">
-            <span className="text-purple-200">
-              Already have an account?{" "}
+            <span className="text-gray-600">
+              Đã có tài khoản?{" "}
               <Link
                 to="/login"
-                className="text-purple-300 hover:text-white font-semibold"
+                className="text-orange-600 hover:text-orange-700 font-semibold transition-colors"
               >
-                Login now
+                Đăng nhập ngay
               </Link>
             </span>
           </div>

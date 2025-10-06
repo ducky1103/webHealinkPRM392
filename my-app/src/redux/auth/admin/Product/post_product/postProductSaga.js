@@ -7,7 +7,6 @@ import {
   productPostSucess,
 } from "./postProductSlice";
 import axios from "axios";
-import { getAllProductSuccess } from "../../../../User/product/fetchProduct/getAllProductSlice";
 
 const URL_API = import.meta.env.VITE_API_URL;
 
@@ -23,21 +22,8 @@ function* postProductSaga(action) {
     });
     if (response.status === 200) {
       yield put(productPostSucess(response.data));
+      console.log("✅ Post product success:", response.data);
       toast.success("Post product successfully");
-      const fetchfetch = yield call(axios.get, `${URL_API}/products`, {
-        params: {
-          page: action.payload.page,
-          size: action.payload.size,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (fetchfetch.status === 200 || fetchfetch.status === 201) {
-        yield put(getAllProductSuccess(fetchfetch.data));
-      } else {
-        yield put(getAllProductFail(fetchfetch.status));
-      }
     } else {
       yield put(productPostFailure("Failed to post product"));
       toast.error("Failed to post product");

@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import { Form, Input, Button, Result } from "antd";
+import { Form, Input, Button } from "antd";
 import { MailOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import background from "../../img/background.jpg";
+import background from "../../img/bg3.webp";
 import {
   forgotPasswordRequest,
   checkEmailExistsRequest,
@@ -23,12 +23,10 @@ export default function ForgotPasswordPage() {
   const onFinish = (values) => {
     setSubmittedEmail(values.email);
 
-    // Chỉ cần check email - API này sẽ gửi OTP luôn
     dispatch(
       checkEmailExistsRequest({
         email: values.email,
         onSuccess: () => {
-          // Email tồn tại và OTP đã được gửi, navigate đến trang OTP luôn
           navigate("/otp-verification", {
             state: {
               email: values.email,
@@ -48,20 +46,24 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
       <div className="absolute inset-0">
-        <img src={background} alt="" className="w-full h-full object-cover" />
+        <img
+          src={background}
+          alt=""
+          className="w-full h-full object-cover opacity-60"
+        />
       </div>
 
-      {/* Forgot Password Card */}
-      <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
-        {/* Header */}
+      <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
         <div className="text-center mb-6">
-          <div className="mx-auto w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
             <MailOutlined className="text-2xl text-white" />
           </div>
-          <h2 className="text-3xl font-bold mb-2">Quên mật khẩu?</h2>
-          <p className="text-sm text-purple-200">
+          <h2 className="text-3xl font-bold mb-2 text-gray-800">
+            Quên mật khẩu?
+          </h2>
+          <p className="text-sm text-gray-600">
             Nhập email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu
           </p>
         </div>
@@ -73,7 +75,6 @@ export default function ForgotPasswordPage() {
           onFinishFailed={onFinishFailed}
           layout="vertical"
         >
-          {/* Email Input */}
           <Form.Item
             name="email"
             rules={[
@@ -82,39 +83,37 @@ export default function ForgotPasswordPage() {
             ]}
           >
             <Input
-              prefix={<MailOutlined />}
+              prefix={<MailOutlined className="text-gray-400" />}
               placeholder="Nhập email của bạn"
-              className="bg-white/20 text-white placeholder-gray-300 border-white/30"
               size="large"
               disabled={loading}
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
             />
           </Form.Item>
 
-          {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-lg">
-              <p className="text-red-200 text-sm text-center">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm text-center">{error}</p>
             </div>
           )}
 
-          {/* Submit Button */}
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
               loading={loading}
-              className="w-full rounded-full !bg-purple-600 hover:!bg-purple-700 h-12 text-lg font-semibold"
+              size="large"
+              className="w-full rounded-full !bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !h-12 !text-base font-semibold shadow-lg hover:shadow-xl transition-all border-0"
             >
               Gửi mã OTP
             </Button>
           </Form.Item>
 
-          {/* Back to Login */}
           <div className="text-center">
             <Button
               type="link"
               onClick={() => navigate("/login")}
-              className="!text-white hover:!text-purple-300 !p-0 font-semibold"
+              className="!text-orange-600 hover:!text-orange-700 !p-0 font-semibold"
               icon={<ArrowLeftOutlined />}
               disabled={loading}
             >
@@ -123,9 +122,8 @@ export default function ForgotPasswordPage() {
           </div>
         </Form>
 
-        {/* Tips */}
-        <div className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
-          <p className="text-xs text-purple-100 text-center">
+        <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-gray-600 text-center">
             💡 Kiểm tra cả hộp thư spam nếu không thấy email
             <br />
             Mã OTP có hiệu lực trong 5 phút

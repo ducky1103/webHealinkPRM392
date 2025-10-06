@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import background from "../../img/background.jpg";
+import background from "../../img/bg3.webp";
 import {
   resetPasswordRequest,
   verifyResetTokenRequest,
@@ -29,7 +29,6 @@ export default function ResetPasswordPage() {
 
   const token = searchParams.get("token");
 
-  // Verify token khi component mount
   useEffect(() => {
     if (token) {
       dispatch(
@@ -57,7 +56,6 @@ export default function ResetPasswordPage() {
         token: token,
         newPassword: values.newPassword,
         onSuccess: () => {
-          // Success được handle bởi saga với toast
           setTimeout(() => {
             navigate("/login");
           }, 2000);
@@ -73,36 +71,42 @@ export default function ResetPasswordPage() {
     console.log("Failed:", errorInfo);
   };
 
-  // Nếu đang validate token
   if (isValidating) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={background} alt="" className="w-full h-full object-cover" />
+          <img
+            src={background}
+            alt=""
+            className="w-full h-full object-cover opacity-60"
+          />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Đang xác thực token...</p>
+        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-700">Đang xác thực token...</p>
         </div>
       </div>
     );
   }
 
-  // Nếu token không hợp lệ
   if (!tokenVerified) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={background} alt="" className="w-full h-full object-cover" />
+          <img
+            src={background}
+            alt=""
+            className="w-full h-full object-cover opacity-60"
+          />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
+        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
           <Result
             status="error"
             title={
-              <span className="text-white text-xl">Token không hợp lệ!</span>
+              <span className="text-gray-800 text-xl">Token không hợp lệ!</span>
             }
             subTitle={
-              <span className="text-purple-200">
+              <span className="text-gray-600">
                 Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu
                 cầu đặt lại mật khẩu mới.
               </span>
@@ -112,15 +116,15 @@ export default function ResetPasswordPage() {
                 key="back"
                 type="primary"
                 onClick={() => navigate("/forgot-password")}
-                className="!bg-purple-600 hover:!bg-purple-700 border-0"
+                className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 rounded-full !h-10"
               >
                 Yêu cầu đặt lại mật khẩu
               </Button>,
               <Button
                 key="login"
-                type="text"
+                type="default"
                 onClick={() => navigate("/login")}
-                className="!text-white hover:!text-purple-300"
+                className="!text-orange-600 hover:!text-orange-700 hover:!border-orange-400 rounded-full !h-10"
               >
                 Quay lại đăng nhập
               </Button>,
@@ -131,23 +135,26 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // Nếu đã reset thành công
   if (resetSuccess) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={background} alt="" className="w-full h-full object-cover" />
+          <img
+            src={background}
+            alt=""
+            className="w-full h-full object-cover opacity-60"
+          />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
+        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
           <Result
             status="success"
             title={
-              <span className="text-white text-xl">
+              <span className="text-gray-800 text-xl">
                 Đặt lại mật khẩu thành công!
               </span>
             }
             subTitle={
-              <span className="text-purple-200">
+              <span className="text-gray-600">
                 Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập bằng mật
                 khẩu mới.
               </span>
@@ -157,7 +164,7 @@ export default function ResetPasswordPage() {
                 key="login"
                 type="primary"
                 onClick={() => navigate("/login")}
-                className="!bg-purple-600 hover:!bg-purple-700 border-0"
+                className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 border-0 rounded-full !h-10"
               >
                 Đăng nhập ngay
               </Button>,
@@ -169,20 +176,24 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 via-purple-900 to-indigo-900 relative overflow-hidden">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-yellow-50 relative overflow-hidden">
       <div className="absolute inset-0">
-        <img src={background} alt="" className="w-full h-full object-cover" />
+        <img
+          src={background}
+          alt=""
+          className="w-full h-full object-cover opacity-60"
+        />
       </div>
 
-      {/* Reset Password Card */}
-      <div className="relative z-10 w-96 p-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl text-white">
-        {/* Header */}
+      <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
         <div className="text-center mb-6">
-          <div className="mx-auto w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
             <LockOutlined className="text-2xl text-white" />
           </div>
-          <h2 className="text-3xl font-bold mb-2">Đặt lại mật khẩu</h2>
-          <p className="text-sm text-purple-200">Nhập mật khẩu mới của bạn</p>
+          <h2 className="text-3xl font-bold mb-2 text-gray-800">
+            Đặt lại mật khẩu
+          </h2>
+          <p className="text-sm text-gray-600">Nhập mật khẩu mới của bạn</p>
         </div>
 
         <Form
@@ -192,7 +203,6 @@ export default function ResetPasswordPage() {
           onFinishFailed={onFinishFailed}
           layout="vertical"
         >
-          {/* New Password Input */}
           <Form.Item
             name="newPassword"
             rules={[
@@ -206,17 +216,16 @@ export default function ResetPasswordPage() {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined />}
+              prefix={<LockOutlined className="text-gray-400" />}
               placeholder="Nhập mật khẩu mới"
-              className="bg-white/20 text-white placeholder-gray-300 border-white/30"
               size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
             />
           </Form.Item>
 
-          {/* Confirm Password Input */}
           <Form.Item
             name="confirmPassword"
             dependencies={["newPassword"]}
@@ -235,39 +244,37 @@ export default function ResetPasswordPage() {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined />}
+              prefix={<LockOutlined className="text-gray-400" />}
               placeholder="Xác nhận mật khẩu mới"
-              className="bg-white/20 text-white placeholder-gray-300 border-white/30"
               size="large"
+              className="!bg-white !text-gray-800 placeholder:!text-gray-400 !border-gray-300 hover:!border-orange-400 focus:!border-orange-500"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
             />
           </Form.Item>
 
-          {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-lg">
-              <p className="text-red-200 text-sm text-center">{error}</p>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm text-center">{error}</p>
             </div>
           )}
 
-          {/* Reset Password Button */}
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
               loading={loading}
-              className="w-full rounded-full !bg-purple-600 hover:!bg-purple-700 h-12 text-lg font-semibold"
+              size="large"
+              className="w-full rounded-full !bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !h-12 !text-base font-semibold shadow-lg hover:shadow-xl transition-all border-0"
             >
               Đặt lại mật khẩu
             </Button>
           </Form.Item>
         </Form>
 
-        {/* Tips */}
-        <div className="mt-6 p-4 bg-white/10 rounded-lg border border-white/20">
-          <p className="text-xs text-purple-100 text-center">
+        <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+          <p className="text-xs text-gray-600 text-center">
             🔒 Mật khẩu phải chứa ít nhất 6 ký tự
             <br />
             Bao gồm chữ hoa, chữ thường và số

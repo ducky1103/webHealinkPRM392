@@ -6,6 +6,10 @@ import watchUpdateCartItem from "./redux/User/cartApi/updateCartItem/updateCartI
 import watchDeleteCartItem from "./redux/User/cartApi/deleteCartItem/deleteCartItemSaga";
 import watchGetAllProduct from "./redux/User/product/fetchProduct/getAllProductSaga";
 import watchAddToCart from "./redux/User/product/postProductToCart/postProductToCartSaga";
+import watchGetAllOrder from "./redux/User/order/fetchOrder/getAllOrderSaga";
+import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderItemSaga";
+import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
+import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
 import watchForgotPassword, {
   watchCheckEmailExists,
   watchResetPassword,
@@ -21,6 +25,8 @@ import watchPostCategorySaga from "./redux/auth/admin/Categories/post_category/p
 import watchFetchCategorySaga from "./redux/auth/admin/Categories/fetch_category/fetchCategorySaga";
 import watchDeleteCategory from "./redux/auth/admin/Categories/delete_category/deleteCategorySaga";
 import watchUpdateCategory from "./redux/auth/admin/Categories/update_category/updateCategorySaga";
+import watchUpdateProductSaga from "./redux/auth/admin/Product/update_Product/updateProductSaga";
+import watchDeleteProductSaga from "./redux/auth/admin/Product/delete_product/deleteProductSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -37,14 +43,22 @@ export default function* rootSaga() {
     watchGetAllProduct(),
     watchAddToCart(),
     watchCheckEmailExists(),
+    watchGetAllOrder(),
+    watchGetAllOrderItem(),
+    watchGetOrderUser(),
+    watchCheckoutCart(),
     watchForgotPassword(),
     watchVerifyResetToken(),
     watchResetPassword(),
-    watchPostProductSaga(),
+
     //category
     watchPostCategorySaga(),
     watchFetchCategorySaga(),
     watchUpdateCategory(),
     watchDeleteCategory(),
+    //prodcut
+    watchPostProductSaga(),
+    watchUpdateProductSaga(),
+    watchDeleteProductSaga(),
   ]);
 }

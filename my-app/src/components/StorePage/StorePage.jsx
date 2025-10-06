@@ -15,6 +15,14 @@ const StorePage = () => {
     (state) => state.fetchProduct
   );
 
+  // Format price for display
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
   useEffect(() => {
     dispatch(getAllProduct({ page: 1, size: 10 }));
   }, [dispatch]);
@@ -73,7 +81,7 @@ const StorePage = () => {
         {error && <p className="text-red-500">Lỗi: {error}</p>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {product?.content?.map((item) => (
+          {product?.map((item) => (
             <div
               key={item.id}
               className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 bg-amber-100 hover:scale-105"
@@ -86,7 +94,9 @@ const StorePage = () => {
               <h3 className="text-lg font-semibold text-slate-800">
                 {item.name}
               </h3>
-              <p className="text-sm text-slate-600">Giá: {item.price} VND</p>
+              <p className="text-sm text-slate-600">
+                Giá: {formatPrice(item.price)} VND
+              </p>
               <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => handleAddToCart(item)}

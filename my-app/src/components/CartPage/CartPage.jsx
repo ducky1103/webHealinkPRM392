@@ -4,16 +4,30 @@ import Header from "../HomePage/Header";
 import { getAllCart } from "../../redux/User/cartApi/fetchCart/getAllCartSlice";
 import { updateCartItem } from "../../redux/User/cartApi/updateCartItem/updateCartItemSlice";
 import { deleteCartItem } from "../../redux/User/cartApi/deleteCartItem/deleteCartItemSlice";
-import { Trash2 } from "lucide-react";
+import { checkoutCart } from "../../redux/User/cartApi/checkoutCart/checkoutCartSlice";
+import { Trash2, Eye } from "lucide-react";
 import { Popconfirm } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { cart, loading, error } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.account);
+  const { loading: checkoutLoading, checkout } = useSelector(
+    (state) => state.checkoutCart
+  );
 
   useEffect(() => {
     dispatch(getAllCart());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (checkout && user?.id) {
+      navigate(`/checkout/${user.id}`);
+    }
+  }, [checkout, user, navigate]);
 
   const items = cart?.items || [];
 
@@ -32,6 +46,10 @@ const CartPage = () => {
     }, 300);
   };
 
+  const handleCheckout = () => {
+    dispatch(checkoutCart()); // chỉ cần gọi rỗng
+  };
+
   return (
     <>
       <Header />
@@ -39,10 +57,8 @@ const CartPage = () => {
         <h1 className="text-3xl font-bold mb-8 text-slate-800">
           🛒 Giỏ hàng của bạn
         </h1>
-
         {loading && <p className="text-slate-600 italic">Đang tải...</p>}
         {error && <p className="text-red-500 italic">Lỗi: {error}</p>}
-
         {items.length > 0 ? (
           <div className="space-y-6">
             {items.map((item) => (
@@ -126,6 +142,15 @@ const CartPage = () => {
                 VND
               </span>
             </div>
+
+            {/* Nút Checkout */}
+            <button
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+              className="w-full py-3 rounded-xl bg-yellow-500 text-white font-semibold text-lg hover:bg-yellow-600 transition disabled:opacity-50"
+            >
+              {checkoutLoading ? "Đang xử lý..." : "Đặt hàng"}
+            </button>
           </div>
         ) : (
           !loading && (
@@ -134,6 +159,14 @@ const CartPage = () => {
             </p>
           )
         )}
+        <button
+          onClick={() => navigate(`/checkout/${user.id}`)}
+          className="w-full py-3 mt-10 rounded-xl bg-yellow-500 text-white font-semibold text-lg hover:bg-yellow-600 transition disabled:opacity-50"
+          style={{ height: "44px", padding: "0 20px" }}
+          icon={<Eye className="w-4 h-4" />}
+        >
+          Xem order
+        </button>
       </div>
     </>
   );

@@ -36,7 +36,7 @@ const router = createBrowserRouter([
       { path: "about-us", element: <AboutUs /> },
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
-      { path: "checkout", element: <CheckoutPage /> },
+      { path: "checkout/:userId", element: <CheckoutPage /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
