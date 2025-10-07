@@ -2,19 +2,22 @@ import React from "react";
 import Footer from "./Footer";
 import Header from "./Header";
 import { Users, Heart, Mic, BookOpen, Coffee, Lightbulb } from "lucide-react";
-import logo from "../../img/l1.png";
+import logo from "../../img/logo.jpg";
 function AboutUs() {
   return (
     <>
       <Header />
       <div className="font-sans text-slate-800 bg-gradient-to-br from-amber-50 to-orange-50 min-h-screen">
         {/* Hero Section */}
-        <section className="relative py-20 bg-gradient-to-r from-amber-800 via-amber-700 to-orange-700 text-white overflow-hidden">
+        <section className="relative py-20 bg-[#B86933] text-white overflow-hidden">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="mb-8">
               <div className="inline-flex items-center justify-center w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl mb-6">
-                <img src={logo} className="object-contain" />
+                <img
+                  src={logo}
+                  className="object-contain rounded-full w-full h-full "
+                />
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">

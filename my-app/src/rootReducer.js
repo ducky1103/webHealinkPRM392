@@ -16,16 +16,19 @@ import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPo
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
 import updatePodcastReducer from "./redux/auth/admin/Podcast/update_podcast/updatePodcastSlice";
 import deletePodcastReducer from "./redux/auth/admin/Podcast/delete_podcast/deletePodcastSlice";
-import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
 import fetchCategoryReducer from "./redux/auth/admin/Categories/fetch_category/fetchCategorySlice";
 import postCategoryReducer from "./redux/auth/admin/Categories/post_category/postCategorySlice";
 import deleteCategoryReducer from "./redux/auth/admin/Categories/delete_category/deleteCategorySlice";
 import updateCategoryReducer from "./redux/auth/admin/Categories/update_category/updateCategorySlice";
 import getProfileReducer from "./redux/User/profile/getProfileSlice";
+import updateProductReducer from "./redux/auth/admin/Product/update_Product/updateProductSlice";
+import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
+import deleteProductReducer from "./redux/auth/admin/Product/delete_product/deleteProductSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
   register: registerReducer,
+  //podcast
   postPodcast: postPostcardReducer,
   fetchPodcast: fetchPodcastReducer,
   updatePodcast: updatePodcastReducer,
@@ -33,14 +36,19 @@ const rootReducer = combineReducers({
   cart: getAllCartReducer,
   updateCart: updateCartItemReducer,
   deleteCart: deleteCartItemReducer,
+  //product
   fetchProduct: getAllProductReducer,
   addProduct: addToCartReducer,
+  updateProduct: updateProductReducer,
+  postProduct: postProductReducer,
+  deleteProduct: deleteProductReducer,
+  //order
   order: getAllOrderReducer,
   orderItem: getAllOrderItemReducer,
   orderUser: getOrderUserReducer,
   deleteOrderId: deleteOrderReducer,
   checkoutCart: checkoutCartReducer,
-  postProduct: postProductReducer,
+
   //category
   fetchCategory: fetchCategoryReducer,
   postCategory: postCategoryReducer,

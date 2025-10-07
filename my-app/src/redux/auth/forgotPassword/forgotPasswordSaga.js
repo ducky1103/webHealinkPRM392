@@ -1,8 +1,14 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable require-yield */
 import { call, put, takeLatest } from "redux-saga/effects";
+import { message } from "antd";
 import {
+  CHECK_EMAIL_EXISTS_REQUEST,
   FORGOT_PASSWORD_REQUEST,
   RESET_PASSWORD_REQUEST,
   VERIFY_RESET_TOKEN_REQUEST,
+  checkEmailExistsSuccess,
+  checkEmailExistsFail,
   forgotPasswordSuccess,
   forgotPasswordFail,
   resetPasswordSuccess,
@@ -10,7 +16,6 @@ import {
   verifyResetTokenSuccess,
   verifyResetTokenFail,
 } from "./forgotPasswordSlice";
-import { toast } from "react-hot-toast";
 
 const rawApiUrl = import.meta.env.VITE_API_URL;
 const API_BASE = (
@@ -19,118 +24,51 @@ const API_BASE = (
     : "http://localhost:8080/api"
 ).replace(/\/+$/, "");
 
-// Send forgot password email - Sử dụng fetch thay vì axios
-function* forgotPasswordSaga(action) {
+// Check email exists và gửi OTP luôn - API này làm cả 2 việc
+function* checkEmailExistsSaga(action) {
   try {
     console.log(
-      "🔄 Sending forgot password request for:",
+      "🔄 Checking email exists and sending OTP:",
       action.payload.email
     );
-    console.log("🔍 API URL:", `${API_BASE}/auth/email-existed`);
 
-    // Sử dụng fetch để tránh axios interceptor
     const response = yield call(fetch, `${API_BASE}/auth/email-existed`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Không có Authorization header
       },
       body: JSON.stringify({
         email: action.payload.email,
       }),
     });
 
-    console.log("📡 Response status:", response.status);
+    console.log("📡 Email check response status:", response.status);
 
     if (response.ok) {
       const data = yield call([response, "json"]);
-      console.log("✅ Response data:", data);
+      console.log("✅ Email exists and OTP sent:", data);
 
-      yield put(
-        forgotPasswordSuccess({
-          message: data.message || "Email khôi phục mật khẩu đã được gửi!",
-        })
-      );
+      if (data.statusCode === 200) {
+        yield put(checkEmailExistsSuccess(data));
 
-      toast.success(data.message || "Email khôi phục mật khẩu đã được gửi!");
+        // API này đã gửi OTP luôn, nên hiện message thành công
+        message.success(data.message || "OTP đã được gửi đến email của bạn!");
 
-      if (action.payload.onSuccess) {
-        action.payload.onSuccess();
-      }
-    } else {
-      // Handle HTTP error status
-      const errorData = yield call([response, "text"]);
-      console.error("❌ HTTP Error:", response.status, errorData);
-
-      let errorMessage = "Có lỗi xảy ra khi gửi email khôi phục!";
-
-      if (response.status === 404) {
-        errorMessage = "Email không tồn tại trong hệ thống!";
-      } else if (response.status === 400) {
-        errorMessage = "Email không hợp lệ!";
-      } else if (response.status === 500) {
-        if (errorData.includes("Empty token")) {
-          errorMessage = "Lỗi server: API đang expect token không cần thiết.";
-        } else {
-          errorMessage = errorData || "Lỗi server. Vui lòng thử lại sau.";
+        if (action.payload.onSuccess) {
+          action.payload.onSuccess();
         }
-      }
-
-      yield put(forgotPasswordFail(errorMessage));
-      toast.error(errorMessage);
-    }
-  } catch (error) {
-    console.error("❌ Network error:", error);
-    yield put(forgotPasswordFail("Không thể kết nối đến server."));
-    toast.error("Không thể kết nối đến server.");
-
-    if (action.payload.onError) {
-      action.payload.onError(error);
-    }
-  }
-}
-
-// Verify reset token
-function* verifyResetTokenSaga(action) {
-  try {
-    console.log("🔄 Verifying reset token:", action.payload.token);
-
-    const response = yield call(fetch, `${API_BASE}/auth/verify-reset-token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: action.payload.token,
-      }),
-    });
-
-    if (response.ok) {
-      const data = yield call([response, "json"]);
-      yield put(verifyResetTokenSuccess(data));
-
-      if (action.payload.onSuccess) {
-        action.payload.onSuccess();
+      } else {
+        yield put(checkEmailExistsFail("Email không tồn tại trong hệ thống!"));
+        message.error("Email không tồn tại trong hệ thống!");
       }
     } else {
-      const errorData = yield call([response, "text"]);
-      let errorMessage = "Token không hợp lệ hoặc đã hết hạn!";
-
-      if (errorData) {
-        errorMessage = errorData;
-      }
-
-      yield put(verifyResetTokenFail(errorMessage));
-      toast.error(errorMessage);
-
-      if (action.payload.onError) {
-        action.payload.onError(new Error(errorMessage));
-      }
+      yield put(checkEmailExistsFail("Email không tồn tại trong hệ thống!"));
+      message.error("Email không tồn tại trong hệ thống!");
     }
   } catch (error) {
-    console.error("❌ Verify reset token error:", error);
-    yield put(verifyResetTokenFail("Không thể kết nối đến server."));
-    toast.error("Không thể kết nối đến server.");
+    console.error("❌ Email check network error:", error);
+    yield put(checkEmailExistsFail("Không thể kiểm tra email."));
+    message.error("Không thể kiểm tra email.");
 
     if (action.payload.onError) {
       action.payload.onError(error);
@@ -138,59 +76,85 @@ function* verifyResetTokenSaga(action) {
   }
 }
 
-// Reset password
+// Send OTP - không cần dùng nữa vì email-existed đã làm rồi
+function* forgotPasswordSaga(action) {
+  try {
+    console.log(
+      "🔄 This function is deprecated - OTP already sent by email-existed API"
+    );
+
+    // Chỉ gọi callback success vì OTP đã được gửi
+    if (action.payload.onSuccess) {
+      action.payload.onSuccess();
+    }
+  } catch (error) {
+    console.error("❌ Send OTP network error:", error);
+
+    if (action.payload.onError) {
+      action.payload.onError(error);
+    }
+  }
+}
+
+// Reset password - gửi otpCode + email + newPassword
 function* resetPasswordSaga(action) {
   try {
-    console.log("🔄 Resetting password with token:", action.payload.token);
+    console.log("🔄 Resetting password with:", {
+      otpCode: action.payload.otpCode,
+      email: action.payload.email,
+      newPassword: "***hidden***",
+    });
 
-    const response = yield call(fetch, `${API_BASE}/auth/reset-password`, {
+    const response = yield call(fetch, `${API_BASE}/auth/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: action.payload.token,
+        otpCode: action.payload.otpCode,
+        email: action.payload.email,
         newPassword: action.payload.newPassword,
       }),
     });
 
+    console.log("📡 Reset password response status:", response.status);
+
     if (response.ok) {
       const data = yield call([response, "json"]);
+      console.log("✅ Password reset successful:", data);
 
       yield put(
         resetPasswordSuccess({
-          message: data.message || "Mật khẩu đã được cập nhật thành công!",
+          message: data.message || "Đổi mật khẩu thành công!",
         })
       );
 
-      toast.success(data.message || "Mật khẩu đã được cập nhật thành công!");
+      message.success(data.message || "Đổi mật khẩu thành công!");
 
       if (action.payload.onSuccess) {
         action.payload.onSuccess();
       }
     } else {
       const errorData = yield call([response, "text"]);
+      console.error("❌ Reset password error:", response.status, errorData);
+
       let errorMessage = "Có lỗi xảy ra khi đặt lại mật khẩu!";
 
       if (response.status === 400) {
-        errorMessage = "Token không hợp lệ hoặc đã hết hạn!";
-      } else if (response.status === 500) {
-        errorMessage = errorData || "Lỗi server. Vui lòng thử lại.";
-      } else if (errorData) {
-        errorMessage = errorData;
+        errorMessage = "Mã OTP không đúng hoặc đã hết hạn!";
       }
 
       yield put(resetPasswordFail(errorMessage));
-      toast.error(errorMessage);
+      message.error(errorMessage);
 
       if (action.payload.onError) {
         action.payload.onError(new Error(errorMessage));
       }
     }
   } catch (error) {
-    console.error("❌ Reset password error:", error);
+    console.error("❌ Reset password network error:", error);
     yield put(resetPasswordFail("Không thể kết nối đến server."));
-    toast.error("Không thể kết nối đến server.");
+    message.error("Không thể kết nối đến server.");
 
     if (action.payload.onError) {
       action.payload.onError(error);
@@ -198,7 +162,21 @@ function* resetPasswordSaga(action) {
   }
 }
 
+// Verify reset token (có thể bỏ qua nếu không dùng)
+function* verifyResetTokenSaga(action) {
+  try {
+    console.log("🔄 Verifying reset token:", action.payload.token);
+    // Implementation nếu cần
+  } catch (error) {
+    console.error("❌ Verify reset token error:", error);
+  }
+}
+
 // Watchers
+function* watchCheckEmailExists() {
+  yield takeLatest(CHECK_EMAIL_EXISTS_REQUEST, checkEmailExistsSaga);
+}
+
 function* watchForgotPassword() {
   yield takeLatest(FORGOT_PASSWORD_REQUEST, forgotPasswordSaga);
 }
@@ -211,5 +189,10 @@ function* watchResetPassword() {
   yield takeLatest(RESET_PASSWORD_REQUEST, resetPasswordSaga);
 }
 
-export { watchForgotPassword, watchVerifyResetToken, watchResetPassword };
+export {
+  watchCheckEmailExists,
+  watchForgotPassword,
+  watchVerifyResetToken,
+  watchResetPassword,
+};
 export default watchForgotPassword;

@@ -102,7 +102,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Nội dung */}
-      <div className="flex items-center justify-center p-4 md:p-8">
+      <div className="flex items-center justify-center p-4 md:p-8 mt-20">
         <div className="w-full max-w-2xl">
           {/* Tiêu đề */}
           <div className="flex items-center justify-between mb-8">

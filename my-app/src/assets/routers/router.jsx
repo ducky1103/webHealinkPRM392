@@ -11,6 +11,7 @@ import PodcastDetail from "../../components/PodcastPage/PodcastDetail";
 import StorePage from "../../components/StorePage/StorePage";
 import CartPage from "../../components/CartPage/CartPage";
 import CheckoutPage from "../../components/CheckoutPage/CheckoutPage";
+import PaymentMethodPage from "../../components/PaymentMethod/PaymentMethod";
 import WriteLetterPage from "../../components/WriteLetterPage/WriteLetterPage";
 import AdminServicePage from "../../components/Admin/AdminServicePage";
 import AdminPodcastPage from "../../components/Admin/AdminPodcastPage";
@@ -39,9 +40,11 @@ const router = createBrowserRouter([
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout/:id", element: <CheckoutPage /> },
+      { path: "payment_method/:id", element: <PaymentMethodPage /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
+      { path: "otp-verification", element: <OTPVerificationPage /> }, // Thêm route này
       { path: "forgot-password", element: <ForgotPasswordPage /> },
       { path: "reset-password", element: <ResetPasswordPage /> },
       {
@@ -55,7 +58,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/Admin",
-    element: <PrivateRoute Route allowedRoles={["Admin"]} />, // Make sure this matches resolveUserRole output
+    element: <PrivateRoute Route allowedRoles={["Admin"]} />,
     children: [
       {
         path: "",
