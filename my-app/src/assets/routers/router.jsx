@@ -12,6 +12,8 @@ import StorePage from "../../components/StorePage/StorePage";
 import CartPage from "../../components/CartPage/CartPage";
 import CheckoutPage from "../../components/CheckoutPage/CheckoutPage";
 import PaymentMethodPage from "../../components/PaymentMethod/PaymentMethod";
+import PaymentSuccess from "../../components/PaymentMethod/PaymentSuccess";
+import PaymentCancel from "../../components/PaymentMethod/PaymentCancel";
 import WriteLetterPage from "../../components/WriteLetterPage/WriteLetterPage";
 import AdminServicePage from "../../components/Admin/AdminServicePage";
 import AdminPodcastPage from "../../components/Admin/AdminPodcastPage";
@@ -41,6 +43,8 @@ const router = createBrowserRouter([
       { path: "cart", element: <CartPage /> },
       { path: "checkout/:id", element: <CheckoutPage /> },
       { path: "payment_method/:id", element: <PaymentMethodPage /> },
+      { path: "payment-success", element: <PaymentSuccess /> },
+      { path: "payment-cancel", element: <PaymentCancel /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },

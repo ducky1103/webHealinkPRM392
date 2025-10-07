@@ -11,6 +11,7 @@ import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderI
 import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
 import watchDeleteOrder from "./redux/User/order/deleteOrder/deleteOrderSaga";
 import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
+import watchCreatePayos from "./redux/User/payos/createPayosSaga";
 import watchForgotPassword, {
   watchCheckEmailExists,
   watchResetPassword,
@@ -66,5 +67,8 @@ export default function* rootSaga() {
     watchPostProductSaga(),
     watchUpdateProductSaga(),
     watchDeleteProductSaga(),
+
+    //payment
+    watchCreatePayos(),
   ]);
 }
