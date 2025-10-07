@@ -157,11 +157,9 @@ const CheckoutPage = () => {
                   <p className="text-sm text-slate-600">
                     Tạm tính: {formatPrice(totalAmount)}
                   </p>
-                  <p className="text-sm text-slate-600">
-                    Phí vận chuyển: {formatPrice(1000)}
-                  </p>
+
                   <p className="text-lg font-bold text-slate-800">
-                    Tổng cộng: {formatPrice(totalAmount + 1000)}
+                    Tổng cộng: {formatPrice(totalAmount)}
                   </p>
                 </div>
 
@@ -174,7 +172,10 @@ const CheckoutPage = () => {
                   {deleteLoading ? "Đang xóa..." : "Xóa đơn hàng"}
                 </button>
 
-                <button className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-4 hover:bg-indigo-700 transition-all duration-300 shadow-md">
+                <button
+                  onClick={() => navigate(`/payment_method/${id}`)}
+                  className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-4 hover:bg-indigo-700 transition-all duration-300 shadow-md"
+                >
                   Thanh toán
                 </button>
               </div>

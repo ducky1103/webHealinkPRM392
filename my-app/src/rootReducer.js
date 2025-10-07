@@ -11,6 +11,7 @@ import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrde
 import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import deleteOrderReducer from "./redux/User/order/deleteOrder/deleteOrderSlice";
 import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
+import createPayosReducer from "./redux/User/payos/createPayosSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
@@ -57,6 +58,9 @@ const rootReducer = combineReducers({
 
   //profile
   getProfile: getProfileReducer,
+
+  //payment
+  createPayos: createPayosReducer,
 });
 
 export default rootReducer;

@@ -2,21 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Header from "../HomePage/Header";
 import { getAllOrder } from "../../redux/User/order/fetchOrder/getAllOrderSlice";
 import { getProfile } from "../../redux/User/profile/getProfileSlice";
 import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrderItemSlice";
+import { createPayos } from "../../redux/User/payos/createPayosSlice";
 import { Modal, Spin, Radio } from "antd";
 import { Eye } from "lucide-react";
 import payos from "../../img/payos.png";
 
 const PaymentMethodPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { id } = useParams();
 
-  // Redux states
   const { order, loading, error } = useSelector((state) => state.order);
   const { orderItem, loading: itemLoading } = useSelector(
     (state) => state.orderItem
@@ -24,43 +23,32 @@ const PaymentMethodPage = () => {
   const { profile } = useSelector((state) => state.getProfile);
   const userId = useSelector((state) => state.account?.user?.id);
 
-  // Local states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("payos");
 
-  // Lấy thông tin đơn hàng
   useEffect(() => {
-    if (id) {
-      dispatch(getAllOrder(id));
-    }
+    if (id) dispatch(getAllOrder(id));
   }, [dispatch, id]);
 
-  // Lấy thông tin người dùng
   useEffect(() => {
-    if (userId) {
-      dispatch(getProfile(userId));
-    }
+    if (userId) dispatch(getProfile(userId));
   }, [dispatch, userId]);
 
   const totalAmount = order?.totalAmount || 0;
-
-  // Hàm format giá tiền
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
 
-  // ✅ Gọi API xem chi tiết sản phẩm trong đơn hàng
   const handleViewDetail = (itemId) => {
-    dispatch(getAllOrderItem(itemId)); // Gọi API lấy chi tiết sản phẩm
+    dispatch(getAllOrderItem(itemId));
     setIsModalOpen(true);
   };
 
-  // Khi nhấn "Tiếp tục thanh toán"
   const handleConfirmPayment = () => {
     if (paymentMethod === "payos") {
-      navigate(`/payos/${id}`);
+      dispatch(createPayos(id)); // ✅ Gọi API PayOS
     }
   };
 
@@ -119,7 +107,7 @@ const PaymentMethodPage = () => {
                 >
                   <Radio value="payos">
                     <div className="flex items-center gap-3">
-                      <img src={payos} alt="PayOS" className="w-50 h-30" />
+                      <img src={payos} alt="PayOS" className="w-24 h-auto" />
                       <span className="font-medium">Thanh toán qua PayOS</span>
                     </div>
                   </Radio>
@@ -132,7 +120,6 @@ const PaymentMethodPage = () => {
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
                 Giỏ hàng của bạn
               </h2>
-
               <div className="space-y-4">
                 {order.items?.map((item) => (
                   <div
@@ -170,11 +157,9 @@ const PaymentMethodPage = () => {
                   <p className="text-sm text-slate-600">
                     Tạm tính: {formatPrice(totalAmount)}
                   </p>
-                  <p className="text-sm text-slate-600">
-                    Phí vận chuyển: {formatPrice(1000)}
-                  </p>
+
                   <p className="text-lg font-bold text-slate-800">
-                    Tổng cộng: {formatPrice(totalAmount + 1000)}
+                    Tổng cộng: {formatPrice(totalAmount)}
                   </p>
                 </div>
 
