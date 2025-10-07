@@ -6,6 +6,7 @@ import img3 from "../../img/3.jpg";
 import img6 from "../../img/6.jpg";
 import Header from "./Header";
 import HealingLetter from "../HealingLetter/HealingLetter";
+import HeroCarousel from "../Home/HeroCarousel";
 const HomePage = () => {
   return (
     <div className="text-slate-800">
@@ -78,6 +79,7 @@ const HomePage = () => {
         </div>
       </section>
 
+      <HeroCarousel />
       {/* Pricing */}
       <section className="py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
