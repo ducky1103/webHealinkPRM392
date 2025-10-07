@@ -120,7 +120,7 @@ function UserMenu() {
       {open && (
         <div className="absolute right-0 top-12 w-44 rounded-xl border border-slate-200 bg-white shadow-lg py-2 z-50">
           <Link
-            to="/registered"
+            to="/profile"
             className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
             onClick={() => setOpen(false)}
           >

@@ -14,7 +14,6 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   const { cart, loading, error } = useSelector((state) => state.cart);
-  const { user } = useSelector((state) => state.account);
   const { loading: checkoutLoading, checkout } = useSelector(
     (state) => state.checkoutCart
   );
@@ -24,10 +23,10 @@ const CartPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (checkout && user?.id) {
-      navigate(`/checkout/${user.id}`);
+    if (checkout && checkout.id) {
+      navigate(`/checkout/${checkout.id}`);
     }
-  }, [checkout, user, navigate]);
+  }, [checkout, navigate]);
 
   const items = cart?.items || [];
 
@@ -159,14 +158,6 @@ const CartPage = () => {
             </p>
           )
         )}
-        <button
-          onClick={() => navigate(`/checkout/${user.id}`)}
-          className="w-full py-3 mt-10 rounded-xl bg-yellow-500 text-white font-semibold text-lg hover:bg-yellow-600 transition disabled:opacity-50"
-          style={{ height: "44px", padding: "0 20px" }}
-          icon={<Eye className="w-4 h-4" />}
-        >
-          Xem order
-        </button>
       </div>
     </>
   );

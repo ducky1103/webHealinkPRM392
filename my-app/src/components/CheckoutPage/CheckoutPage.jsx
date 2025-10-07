@@ -1,56 +1,58 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../HomePage/Header";
-import { getOrderUser } from "../../redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
+import { getAllOrder } from "../../redux/User/order/fetchOrder/getAllOrderSlice";
 import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrderItemSlice";
+import { deleteOrder } from "../../redux/User/order/deleteOrder/deleteOrderSlice";
 import { Modal, Spin } from "antd";
+import { Eye, Trash2 } from "lucide-react";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
-  const { userId } = useParams();
-  console.log("userid", userId);
-
-  const { orderUser, loading, error } = useSelector((state) => state.orderUser);
-  const {
-    orderItem,
-    loading: itemLoading,
-    error: itemError,
-  } = useSelector((state) => state.orderItem);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { order, loading, error } = useSelector((state) => state.order);
+  const { orderItem, loading: itemLoading } = useSelector(
+    (state) => state.orderItem
+  );
+  const { loading: deleteLoading, success: deleteSuccess } = useSelector(
+    (state) => state.deleteOrderId
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (userId) {
-      dispatch(getOrderUser({ userId, page: 1, size: 10 }));
+    if (id) {
+      dispatch(getAllOrder(id));
     }
-  }, [dispatch, userId]);
+  }, [dispatch, id]);
 
-  if (loading) return <p>Đang tải đơn hàng...</p>;
-  if (error) return <p style={{ color: "red" }}>Lỗi: {error}</p>;
+  useEffect(() => {
+    if (deleteSuccess) {
+      navigate("/cart");
+    }
+  }, [deleteSuccess, navigate]);
 
-  // ✅ Gom tất cả item từ tất cả order
-  const orderList = orderUser?.content || [];
-  const allItems = orderList.flatMap((order) => order.items || []);
+  const totalAmount = order?.totalAmount || 0;
 
-  // ✅ Tổng tiền = tính lại từ từng item
-  const totalAmount = allItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-
-  // Format price for display
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
-  };
 
-  // ✅ View detail
   const handleViewDetail = (itemId) => {
     dispatch(getAllOrderItem(itemId));
     setIsModalOpen(true);
+  };
+
+  const handleDeleteOrder = () => {
+    if (id && window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này?")) {
+      dispatch(deleteOrder({ id }));
+    }
   };
 
   return (
@@ -62,62 +64,61 @@ const CheckoutPage = () => {
         {loading && <p>Đang tải đơn hàng...</p>}
         {error && <p className="text-red-500">Lỗi: {error}</p>}
 
-        {!loading && allItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border p-4 rounded-lg bg-white">
+        {!loading && order && order.id ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Form thông tin giao hàng */}
-            <div className="p-6 border rounded-lg bg-amber-50">
+            <div className="p-6 border rounded-lg bg-gradient-to-b from-amber-50 to-white shadow-sm">
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
                 Giao hàng tận nơi
               </h2>
               <form className="space-y-4">
                 <input
                   type="text"
-                  value={orderList[0]?.user?.username || ""}
-                  readOnly
-                  className="w-full p-3 border rounded-lg bg-gray-100"
-                />
-                <input
-                  type="text"
-                  value={orderList[0]?.user?.fullName || ""}
+                  value={order.user?.fullName || ""}
                   readOnly
                   className="w-full p-3 border rounded-lg bg-gray-100"
                 />
                 <input
                   type="email"
-                  value={orderList[0]?.user?.email || ""}
+                  value={order.user?.email || ""}
                   readOnly
                   className="w-full p-3 border rounded-lg bg-gray-100"
                 />
                 <input
                   type="text"
                   placeholder="Số điện thoại"
-                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="text"
                   placeholder="Địa chỉ nhận hàng"
-                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 />
+                <textarea
+                  placeholder="Lưu ý cho shop"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                ></textarea>
               </form>
             </div>
 
-            {/* Giỏ hàng tổng hợp */}
-            <div className="p-6 border rounded-lg bg-amber-50">
+            {/* Giỏ hàng */}
+            <div className="p-6 border rounded-lg bg-gradient-to-b from-amber-50 to-white shadow-sm">
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
                 Giỏ hàng của bạn
               </h2>
+
               <div className="space-y-4">
-                {allItems.map((item) => (
+                {order.items?.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between gap-4 border-b pb-2"
+                    className="flex items-center justify-between border rounded-lg p-3 hover:shadow-md transition-all duration-200"
                   >
                     <img
-                      src={item.product.imageUrl}
+                      src={item.product.imageUrl || "/placeholder.svg"}
                       alt={item.product.name}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
-                    <div className="flex-1">
+                    <div className="flex-1 ml-4">
                       <h3 className="text-lg font-semibold text-slate-800">
                         {item.product.name}
                       </h3>
@@ -128,62 +129,91 @@ const CheckoutPage = () => {
                         Số lượng: {item.quantity}
                       </p>
                     </div>
-                    {/* Nút xem chi tiết */}
                     <button
                       onClick={() => handleViewDetail(item.id)}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="text-indigo-600 hover:text-indigo-800 transition-colors p-2"
+                      title="Xem chi tiết"
                     >
-                      Xem chi tiết
+                      <Eye size={22} />
                     </button>
                   </div>
                 ))}
 
-                <div className="border-t pt-4">
+                {/* Tổng cộng */}
+                <div className="border-t pt-4 mt-4">
                   <p className="text-sm text-slate-600">
                     Tạm tính: {formatPrice(totalAmount)}
                   </p>
                   <p className="text-sm text-slate-600">
                     Phí vận chuyển: {formatPrice(15000)}
                   </p>
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-lg font-bold text-slate-800">
                     Tổng cộng: {formatPrice(totalAmount + 15000)}
                   </p>
                 </div>
 
-                <button className="w-full rounded-lg bg-indigo-600 text-white py-2 hover:bg-indigo-700 transition-all duration-300">
+                <button
+                  onClick={handleDeleteOrder}
+                  disabled={deleteLoading}
+                  className="w-full rounded-lg bg-red-600 text-white py-2 mt-4 hover:bg-red-700 transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} />
+                  {deleteLoading ? "Đang xóa..." : "Xóa đơn hàng"}
+                </button>
+
+                <button className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-4 hover:bg-indigo-700 transition-all duration-300 shadow-md">
                   Thanh toán
                 </button>
               </div>
             </div>
           </div>
         ) : (
-          !loading && <p className="text-slate-600">Không có sản phẩm nào.</p>
+          !loading && <p className="text-slate-600">Không có đơn hàng nào.</p>
         )}
       </div>
 
-      {/* Modal hiển thị chi tiết item */}
+      {/* Modal Chi tiết sản phẩm */}
       <Modal
-        title="Chi tiết sản phẩm"
+        title={<span className="font-semibold text-lg">Chi tiết sản phẩm</span>}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
+        centered
+        className="rounded-2xl overflow-hidden"
       >
         {itemLoading ? (
-          <Spin />
-        ) : itemError ? (
-          <p className="text-red-500">Lỗi: {itemError}</p>
+          <div className="flex justify-center py-10">
+            <Spin size="large" />
+          </div>
         ) : orderItem ? (
-          <div className="space-y-3">
-            <img
-              src={orderItem.product.imageUrl}
-              alt={orderItem.product.name}
-              className="w-32 h-32 object-cover rounded-lg"
-            />
-            <h3 className="text-lg font-semibold">{orderItem.product.name}</h3>
-            <p>Mô tả: {orderItem.product.description}</p>
-            <p>Giá: {orderItem.product.price.toLocaleString("vi-VN")} đ</p>
-            <p>Số lượng: {orderItem.quantity}</p>
-            <p>Còn trong kho: {orderItem.product.stockQuantity}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div className="flex justify-center">
+              <img
+                src={orderItem.product.imageUrl || "/placeholder.svg"}
+                alt={orderItem.product.name}
+                className="w-48 h-48 object-cover rounded-xl shadow"
+              />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">
+                {orderItem.product.name}
+              </h3>
+              <p className="text-sm text-slate-600 mb-2">
+                Mô tả: {orderItem.product.description || "Không có mô tả"}
+              </p>
+              <p className="text-sm text-slate-700">
+                Giá:{" "}
+                <span className="font-semibold text-indigo-600">
+                  {formatPrice(orderItem.product.price)}
+                </span>
+              </p>
+              <p className="text-sm text-slate-700">
+                Số lượng: {orderItem.quantity}
+              </p>
+              <p className="text-sm text-slate-700">
+                Còn trong kho: {orderItem.product.stockQuantity}
+              </p>
+            </div>
           </div>
         ) : (
           <p>Không có dữ liệu chi tiết.</p>

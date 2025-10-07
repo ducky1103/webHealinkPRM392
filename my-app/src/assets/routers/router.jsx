@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../../components/HomePage/HomePage";
 import Login from "../../components/LoginPage/Login";
 import RegisterPage from "../../components/LoginPage/RegisterPage";
+import ProfilePage from "../../components/HomePage/Profile/Profile";
 import PrivateRoute from "./privateRoute";
 import AdminPage from "../../components/Admin/AdminPage";
 import AboutUs from "../../components/HomePage/AboutUs";
@@ -31,12 +32,13 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "login", element: <Login /> },
+      { path: "profile", element: <ProfilePage /> },
       { path: "write-letter", element: <WriteLetterPage /> },
       { path: "register", element: <RegisterPage /> },
       { path: "about-us", element: <AboutUs /> },
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
-      { path: "checkout/:userId", element: <CheckoutPage /> },
+      { path: "checkout/:id", element: <CheckoutPage /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
       { path: "track-orders", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
