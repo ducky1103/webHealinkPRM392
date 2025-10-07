@@ -9,6 +9,7 @@ import watchAddToCart from "./redux/User/product/postProductToCart/postProductTo
 import watchGetAllOrder from "./redux/User/order/fetchOrder/getAllOrderSaga";
 import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderItemSaga";
 import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
+import watchDeleteOrder from "./redux/User/order/deleteOrder/deleteOrderSaga";
 import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
 import watchForgotPassword, {
   watchCheckEmailExists,
@@ -25,6 +26,7 @@ import watchPostCategorySaga from "./redux/auth/admin/Categories/post_category/p
 import watchFetchCategorySaga from "./redux/auth/admin/Categories/fetch_category/fetchCategorySaga";
 import watchDeleteCategory from "./redux/auth/admin/Categories/delete_category/deleteCategorySaga";
 import watchUpdateCategory from "./redux/auth/admin/Categories/update_category/updateCategorySaga";
+import watchGetProfile from "./redux/User/profile/getProfileSaga";
 import watchUpdateProductSaga from "./redux/auth/admin/Product/update_Product/updateProductSaga";
 import watchDeleteProductSaga from "./redux/auth/admin/Product/delete_product/deleteProductSaga";
 
@@ -46,6 +48,7 @@ export default function* rootSaga() {
     watchGetAllOrder(),
     watchGetAllOrderItem(),
     watchGetOrderUser(),
+    watchDeleteOrder(),
     watchCheckoutCart(),
     watchForgotPassword(),
     watchVerifyResetToken(),
@@ -56,6 +59,9 @@ export default function* rootSaga() {
     watchFetchCategorySaga(),
     watchUpdateCategory(),
     watchDeleteCategory(),
+
+    //profile
+    watchGetProfile(),
     //prodcut
     watchPostProductSaga(),
     watchUpdateProductSaga(),

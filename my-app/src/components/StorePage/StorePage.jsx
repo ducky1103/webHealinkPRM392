@@ -55,7 +55,7 @@ const StorePage = () => {
       <Header />
 
       {/* Nút xem giỏ hàng */}
-      <div className="max-w-7xl mx-auto px-4 py-6 flex justify-end">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex justify-end mt-20">
         <button
           onClick={() => {
             if (!user) {

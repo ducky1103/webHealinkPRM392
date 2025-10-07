@@ -150,6 +150,18 @@ function CartButton({ user, onClick }) {
   );
 }
 
+function MenuLink({ to, label, onClick }) {
+  return (
+    <Link
+      to={to}
+      className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+      onClick={onClick}
+    >
+      {label}
+    </Link>
+  );
+}
+
 function UserMenu() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -194,7 +206,7 @@ function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden animate-fadeIn border border-slate-200">
+        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden animate-fadeIn border border-slate-200 z-50">
           <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 border-b border-slate-100">
             <p className="font-semibold text-slate-800 truncate">
               {displayName}
@@ -204,8 +216,8 @@ function UserMenu() {
 
           <div className="py-2">
             <MenuLink
-              to="/registered"
-              label="Hồ sơ"
+              to="/profile"
+              label="Hồ sơ cá nhân"
               onClick={() => setOpen(false)}
             />
             <MenuLink
@@ -240,17 +252,5 @@ function UserMenu() {
         </div>
       )}
     </div>
-  );
-}
-
-function MenuLink({ to, label, onClick }) {
-  return (
-    <Link
-      to={to}
-      className="block px-4 py-2 text-slate-700 hover:bg-amber-50 transition-colors duration-200 text-sm font-medium"
-      onClick={onClick}
-    >
-      {label}
-    </Link>
   );
 }

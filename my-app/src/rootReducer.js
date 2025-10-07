@@ -9,6 +9,7 @@ import addToCartReducer from "./redux/User/product/postProductToCart/postProduct
 import getAllOrderReducer from "./redux/User/order/fetchOrder/getAllOrderSlice";
 import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrderItemSlice";
 import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
+import deleteOrderReducer from "./redux/User/order/deleteOrder/deleteOrderSlice";
 import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
@@ -19,6 +20,7 @@ import fetchCategoryReducer from "./redux/auth/admin/Categories/fetch_category/f
 import postCategoryReducer from "./redux/auth/admin/Categories/post_category/postCategorySlice";
 import deleteCategoryReducer from "./redux/auth/admin/Categories/delete_category/deleteCategorySlice";
 import updateCategoryReducer from "./redux/auth/admin/Categories/update_category/updateCategorySlice";
+import getProfileReducer from "./redux/User/profile/getProfileSlice";
 import updateProductReducer from "./redux/auth/admin/Product/update_Product/updateProductSlice";
 import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
 import deleteProductReducer from "./redux/auth/admin/Product/delete_product/deleteProductSlice";
@@ -44,6 +46,7 @@ const rootReducer = combineReducers({
   order: getAllOrderReducer,
   orderItem: getAllOrderItemReducer,
   orderUser: getOrderUserReducer,
+  deleteOrderId: deleteOrderReducer,
   checkoutCart: checkoutCartReducer,
 
   //category
@@ -51,6 +54,9 @@ const rootReducer = combineReducers({
   postCategory: postCategoryReducer,
   updateCategory: updateCategoryReducer,
   deleteCategory: deleteCategoryReducer,
+
+  //profile
+  getProfile: getProfileReducer,
 });
 
 export default rootReducer;

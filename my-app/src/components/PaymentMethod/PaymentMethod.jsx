@@ -5,63 +5,62 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../HomePage/Header";
 import { getAllOrder } from "../../redux/User/order/fetchOrder/getAllOrderSlice";
-import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrderItemSlice";
-import { deleteOrder } from "../../redux/User/order/deleteOrder/deleteOrderSlice";
 import { getProfile } from "../../redux/User/profile/getProfileSlice";
-import { Modal, Spin } from "antd";
-import { Eye, Trash2 } from "lucide-react";
+import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrderItemSlice";
+import { Modal, Spin, Radio } from "antd";
+import { Eye } from "lucide-react";
+import payos from "../../img/payos.png";
 
-const CheckoutPage = () => {
+const PaymentMethodPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+
+  // Redux states
   const { order, loading, error } = useSelector((state) => state.order);
   const { orderItem, loading: itemLoading } = useSelector(
     (state) => state.orderItem
   );
-  const { loading: deleteLoading, success: deleteSuccess } = useSelector(
-    (state) => state.deleteOrderId
-  );
-
   const { profile } = useSelector((state) => state.getProfile);
   const userId = useSelector((state) => state.account?.user?.id);
 
+  // Local states
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("payos");
 
+  // Lấy thông tin đơn hàng
   useEffect(() => {
     if (id) {
       dispatch(getAllOrder(id));
     }
   }, [dispatch, id]);
 
+  // Lấy thông tin người dùng
   useEffect(() => {
     if (userId) {
       dispatch(getProfile(userId));
     }
   }, [dispatch, userId]);
 
-  useEffect(() => {
-    if (deleteSuccess) {
-      navigate("/cart");
-    }
-  }, [deleteSuccess, navigate]);
-
   const totalAmount = order?.totalAmount || 0;
 
+  // Hàm format giá tiền
   const formatPrice = (price) =>
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
 
+  // ✅ Gọi API xem chi tiết sản phẩm trong đơn hàng
   const handleViewDetail = (itemId) => {
-    dispatch(getAllOrderItem(itemId));
+    dispatch(getAllOrderItem(itemId)); // Gọi API lấy chi tiết sản phẩm
     setIsModalOpen(true);
   };
 
-  const handleDeleteOrder = () => {
-    if (id && window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này?")) {
-      dispatch(deleteOrder({ id }));
+  // Khi nhấn "Tiếp tục thanh toán"
+  const handleConfirmPayment = () => {
+    if (paymentMethod === "payos") {
+      navigate(`/payos/${id}`);
     }
   };
 
@@ -70,7 +69,7 @@ const CheckoutPage = () => {
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-12 mt-20">
         <h1 className="text-3xl text-center font-bold mb-6 text-slate-800">
-          Thanh toán
+          Chọn phương thức thanh toán
         </h1>
 
         {loading && <p>Đang tải đơn hàng...</p>}
@@ -78,10 +77,10 @@ const CheckoutPage = () => {
 
         {!loading && order && order.id ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Form thông tin giao hàng */}
+            {/* Thông tin giao hàng */}
             <div className="p-6 border rounded-lg bg-gradient-to-b from-amber-50 to-white shadow-sm">
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
-                Giao hàng tận nơi
+                Thông tin giao hàng
               </h2>
               <form className="space-y-4">
                 <input
@@ -98,7 +97,7 @@ const CheckoutPage = () => {
                 />
                 <input
                   type="text"
-                  value={profile.phoneNumber}
+                  value={profile.phoneNumber || ""}
                   readOnly
                   className="w-full p-3 border rounded-lg bg-gray-100"
                 />
@@ -107,11 +106,25 @@ const CheckoutPage = () => {
                   placeholder="Địa chỉ nhận hàng"
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 />
-                <textarea
-                  placeholder="Lưu ý cho shop"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                ></textarea>
               </form>
+
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">
+                  Phương thức thanh toán
+                </h3>
+                <Radio.Group
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="space-y-3 flex flex-col"
+                >
+                  <Radio value="payos">
+                    <div className="flex items-center gap-3">
+                      <img src={payos} alt="PayOS" className="w-50 h-30" />
+                      <span className="font-medium">Thanh toán qua PayOS</span>
+                    </div>
+                  </Radio>
+                </Radio.Group>
+              </div>
             </div>
 
             {/* Giỏ hàng */}
@@ -166,16 +179,10 @@ const CheckoutPage = () => {
                 </div>
 
                 <button
-                  onClick={handleDeleteOrder}
-                  disabled={deleteLoading}
-                  className="w-full rounded-lg bg-red-600 text-white py-2 mt-4 hover:bg-red-700 transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={handleConfirmPayment}
+                  className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-4 hover:bg-indigo-700 transition-all duration-300 shadow-md"
                 >
-                  <Trash2 size={18} />
-                  {deleteLoading ? "Đang xóa..." : "Xóa đơn hàng"}
-                </button>
-
-                <button className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-4 hover:bg-indigo-700 transition-all duration-300 shadow-md">
-                  Thanh toán
+                  Tiếp tục thanh toán
                 </button>
               </div>
             </div>
@@ -236,4 +243,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default PaymentMethodPage;
