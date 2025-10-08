@@ -97,7 +97,7 @@ const PodcastPage = () => {
   return (
     <>
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-12 mt-8">
         {/* Header */}
         <div className="flex items-center justify-center mb-10 space-x-4 text-amber-600">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-10 text-center">

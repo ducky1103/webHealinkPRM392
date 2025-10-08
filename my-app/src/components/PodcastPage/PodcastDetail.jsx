@@ -1,49 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Headset, Calendar, Clock, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "../HomePage/Header";
 import toast from "react-hot-toast";
 
+import { getComments } from "../../redux/User/comment/fetch_comment/fetchCommentSlice";
+import {
+  postComment,
+  resetPostComment,
+} from "../../redux/User/comment/post_comment/postCommentSilce";
+
 const PodcastDetail = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const { fetchPodcast: podcasts } = useSelector((state) => state.fetchPodcast);
+  const { comments, loading: loadingComments } = useSelector(
+    (state) => state.getComments
+  );
+  const { loading: postingComment, success: commentSuccess } = useSelector(
+    (state) => state.postComment
+  );
+  const { user } = useSelector((state) => state.account);
 
   // Find podcast by ID from Redux store
   const podcast = podcasts?.find((p) => p.id.toString() === id);
 
-  // Comments state
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      name: "Ẩn danh",
-      content: "Podcast rất hay và ý nghĩa!",
-      time: "1 giờ trước",
-    },
-    {
-      id: 2,
-      name: "Nguyễn Văn A",
-      content: "Cảm ơn vì nội dung tuyệt vời!",
-      time: "2 giờ trước",
-    },
-  ]);
   const [newComment, setNewComment] = useState("");
+
+  // Fetch comments when component mounts
+  useEffect(() => {
+    if (id) {
+      dispatch(getComments(id));
+    }
+  }, [dispatch, id]);
+
+  // Reset comment form after successful post
+  useEffect(() => {
+    if (commentSuccess) {
+      setNewComment("");
+      dispatch(resetPostComment());
+      // Reload comments
+      dispatch(getComments(id));
+    }
+  }, [commentSuccess, dispatch, id]);
 
   const handleAddComment = () => {
     if (newComment.trim() === "") {
       toast.error("Bình luận không được để trống!");
       return;
     }
-    const newCommentData = {
-      id: comments.length + 1,
-      name: "Ẩn danh",
-      content: newComment,
-      time: "Vừa xong",
-    };
-    setComments([newCommentData, ...comments]);
-    setNewComment("");
-    toast.success("Đã thêm bình luận!");
+
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để bình luận!");
+      return;
+    }
+
+    dispatch(
+      postComment({
+        podcastId: parseInt(id),
+        commentUser: user.username || "Ẩn danh",
+        content: newComment,
+      })
+    );
   };
 
   // If podcast not found in Redux, show not found
@@ -162,7 +182,7 @@ const PodcastDetail = () => {
           {/* Comments Section */}
           <div className="mt-12 bg-amber-100/10 border border-amber-800 rounded-2xl p-6 shadow-inner">
             <h2 className="text-2xl font-bold mb-6">
-              Bình luận ({comments.length})
+              Bình luận ({comments.length || 0})
             </h2>
 
             {/* Add comment form */}
@@ -172,34 +192,60 @@ const PodcastDetail = () => {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Chia sẻ cảm nghĩ của bạn về podcast này..."
                 className="w-full p-4 rounded-lg bg-amber-100/20 border border-amber-700 text-white placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-24"
+                disabled={postingComment}
               />
               <button
                 onClick={handleAddComment}
-                className="mt-4 px-6 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-all duration-300 font-medium"
+                disabled={postingComment}
+                className={`mt-4 px-6 py-2 rounded-lg text-white transition-all duration-300 font-medium flex items-center gap-2 ${
+                  postingComment
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-amber-600 hover:bg-amber-700"
+                }`}
               >
-                Gửi bình luận
+                {postingComment ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                    <span>Đang gửi...</span>
+                  </>
+                ) : (
+                  <span>Gửi bình luận</span>
+                )}
               </button>
             </div>
 
             {/* Comments list */}
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="p-4 bg-amber-100/20 rounded-lg border border-amber-700"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-amber-200">
-                      {comment.name}
-                    </span>
-                    <span className="text-sm text-amber-400">
-                      {comment.time}
-                    </span>
+            {loadingComments ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-400 mx-auto"></div>
+                <p className="text-amber-300 mt-4">Đang tải bình luận...</p>
+              </div>
+            ) : comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="p-4 bg-amber-100/20 rounded-lg border border-amber-700"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-amber-200">
+                        {comment.commentUser || "Ẩn danh"}
+                      </span>
+                      <span className="text-sm text-amber-400">
+                        {comment.createdAt
+                          ? new Date(comment.createdAt).toLocaleString("vi-VN")
+                          : ""}
+                      </span>
+                    </div>
+                    <p className="text-white">{comment.content}</p>
                   </div>
-                  <p className="text-white">{comment.content}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-amber-200">
+                <p>Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

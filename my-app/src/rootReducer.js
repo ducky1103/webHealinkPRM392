@@ -25,6 +25,10 @@ import getProfileReducer from "./redux/User/profile/getProfileSlice";
 import updateProductReducer from "./redux/auth/admin/Product/update_Product/updateProductSlice";
 import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
 import deleteProductReducer from "./redux/auth/admin/Product/delete_product/deleteProductSlice";
+import postLetterReducer from "./redux/User/letter/postLetterSlice";
+import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
+import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
+import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -58,9 +62,16 @@ const rootReducer = combineReducers({
 
   //profile
   getProfile: getProfileReducer,
+  //letter
+  postLetter: postLetterReducer,
 
   //payment
   createPayos: createPayosReducer,
+  //comment
+  postComment: postCommentReducer,
+  getComments: getCommentsReducer,
+  //ai
+  postChat: postChatReducer,
 });
 
 export default rootReducer;
