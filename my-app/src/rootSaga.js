@@ -29,6 +29,7 @@ import watchUpdateCategory from "./redux/auth/admin/Categories/update_category/u
 import watchGetProfile from "./redux/User/profile/getProfileSaga";
 import watchUpdateProductSaga from "./redux/auth/admin/Product/update_Product/updateProductSaga";
 import watchDeleteProductSaga from "./redux/auth/admin/Product/delete_product/deleteProductSaga";
+import watchPostLetter from "./redux/User/letter/postLetterSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -66,5 +67,7 @@ export default function* rootSaga() {
     watchPostProductSaga(),
     watchUpdateProductSaga(),
     watchDeleteProductSaga(),
+    //letter
+    watchPostLetter(),
   ]);
 }

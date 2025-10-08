@@ -24,6 +24,7 @@ import getProfileReducer from "./redux/User/profile/getProfileSlice";
 import updateProductReducer from "./redux/auth/admin/Product/update_Product/updateProductSlice";
 import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
 import deleteProductReducer from "./redux/auth/admin/Product/delete_product/deleteProductSlice";
+import postLetterReducer from "./redux/User/letter/postLetterSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -57,6 +58,8 @@ const rootReducer = combineReducers({
 
   //profile
   getProfile: getProfileReducer,
+  //letter
+  postLetter: postLetterReducer,
 });
 
 export default rootReducer;
