@@ -11,6 +11,7 @@ import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderI
 import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
 import watchDeleteOrder from "./redux/User/order/deleteOrder/deleteOrderSaga";
 import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
+import watchCreatePayos from "./redux/User/payos/createPayosSaga";
 import watchForgotPassword, {
   watchCheckEmailExists,
   watchResetPassword,
@@ -30,6 +31,9 @@ import watchGetProfile from "./redux/User/profile/getProfileSaga";
 import watchUpdateProductSaga from "./redux/auth/admin/Product/update_Product/updateProductSaga";
 import watchDeleteProductSaga from "./redux/auth/admin/Product/delete_product/deleteProductSaga";
 import watchPostLetter from "./redux/User/letter/postLetterSaga";
+import watchGetComments from "./redux/User/comment/fetch_comment/fetchCommentSaga";
+import watchPostComment from "./redux/User/comment/post_comment/postCommentSaga";
+import watchPostChatSaga from "./redux/User/ChatAI/chatAiSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -69,5 +73,13 @@ export default function* rootSaga() {
     watchDeleteProductSaga(),
     //letter
     watchPostLetter(),
+
+    //payment
+    watchCreatePayos(),
+    //comment
+    watchPostComment(),
+    watchGetComments(),
+    //ai
+    watchPostChatSaga(),
   ]);
 }

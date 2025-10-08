@@ -7,6 +7,7 @@ import img6 from "../../img/6.jpg";
 import Header from "./Header";
 import HealingLetter from "../HealingLetter/HealingLetter";
 import HeroCarousel from "../Home/HeroCarousel";
+import ChatAI from "../Chat/ChatAI";
 const HomePage = () => {
   return (
     <div className="text-slate-800">
@@ -149,7 +150,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
+      <ChatAI />
       {/* Footer */}
       <Footer />
     </div>

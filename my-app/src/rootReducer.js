@@ -11,6 +11,7 @@ import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrde
 import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import deleteOrderReducer from "./redux/User/order/deleteOrder/deleteOrderSlice";
 import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
+import createPayosReducer from "./redux/User/payos/createPayosSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
@@ -25,6 +26,9 @@ import updateProductReducer from "./redux/auth/admin/Product/update_Product/upda
 import postProductReducer from "./redux/auth/admin/Product/post_product/postProductSlice";
 import deleteProductReducer from "./redux/auth/admin/Product/delete_product/deleteProductSlice";
 import postLetterReducer from "./redux/User/letter/postLetterSlice";
+import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
+import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
+import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -60,6 +64,14 @@ const rootReducer = combineReducers({
   getProfile: getProfileReducer,
   //letter
   postLetter: postLetterReducer,
+
+  //payment
+  createPayos: createPayosReducer,
+  //comment
+  postComment: postCommentReducer,
+  getComments: getCommentsReducer,
+  //ai
+  postChat: postChatReducer,
 });
 
 export default rootReducer;

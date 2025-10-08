@@ -120,6 +120,18 @@ const WriteLetterPage = () => {
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 relative overflow-hidden">
+        {/* Google Fonts Import */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+          rel="stylesheet"
+        />
+
         {/* Background decorative elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-32 h-32 bg-amber-300 rounded-full blur-3xl"></div>
@@ -151,11 +163,22 @@ const WriteLetterPage = () => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-green-600 animate-pulse" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              <h3
+                className="text-2xl font-bold text-gray-800 mb-2"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
                 Thư đã được lên lịch!
               </h3>
-              <p className="text-gray-600 mb-2">Thư của bạn sẽ được gửi vào:</p>
-              <p className="text-amber-700 font-semibold">
+              <p
+                className="text-gray-600 mb-2"
+                style={{ fontFamily: "'Noto Serif', serif" }}
+              >
+                Thư của bạn sẽ được gửi vào:
+              </p>
+              <p
+                className="text-amber-700 font-semibold"
+                style={{ fontFamily: "'Noto Serif', serif" }}
+              >
                 {new Date(`${sendDate}T${sendTime}`).toLocaleString("vi-VN")}
               </p>
             </div>
@@ -163,150 +186,214 @@ const WriteLetterPage = () => {
         )}
 
         <div className="flex items-center justify-center min-h-screen p-4 py-24">
-          <div className="max-w-4xl w-full">
+          <div className="max-w-5xl w-full">
             {/* Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-10">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <Feather className="w-8 h-8 text-amber-700" />
-                <h1 className="text-4xl font-bold text-amber-900">
+                <h1
+                  className="text-5xl font-bold text-amber-900"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
                   Thư gửi tương lai
                 </h1>
                 <Feather className="w-8 h-8 text-amber-700 scale-x-[-1]" />
               </div>
-              <p className="text-amber-700 text-lg font-semibold">
+              <p
+                className="text-amber-700 text-lg"
+                style={{ fontFamily: "'Noto Serif', serif" }}
+              >
                 Viết những lời nhắn yêu thương cho chính mình trong tương lai
               </p>
             </div>
 
             {/* Letter Paper */}
             <div className="relative">
+              {/* Shadow layers for depth */}
+              <div className="absolute -inset-2 bg-amber-200/30 rounded-xl blur-sm"></div>
+              <div className="absolute -inset-1 bg-amber-100/50 rounded-lg blur-[2px]"></div>
+
               {/* Main paper */}
-              <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg shadow-2xl overflow-hidden">
-                {/* Paper texture overlay */}
+              <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 border-4 border-amber-300/60 rounded-xl shadow-2xl overflow-hidden">
+                {/* Vintage paper texture */}
                 <div
-                  className="absolute inset-0 opacity-5"
+                  className="absolute inset-0 opacity-[0.03]"
                   style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='0.1'%3E%3Ccircle cx='5' cy='5' r='1'/%3E%3Ccircle cx='25' cy='15' r='0.5'/%3E%3Ccircle cx='45' cy='25' r='1'/%3E%3Ccircle cx='15' cy='35' r='0.5'/%3E%3Ccircle cx='35' cy='45' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.3' /%3E%3C/svg%3E")`,
                   }}
                 ></div>
 
-                {/* Red margin line */}
-                <div className="absolute left-16 top-0 bottom-0 w-0.5 bg-red-300 opacity-30"></div>
+                {/* Decorative header border */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40"></div>
+
+                {/* Left margin line */}
+                <div className="absolute left-20 top-0 bottom-0 w-px bg-red-400/40"></div>
 
                 {/* Letter content */}
-                <div className="relative p-8 pl-20 pr-8">
+                <div className="relative p-10 pl-24 pr-12">
+                  {/* Ornamental top corner */}
+                  <div className="absolute top-6 right-6 w-16 h-16 opacity-20">
+                    <svg
+                      viewBox="0 0 100 100"
+                      className="text-amber-600 fill-current"
+                    >
+                      <path d="M50,10 Q80,30 90,50 Q70,70 50,90 Q30,70 10,50 Q20,30 50,10 Z" />
+                    </svg>
+                  </div>
+
                   {/* Date line */}
-                  <div className="text-right mb-6">
-                    <div className="inline-block border-b border-amber-300 pb-1">
-                      <span className="text-amber-600 font-serif text-sm">
-                        {new Date().toLocaleDateString("vi-VN")}
+                  <div className="text-right mb-8">
+                    <div className="inline-block">
+                      <span
+                        className="text-amber-700 text-sm tracking-wide"
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                      >
+                        {new Date().toLocaleDateString("vi-VN", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
                       </span>
+                      <div className="h-px bg-amber-400/50 mt-1"></div>
                     </div>
                   </div>
 
                   {/* Greeting */}
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-serif text-amber-900 mb-2">
+                  <div className="mb-8">
+                    <h2
+                      className="text-3xl text-amber-900 mb-1"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
                       Gửi tương lai của tôi,
                     </h2>
+                    <div className="w-32 h-0.5 bg-gradient-to-r from-amber-400 to-transparent"></div>
                   </div>
 
-                  <form className="space-y-6">
-                    {/* Email field - Read only */}
+                  <form className="space-y-7">
+                    {/* Email field */}
                     <div className="relative">
-                      <label className="block text-amber-800 font-serif mb-2 text-sm">
-                        Email nhận thư: <span className="text-red-500">*</span>
+                      <label
+                        className="block text-amber-800 mb-2 text-sm font-medium tracking-wide"
+                        style={{ fontFamily: "'Noto Serif', serif" }}
+                      >
+                        Email nhận thư <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
                         placeholder="Đang tải email..."
                         value={email}
                         readOnly
-                        className="w-full p-3 bg-amber-50/50 border-b-2 border-amber-300 text-amber-900 placeholder-amber-400 focus:outline-none font-serif text-lg cursor-not-allowed"
+                        className="w-full p-3 bg-white/60 border-b-2 border-amber-300 text-amber-900 placeholder-amber-400 focus:outline-none text-base cursor-not-allowed backdrop-blur-sm"
+                        style={{ fontFamily: "'Noto Serif', serif" }}
                       />
                     </div>
 
                     {/* Title field */}
                     <div className="relative">
-                      <label className="block text-amber-800 font-serif mb-2 text-sm">
-                        Tiêu đề: <span className="text-red-500">*</span>
+                      <label
+                        className="block text-amber-800 mb-2 text-sm font-medium tracking-wide"
+                        style={{ fontFamily: "'Noto Serif', serif" }}
+                      >
+                        Tiêu đề <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         placeholder="Nhập tiêu đề thư..."
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full p-3 bg-transparent border-b-2 border-amber-300 text-amber-900 placeholder-amber-400 focus:outline-none focus:border-amber-600 transition-colors font-serif text-lg"
+                        className="w-full p-3 bg-transparent border-b-2 border-amber-300 text-amber-900 placeholder-amber-400 focus:outline-none focus:border-amber-600 transition-colors text-lg"
+                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
                       />
                     </div>
 
                     {/* Date and Time selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="relative">
-                        <label className="block text-amber-800 font-serif mb-2 text-sm flex items-center gap-2">
+                        <label
+                          className="block text-amber-800 mb-2 text-sm font-medium tracking-wide flex items-center gap-2"
+                          style={{ fontFamily: "'Noto Serif', serif" }}
+                        >
                           <Calendar className="w-4 h-4" />
-                          Ngày gửi: <span className="text-red-500">*</span>
+                          Ngày gửi <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="date"
                           value={sendDate}
                           onChange={(e) => setSendDate(e.target.value)}
                           min={today}
-                          className="w-full p-3 bg-white/50 border-2 border-amber-300 rounded-lg text-amber-900 focus:outline-none focus:border-amber-600 transition-colors font-serif"
+                          className="w-full p-3 bg-white/60 border-2 border-amber-300 rounded-lg text-amber-900 focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-200 transition-all backdrop-blur-sm"
+                          style={{ fontFamily: "'Noto Serif', serif" }}
                         />
                       </div>
                       <div className="relative">
-                        <label className="block text-amber-800 font-serif mb-2 text-sm">
-                          Giờ gửi: <span className="text-red-500">*</span>
+                        <label
+                          className="block text-amber-800 mb-2 text-sm font-medium tracking-wide"
+                          style={{ fontFamily: "'Noto Serif', serif" }}
+                        >
+                          Giờ gửi <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="time"
                           value={sendTime}
                           onChange={(e) => setSendTime(e.target.value)}
                           min={getMinTime()}
-                          className="w-full p-3 bg-white/50 border-2 border-amber-300 rounded-lg text-amber-900 focus:outline-none focus:border-amber-600 transition-colors font-serif"
+                          className="w-full p-3 bg-white/60 border-2 border-amber-300 rounded-lg text-amber-900 focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-200 transition-all backdrop-blur-sm"
+                          style={{ fontFamily: "'Noto Serif', serif" }}
                         />
                       </div>
                     </div>
 
                     {/* Message field */}
                     <div className="relative">
-                      <label className="block text-amber-800 font-serif mb-2 text-sm">
-                        Nội dung thư: <span className="text-red-500">*</span>
+                      <label
+                        className="block text-amber-800 mb-2 text-sm font-medium tracking-wide"
+                        style={{ fontFamily: "'Noto Serif', serif" }}
+                      >
+                        Nội dung thư <span className="text-red-500">*</span>
                       </label>
-                      <div className="relative">
+                      <div className="relative bg-white/30 rounded-lg p-1 backdrop-blur-sm">
                         <div
-                          className="absolute inset-0 pointer-events-none"
+                          className="absolute inset-0 pointer-events-none rounded-lg"
                           style={{
                             backgroundImage:
-                              "repeating-linear-gradient(transparent, transparent 29px, #d97706 29px, #d97706 30px)",
-                            opacity: 0.1,
+                              "repeating-linear-gradient(transparent, transparent 31px, rgba(217, 119, 6, 0.08) 31px, rgba(217, 119, 6, 0.08) 32px)",
                           }}
                         ></div>
                         <textarea
                           placeholder="Tôi muốn nhắn gửi đến bản thân trong tương lai rằng..."
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
-                          className="w-full p-4 bg-transparent text-amber-900 placeholder-amber-400 focus:outline-none resize-none font-serif text-lg leading-8 relative z-10"
-                          rows={10}
+                          className="w-full p-4 bg-transparent text-amber-900 placeholder-amber-400/70 focus:outline-none resize-none text-base leading-8 relative z-10"
+                          rows={12}
                           style={{
-                            lineHeight: "30px",
-                            paddingTop: "5px",
+                            fontFamily: "'Cormorant Garamond', serif",
+                            lineHeight: "32px",
                           }}
                         />
                       </div>
                     </div>
 
                     {/* Signature area */}
-                    <div className="flex justify-end mt-8">
+                    <div className="flex justify-end mt-10 mb-4">
                       <div className="text-right">
-                        <div className="text-amber-800 font-serif mb-2">
-                          Với tình yêu,
+                        <div
+                          className="text-amber-800 mb-3 italic"
+                          style={{
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: "17px",
+                          }}
+                        >
+                          Với tình yêu thương,
                         </div>
-                        <div className="border-b border-amber-300 w-32 pb-1">
-                          <span className="text-amber-600 font-serif italic">
+                        <div className="relative inline-block">
+                          <span
+                            className="text-amber-700 italic text-lg"
+                            style={{ fontFamily: "'Playfair Display', serif" }}
+                          >
                             {profile?.fullname || "Bản thân hiện tại"}
                           </span>
+                          <div className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
                         </div>
                       </div>
                     </div>
@@ -314,23 +401,24 @@ const WriteLetterPage = () => {
                 </div>
 
                 {/* Decorative corners */}
-                <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-amber-400 opacity-30"></div>
-                <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-amber-400 opacity-30"></div>
-                <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-amber-400 opacity-30"></div>
-                <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-amber-400 opacity-30"></div>
+                <div className="absolute top-5 left-5 w-10 h-10 border-l-2 border-t-2 border-amber-500/40 rounded-tl-lg"></div>
+                <div className="absolute top-5 right-5 w-10 h-10 border-r-2 border-t-2 border-amber-500/40 rounded-tr-lg"></div>
+                <div className="absolute bottom-5 left-5 w-10 h-10 border-l-2 border-b-2 border-amber-500/40 rounded-bl-lg"></div>
+                <div className="absolute bottom-5 right-5 w-10 h-10 border-r-2 border-b-2 border-amber-500/40 rounded-br-lg"></div>
               </div>
 
               {/* Send button */}
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-10">
                 <button
                   type="button"
                   onClick={handleSendLetter}
                   disabled={loading}
-                  className={`group relative px-8 py-4 rounded-full font-serif text-lg font-semibold transition-all duration-300 shadow-lg transform hover:scale-105 ${
+                  className={`group relative px-10 py-4 rounded-full text-lg font-semibold transition-all duration-300 shadow-xl transform hover:scale-105 ${
                     loading
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+                      : "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white hover:shadow-2xl"
                   }`}
+                  style={{ fontFamily: "'Noto Serif', serif" }}
                 >
                   <div className="flex items-center gap-3">
                     {loading ? (
@@ -347,7 +435,7 @@ const WriteLetterPage = () => {
                   </div>
 
                   {!loading && (
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-20 transition-opacity -z-10 blur-xl"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-30 transition-opacity -z-10 blur-xl"></div>
                   )}
                 </button>
               </div>

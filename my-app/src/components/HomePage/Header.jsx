@@ -4,13 +4,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { logoutRequest } from "../../redux/auth/authSlice";
 import { getDisplayName } from "../../utils/role";
+import { getAllCart } from "../../redux/User/cartApi/fetchCart/getAllCartSlice";
 import logo from "../../img/logo.jpg";
 import { Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
 
 function Header() {
   const { user } = useSelector((state) => state.account);
+  const { cart } = useSelector((state) => state.cart);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const dispatch = useDispatch();
+
+  // 🔹 Lấy số lượng item trong giỏ
+  const cartCount = cart?.items?.length || 0;
+
+  useEffect(() => {
+    if (user) {
+      dispatch(getAllCart());
+    }
+  }, [dispatch, user]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -36,7 +49,8 @@ function Header() {
             <LinkItem href="/podcast" label="Podcast" />
             <LinkItem href="/about-us" label="Về chúng tôi" />
             <LinkItem href="/store" label="Cửa hàng" />
-            <CartButton user={user} />
+            {/* 🔹 Truyền cartCount xuống */}
+            <CartButton user={user} cartCount={cartCount} />
           </nav>
 
           {/* User menu + Mobile button */}
@@ -80,7 +94,12 @@ function Header() {
               label="Cửa hàng"
               onClick={() => setMobileMenuOpen(false)}
             />
-            <CartButton user={user} onClick={() => setMobileMenuOpen(false)} />
+            {/* 🔹 Truyền cartCount vào menu mobile */}
+            <CartButton
+              user={user}
+              cartCount={cartCount}
+              onClick={() => setMobileMenuOpen(false)}
+            />
           </div>
         </div>
       )}
@@ -123,7 +142,8 @@ function LinkItem({ href, label, onClick }) {
   );
 }
 
-function CartButton({ user, onClick }) {
+// ✅ CartButton có thêm prop cartCount
+function CartButton({ user, cartCount, onClick }) {
   const handleClick = (e) => {
     if (!user) {
       e.preventDefault();
@@ -143,9 +163,11 @@ function CartButton({ user, onClick }) {
       className="relative flex items-center p-2 rounded-xl hover:bg-[#8B5E3C]/40 transition"
     >
       <ShoppingCart className="w-5 h-5 text-white" />
-      <span className="absolute -top-1 -right-1 bg-gradient-to-br from-[#d38245] to-[#8B5E3C] text-xs font-bold text-white rounded-full h-4 w-4 flex items-center justify-center shadow-md">
-        0
-      </span>
+      {cartCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-gradient-to-br from-[#d38245] to-[#8B5E3C] text-xs font-bold text-white rounded-full h-4 w-4 flex items-center justify-center shadow-md">
+          {cartCount}
+        </span>
+      )}
     </a>
   );
 }
