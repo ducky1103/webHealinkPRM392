@@ -29,6 +29,7 @@ import postLetterReducer from "./redux/User/letter/postLetterSlice";
 import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
 import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
 import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
+import postFlashCardReducer from "./redux/User/flashCardAI/postFlashCardSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -72,6 +73,7 @@ const rootReducer = combineReducers({
   getComments: getCommentsReducer,
   //ai
   postChat: postChatReducer,
+  postFlashCard: postFlashCardReducer,
 });
 
 export default rootReducer;

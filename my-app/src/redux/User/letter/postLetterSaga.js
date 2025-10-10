@@ -47,6 +47,7 @@ function* postLetterSaga(action) {
     const errorMessage = error.response?.data?.message || error.message;
     yield put(postLetterFailure(errorMessage));
     toast.error(`Lỗi: ${errorMessage}`);
+    console.log("Error in postLetterSaga:", errorMessage);
   }
 }
 

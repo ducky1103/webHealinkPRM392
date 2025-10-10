@@ -34,6 +34,7 @@ import watchPostLetter from "./redux/User/letter/postLetterSaga";
 import watchGetComments from "./redux/User/comment/fetch_comment/fetchCommentSaga";
 import watchPostComment from "./redux/User/comment/post_comment/postCommentSaga";
 import watchPostChatSaga from "./redux/User/ChatAI/chatAiSaga";
+import watchPostFlashCard from "./redux/User/flashCardAI/postFlashCardSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -81,5 +82,6 @@ export default function* rootSaga() {
     watchGetComments(),
     //ai
     watchPostChatSaga(),
+    watchPostFlashCard(),
   ]);
 }
