@@ -11,7 +11,6 @@ import PodcastDetail from "../../components/PodcastPage/PodcastDetail";
 import StorePage from "../../components/StorePage/StorePage";
 import CartPage from "../../components/CartPage/CartPage";
 import CheckoutPage from "../../components/CheckoutPage/CheckoutPage";
-import PaymentMethodPage from "../../components/PaymentMethod/PaymentMethod";
 import PaymentSuccess from "../../components/PaymentMethod/PaymentSuccess";
 import PaymentCancel from "../../components/PaymentMethod/PaymentCancel";
 import WriteLetterPage from "../../components/WriteLetterPage/WriteLetterPage";
@@ -42,7 +41,6 @@ const router = createBrowserRouter([
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout/:id", element: <CheckoutPage /> },
-      { path: "payment_method/:id", element: <PaymentMethodPage /> },
       { path: "payment-success", element: <PaymentSuccess /> },
       { path: "payment-cancel", element: <PaymentCancel /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
