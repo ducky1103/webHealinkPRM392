@@ -13,11 +13,11 @@ const URL_API = "http://localhost:8080";
 function* createPayosSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
-    const orderId = action.payload;
+    const body = action.payload;
     const response = yield call(
       axios.post,
-      `${URL_API}/payos/create?orderId=${orderId}`,
-      {},
+      `${URL_API}/payos/create`,
+      { body },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -38,6 +38,7 @@ function* createPayosSaga(action) {
   } catch (error) {
     yield put(createPayosFail(error.message));
     toast.error("Lỗi khi tạo thanh toán PayOS");
+    console.log;
   }
 }
 

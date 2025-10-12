@@ -34,8 +34,6 @@ function* postFlashCardSaga(action) {
   } catch (error) {
     const errorMessage = error.response?.data?.message || error.message;
     yield put(postFlashCardFailure(errorMessage));
-    toast.error(`Lỗi: ${errorMessage}`);
-    console.log("Error in postFlashCardSaga:", errorMessage);
   }
 }
 function* watchPostFlashCard() {

@@ -117,7 +117,7 @@ function Flashcard() {
                   {/* Nếu lỗi */}
                   {error && (
                     <p className="text-center text-rose-600 italic">
-                      Lỗi: {error}
+                      Lỗi: Bạn vui lòng thử lại sau nhé!
                     </p>
                   )}
 
