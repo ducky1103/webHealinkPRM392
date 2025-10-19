@@ -7,6 +7,7 @@ import { getDisplayName } from "../../utils/role";
 import { getAllCart } from "../../redux/User/cartApi/fetchCart/getAllCartSlice";
 import logo from "../../img/logo.jpg";
 import { Menu, X, ShoppingCart, ChevronDown } from "lucide-react";
+import Flashcard from "./Flashcard/Flashcard";
 
 function Header() {
   const { user } = useSelector((state) => state.account);
@@ -16,7 +17,6 @@ function Header() {
 
   const dispatch = useDispatch();
 
-  // 🔹 Lấy số lượng item trong giỏ
   const cartCount = cart?.items?.length || 0;
 
   useEffect(() => {
@@ -101,6 +101,7 @@ function Header() {
               onClick={() => setMobileMenuOpen(false)}
             />
           </div>
+          <Flashcard />
         </div>
       )}
     </header>
@@ -257,6 +258,7 @@ function UserMenu() {
               label="Theo dõi đơn hàng"
               onClick={() => setOpen(false)}
             />
+            <MenuLink to="/game" label="Game" onClick={() => setOpen(false)} />
           </div>
 
           <div className="border-t border-slate-100 p-2">

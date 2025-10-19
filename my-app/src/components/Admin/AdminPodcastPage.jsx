@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { use, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import logo from "../../img/logo.jpg";
 import {
   Modal,
   Form,
@@ -191,7 +191,7 @@ const AdminPodcastPage = () => {
 
     // Fix: Set multiple categories for update
     const selectedCategories = podcast.categories
-      ? podcast.categories.map((cat) => cat.id.toString())
+      ? podcast.categories.map((cat) => cat.id)
       : [];
 
     updateForm.setFieldsValue({
@@ -279,7 +279,6 @@ const AdminPodcastPage = () => {
             </Button>
           </div>
         </div>
-
         {/* Loading State */}
         {fetchLoading ? (
           <div className="flex items-center justify-center py-20">
@@ -312,7 +311,7 @@ const AdminPodcastPage = () => {
               <Card
                 key={podcast.id}
                 hoverable
-                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white"
+                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white flex flex-col"
                 cover={
                   <div className="relative h-52 overflow-hidden">
                     <img
@@ -324,14 +323,6 @@ const AdminPodcastPage = () => {
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                    <div className="absolute top-3 left-3">
-                      <Tag
-                        color={categoryColors[podcast.category] || "default"}
-                        className="px-3 py-1 rounded-full text-xs font-medium border-0 shadow-sm"
-                      >
-                        {podcast.category}
-                      </Tag>
-                    </div>
                     <div className="absolute bottom-3 left-3 right-3">
                       <h3 className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
                         {podcast.title}
@@ -341,19 +332,23 @@ const AdminPodcastPage = () => {
                 }
                 bodyStyle={{ padding: "16px" }}
               >
-                <div className="space-y-3">
-                  <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
-                    {podcast.description}
-                  </p>
+                <div className="flex flex-col justify-between h-[170px] space-y-3">
+                  <div>
+                    <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                      {podcast.description}
+                    </p>
 
-                  <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                    <div className="flex items-center space-x-1">
-                      <SoundOutlined className="text-blue-500" />
-                      <span>{podcast.duration || "N/A"}</span>
+                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                      <div className="flex items-center space-x-1">
+                        <SoundOutlined className="text-blue-500" />
+                        <span>{podcast.duration || "N/A"}</span>
+                      </div>
+                      <span>
+                        {new Date(podcast.createdAt).toLocaleDateString(
+                          "vi-VN"
+                        )}
+                      </span>
                     </div>
-                    <span>
-                      {new Date(podcast.createdAt).toLocaleDateString("vi-VN")}
-                    </span>
                   </div>
 
                   {/* Action Buttons */}
@@ -403,11 +398,17 @@ const AdminPodcastPage = () => {
             ))}
           </div>
         )}
-
-        {/* Modal for Adding Podcast */}
+        {/* Modal for Adding Podcast */};
         <Modal
           title={
-            <div className="text-xl font-semibold text-gray-800 pb-4 border-b border-gray-200">
+            <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+              <span>
+                <img
+                  src={logo}
+                  alt=""
+                  className="w-8 h-8 rounded-md inline-block mr-2"
+                />
+              </span>{" "}
               Đăng Podcast Mới
             </div>
           }
@@ -421,19 +422,36 @@ const AdminPodcastPage = () => {
           cancelText="Hủy"
           confirmLoading={loading}
           width={600}
+          className="rounded-2xl overflow-hidden"
+          bodyStyle={{
+            background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+            borderRadius: "16px",
+            padding: "24px 28px",
+          }}
         >
           <Form form={form} layout="vertical">
+            {/* Tên Podcast */}
             <Form.Item
               name="title"
-              label="Tên Podcast"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Tên Podcast *
+                </span>
+              }
               rules={[{ required: true, message: "Vui lòng nhập tên podcast" }]}
             >
-              <Input placeholder="Nhập tên podcast..." />
+              <Input
+                placeholder="Nhập tên podcast..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+              />
             </Form.Item>
 
+            {/* Thể loại */}
             <Form.Item
               name="categories"
-              label="Thể loại"
+              label={
+                <span className="text-[#6B4F3B] font-medium">Thể loại *</span>
+              }
               rules={[
                 {
                   required: true,
@@ -444,17 +462,19 @@ const AdminPodcastPage = () => {
               ]}
             >
               <Checkbox.Group style={{ width: "100%" }}>
-                <Row gutter={[16, 8]}>
-                  {/* Dynamic categories from API */}
+                <Row gutter={[16, 10]}>
                   {Array.isArray(categories) &&
-                    categories.length > 0 &&
                     categories.map((cat) => (
                       <Col span={12} key={cat.id}>
                         <Checkbox
                           value={cat.id.toString()}
-                          className="w-full p-2 border rounded hover:bg-blue-50"
+                          className="flex items-center px-2 py-1 rounded-lg transition text-[#5B4636] hover:bg-[#f5efea]"
+                          style={{
+                            border: "none",
+                            background: "transparent",
+                          }}
                         >
-                          <span className="ml-2">{cat.name}</span>
+                          {cat.name}
                         </Checkbox>
                       </Col>
                     ))}
@@ -462,44 +482,75 @@ const AdminPodcastPage = () => {
               </Checkbox.Group>
             </Form.Item>
 
+            {/* Mô tả */}
             <Form.Item
               name="description"
-              label="Mô tả"
+              label={
+                <span className="text-[#6B4F3B] font-medium">Mô tả *</span>
+              }
               rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
             >
-              <TextArea rows={3} placeholder="Nhập mô tả podcast..." />
+              <TextArea
+                rows={3}
+                placeholder="Nhập mô tả podcast..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+              />
             </Form.Item>
 
+            {/* Ảnh Thumbnail */}
             <Form.Item
               name="image"
-              label="Ảnh Thumbnail"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Ảnh Thumbnail *
+                </span>
+              }
               rules={[
                 { required: true, message: "Vui lòng tải ảnh thumbnail" },
               ]}
             >
               <Upload {...uploadProps} listType="picture" accept="image/*">
-                <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
+                >
+                  Chọn ảnh
+                </Button>
               </Upload>
             </Form.Item>
 
+            {/* File MP3 */}
             <Form.Item
               name="audio"
-              label="File MP3"
+              label={
+                <span className="text-[#6B4F3B] font-medium">File MP3 *</span>
+              }
               rules={[
                 { required: true, message: "Vui lòng tải file âm thanh" },
               ]}
             >
               <Upload {...uploadProps} accept=".mp3,audio/*">
-                <Button icon={<UploadOutlined />}>Chọn file MP3</Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
+                >
+                  Chọn file MP3
+                </Button>
               </Upload>
             </Form.Item>
           </Form>
         </Modal>
-
         {/* Modal for Updating Podcast */}
         <Modal
           title={
-            <div className="text-xl font-semibold text-gray-800 pb-4 border-b border-gray-200">
+            <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+              <span>
+                <img
+                  src={logo}
+                  alt=""
+                  className="w-8 h-8 rounded-md inline-block mr-2"
+                />
+              </span>{" "}
               Cập nhật Podcast
             </div>
           }
@@ -514,19 +565,34 @@ const AdminPodcastPage = () => {
           cancelText="Hủy"
           confirmLoading={updateLoading}
           width={600}
+          className="rounded-2xl overflow-hidden"
+          bodyStyle={{
+            background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+            borderRadius: "16px",
+            padding: "24px 28px",
+          }}
         >
           <Form form={updateForm} layout="vertical">
             <Form.Item
               name="title"
-              label="Tên Podcast"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Tên Podcast *
+                </span>
+              }
               rules={[{ required: true, message: "Vui lòng nhập tên podcast" }]}
             >
-              <Input placeholder="Nhập tên podcast..." />
+              <Input
+                placeholder="Nhập tên podcast..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+              />
             </Form.Item>
 
             <Form.Item
               name="categories"
-              label="Thể loại"
+              label={
+                <span className="text-[#6B4F3B] font-medium">Thể loại *</span>
+              }
               rules={[
                 {
                   required: true,
@@ -537,17 +603,19 @@ const AdminPodcastPage = () => {
               ]}
             >
               <Checkbox.Group style={{ width: "100%" }}>
-                <Row gutter={[16, 8]}>
-                  {/* Dynamic categories from API */}
+                <Row gutter={[16, 10]}>
                   {Array.isArray(categories) &&
-                    categories.length > 0 &&
                     categories.map((cat) => (
                       <Col span={12} key={`update-${cat.id}`}>
                         <Checkbox
                           value={cat.id.toString()}
-                          className="w-full p-2 border rounded hover:bg-blue-50"
+                          className="flex items-center px-2 py-1 rounded-lg transition text-[#5B4636] hover:bg-[#f5efea]"
+                          style={{
+                            border: "none",
+                            background: "transparent",
+                          }}
                         >
-                          <span className="ml-2">{cat.name}</span>
+                          {cat.name}
                         </Checkbox>
                       </Col>
                     ))}
@@ -557,21 +625,49 @@ const AdminPodcastPage = () => {
 
             <Form.Item
               name="description"
-              label="Mô tả"
+              label={
+                <span className="text-[#6B4F3B] font-medium">Mô tả *</span>
+              }
               rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
             >
-              <TextArea rows={3} placeholder="Nhập mô tả podcast..." />
+              <TextArea
+                rows={3}
+                placeholder="Nhập mô tả podcast..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+              />
             </Form.Item>
 
-            <Form.Item name="image" label="Ảnh Thumbnail (tùy chọn)">
+            <Form.Item
+              name="image"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Ảnh Thumbnail *
+                </span>
+              }
+            >
               <Upload {...uploadProps} listType="picture" accept="image/*">
-                <Button icon={<UploadOutlined />}>Chọn ảnh mới</Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
+                >
+                  Chọn ảnh
+                </Button>
               </Upload>
             </Form.Item>
 
-            <Form.Item name="audio" label="File MP3 (tùy chọn)">
+            <Form.Item
+              name="audio"
+              label={
+                <span className="text-[#6B4F3B] font-medium">File MP3 *</span>
+              }
+            >
               <Upload {...uploadProps} accept=".mp3,audio/*">
-                <Button icon={<UploadOutlined />}>Chọn file MP3 mới</Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
+                >
+                  Chọn file MP3
+                </Button>
               </Upload>
             </Form.Item>
           </Form>

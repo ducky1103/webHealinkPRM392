@@ -21,11 +21,6 @@ export default function Login() {
   }, [token, user, navigate]);
 
   const onFinish = (values) => {
-    console.log("🔄 Login with:", {
-      username: values.username,
-      password: "***hidden***",
-    });
-
     const payload = {
       username: values.username,
       password: values.password,
