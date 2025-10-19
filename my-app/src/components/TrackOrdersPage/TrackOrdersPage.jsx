@@ -1,394 +1,533 @@
-import React, { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Package,
   Truck,
   CheckCircle,
-  Clock,
-  MapPin,
-  Phone,
-  User,
+  CreditCard,
+  FileCheck,
+  PackageCheck,
+  Home,
+  ShoppingCart,
 } from "lucide-react";
 import Header from "../HomePage/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { Spin, Alert } from "antd";
+import { getOrderUser } from "../../redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
+import { updateStatusOrder } from "../../redux/User/order/updateStatusOrder/updateStatusOrderSlice";
 
-const TrackOrdersPage = () => {
+export default function TrackOrdersPage() {
+  const dispatch = useDispatch();
+  const { orderUser, loading, error } = useSelector((state) => state.orderUser);
+  const user = useSelector((state) => state.account.user);
   const [selectedOrder, setSelectedOrder] = useState(0);
 
-  const mockOrders = [
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(getOrderUser({ userId: user.id, page: 1, size: 200 }));
+    }
+  }, [dispatch, user]);
+
+  const getOrderStep = (status) => {
+    const statusMap = {
+      paid: 0,
+      confirmed: 1,
+      processing: 2,
+      shipped: 3,
+      delivered: 4,
+      received: 5,
+      completed: 6,
+    };
+    return statusMap[status?.toLowerCase()] ?? 0;
+  };
+
+  const orderSteps = [
     {
-      id: "VT2025001",
-      product: "Vòng Tay Bạc Sterling 925 Hình Lá",
-      image:
-        "https://images.pexels.com/photos/691046/pexels-photo-691046.jpeg?auto=compress&cs=tinysrgb&w=400",
-      price: "1.250.000 VNĐ",
-      orderDate: "15/01/2025",
-      estimatedDelivery: "20/01/2025",
-      status: "shipping",
-      trackingNumber: "VN123456789",
-      timeline: [
-        {
-          status: "confirmed",
-          title: "Xác nhận đơn hàng",
-          description: "Đơn hàng đã được xác nhận và đang chuẩn bị",
-          time: "15/01/2025 14:30",
-          completed: true,
-        },
-        {
-          status: "preparing",
-          title: "Đang chuẩn bị hàng",
-          description: "Sản phẩm đang được đóng gói cẩn thận",
-          time: "16/01/2025 09:15",
-          completed: true,
-        },
-        {
-          status: "shipping",
-          title: "Đang vận chuyển",
-          description: "Đơn hàng đã được giao cho đơn vị vận chuyển",
-          time: "17/01/2025 16:20",
-          completed: true,
-          current: true,
-        },
-        {
-          status: "delivered",
-          title: "Đã giao hàng",
-          description: "Đơn hàng đã được giao thành công",
-          time: "Dự kiến 20/01/2025",
-          completed: false,
-        },
-      ],
-      shippingAddress: {
-        name: "Nguyễn Văn An",
-        phone: "0912 345 678",
-        address: "123 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM",
-      },
+      title: "Đã thanh toán",
+      icon: <CreditCard className="w-5 h-5" />,
+      status: "paid",
+      description: "Đơn hàng đã được thanh toán",
     },
     {
-      id: "VT2025002",
-      product: "Vòng Tay Đá Mặt Trăng Xanh",
-      image:
-        "https://images.pexels.com/photos/1413420/pexels-photo-1413420.jpeg?auto=compress&cs=tinysrgb&w=400",
-      price: "850.000 VNĐ",
-      orderDate: "10/01/2025",
-      estimatedDelivery: "18/01/2025",
+      title: "Đã xác nhận",
+      icon: <FileCheck className="w-5 h-5" />,
+      status: "confirmed",
+      description: "Đơn hàng đã được xác nhận",
+    },
+    {
+      title: "Đang xử lý",
+      icon: <Package className="w-5 h-5" />,
+      status: "processing",
+      description: "Đang chuẩn bị hàng",
+    },
+    {
+      title: "Đang giao",
+      icon: <Truck className="w-5 h-5" />,
+      status: "shipped",
+      description: "Đang trên đường giao",
+    },
+    {
+      title: "Đã giao",
+      icon: <Home className="w-5 h-5" />,
       status: "delivered",
-      trackingNumber: "VN987654321",
-      timeline: [
-        {
-          status: "confirmed",
-          title: "Xác nhận đơn hàng",
-          description: "Đơn hàng đã được xác nhận và đang chuẩn bị",
-          time: "10/01/2025 10:20",
-          completed: true,
-        },
-        {
-          status: "preparing",
-          title: "Đang chuẩn bị hàng",
-          description: "Sản phẩm đang được đóng gói cẩn thận",
-          time: "11/01/2025 08:45",
-          completed: true,
-        },
-        {
-          status: "shipping",
-          title: "Đang vận chuyển",
-          description: "Đơn hàng đã được giao cho đơn vị vận chuyển",
-          time: "12/01/2025 14:10",
-          completed: true,
-        },
-        {
-          status: "delivered",
-          title: "Đã giao hàng",
-          description: "Đơn hàng đã được giao thành công",
-          time: "18/01/2025 15:30",
-          completed: true,
-          current: true,
-        },
-      ],
-      shippingAddress: {
-        name: "Trần Thị Bình",
-        phone: "0987 654 321",
-        address: "456 Đường Nguyễn Huệ, Phường Đa Kao, Quận 1, TP.HCM",
-      },
+      description: "Đã giao đến địa chỉ",
+    },
+    {
+      title: "Đã nhận",
+      icon: <PackageCheck className="w-5 h-5" />,
+      status: "received",
+      description: "Khách hàng đã nhận",
+    },
+    {
+      title: "Hoàn thành",
+      icon: <CheckCircle className="w-5 h-5" />,
+      status: "completed",
+      description: "Đơn hàng hoàn tất",
     },
   ];
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "confirmed":
-        return CheckCircle;
-      case "preparing":
-        return Package;
-      case "shipping":
-        return Truck;
-      case "delivered":
-        return CheckCircle;
-      default:
-        return Clock;
+  // ✅ Khi user nhấn “Đã nhận hàng”
+  const handleConfirmReceived = async (orderId) => {
+    await dispatch(
+      updateStatusOrder({ id: orderId, status: "RECEIVED", userId: user.id })
+    );
+
+    if (user?.id) {
+      dispatch(getOrderUser({ userId: user.id, page: 1, size: 40 }));
     }
   };
 
-  const getStatusColor = (completed, current) => {
-    if (current) return "bg-amber-600 border-amber-600";
-    if (completed) return "bg-green-600 border-green-600";
-    return "bg-stone-300 border-stone-300";
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-stone-50">
+        <div className="text-center">
+          <Spin size="large" />
+          <p className="mt-4 text-stone-600">Đang tải đơn hàng...</p>
+        </div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-stone-50 p-4">
+        <Alert
+          message="Lỗi tải đơn hàng"
+          description={error}
+          type="error"
+          showIcon
+          className="max-w-md"
+        />
+      </div>
+    );
+
+  if (!orderUser?.content?.length)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
+        <Header />
+        <div className="flex flex-col items-center justify-center min-h-[70vh]">
+          <ShoppingCart className="w-24 h-24 text-stone-300 mb-4" />
+          <p className="text-stone-600 text-xl font-medium">
+            Bạn chưa có đơn hàng nào.
+          </p>
+          <p className="text-stone-500 text-sm mt-2">
+            Hãy đặt hàng để theo dõi tại đây
+          </p>
+        </div>
+      </div>
+    );
+
+  const orders = orderUser.content.filter((order) =>
+    [
+      "paid",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "received",
+      "completed",
+    ].includes(order.status?.toLowerCase())
+  );
+
+  if (orders.length === 0)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
+        <Header />
+        <div className="flex flex-col items-center justify-center min-h-[70vh]">
+          <Package className="w-24 h-24 text-stone-300 mb-4" />
+          <p className="text-stone-600 text-xl font-medium">
+            Bạn chưa có đơn hàng nào đã thanh toán.
+          </p>
+        </div>
+      </div>
+    );
+
+  const selected = orders[selectedOrder];
+
+  const getStatusBadge = (status) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+      case "paid":
+        return "bg-gradient-to-r from-emerald-500 to-teal-500 text-white";
+      case "confirmed":
+        return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white";
+      case "processing":
+        return "bg-gradient-to-r from-amber-500 to-orange-500 text-white";
+      case "shipped":
+        return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
+      case "pending":
+        return "bg-gradient-to-r from-amber-400 to-yellow-500 text-white";
+      case "cancelled":
+        return "bg-gradient-to-r from-red-500 to-rose-500 text-white";
+      case "received":
+        return "bg-gradient-to-r from-green-400 to-emerald-400 text-white";
+      default:
+        return "bg-gradient-to-r from-gray-400 to-slate-400 text-white";
+    }
   };
 
-  const order = mockOrders[selectedOrder];
-
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-stone-100">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-stone-800 mb-2">
-              Theo dõi đơn hàng
-            </h1>
-            <p className="text-stone-600 text-lg">
-              Xem trạng thái và chi tiết các đơn hàng của bạn
-            </p>
-          </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Order List */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-lg">
-                <h2 className="text-xl font-semibold text-stone-800 mb-4">
-                  Danh sách đơn hàng
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-stone-800 mb-2">
+            Theo dõi đơn hàng
+          </h1>
+          <p className="text-stone-600">
+            Xem chi tiết và trạng thái đơn hàng của bạn
+          </p>
+        </div>
+
+        {/* Progress Bar Header */}
+        <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 mb-8">
+          <div className="flex items-center justify-between max-w-3xl mx-auto">
+            <div className="flex flex-col items-center flex-1">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-200 text-stone-500 font-semibold mb-2 transition-all">
+                <ShoppingCart className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-stone-500">Giỏ hàng</p>
+            </div>
+
+            <div className="h-1 flex-1 bg-stone-200 mx-2"></div>
+
+            <div className="flex flex-col items-center flex-1">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-200 text-stone-500 font-semibold mb-2 transition-all">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-stone-500">Đặt hàng</p>
+            </div>
+
+            <div className="h-1 flex-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-2"></div>
+
+            <div className="flex flex-col items-center flex-1">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold mb-2 shadow-lg transition-all">
+                <Package className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-amber-600">
+                Theo dõi đơn hàng
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden sticky top-24">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Đơn hàng của bạn
                 </h2>
-                <div className="space-y-3">
-                  {mockOrders.map((orderItem, index) => (
-                    <div
-                      key={orderItem.id}
-                      onClick={() => setSelectedOrder(index)}
-                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                        selectedOrder === index
-                          ? "border-amber-500 bg-amber-50"
-                          : "border-stone-200 bg-white hover:border-stone-300"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
+                <p className="text-amber-100 text-sm mt-1">
+                  {orders.length} đơn đã thanh toán
+                </p>
+              </div>
+
+              <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
+                {orders.map((order, index) => (
+                  <div
+                    key={order.id}
+                    onClick={() => setSelectedOrder(index)}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-md ${
+                      selectedOrder === index
+                        ? "border-amber-500 bg-gradient-to-r from-amber-50 to-orange-50 shadow-md scale-[1.02]"
+                        : "border-stone-200 bg-white hover:border-amber-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
                         <img
-                          src={orderItem.image}
-                          alt={orderItem.product}
-                          className="w-12 h-12 object-cover rounded-lg"
+                          src={
+                            order.items[0]?.product?.imageUrl ||
+                            "/placeholder.svg"
+                          }
+                          alt={order.items[0]?.product?.name}
+                          className="w-16 h-16 object-cover rounded-lg"
                         />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-stone-800 truncate">
-                            {orderItem.id}
-                          </p>
-                          <p className="text-sm text-stone-600 truncate">
-                            {orderItem.product}
-                          </p>
-                          <div className="flex items-center mt-1">
-                            <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                orderItem.status === "delivered"
-                                  ? "bg-green-100 text-green-800"
-                                  : orderItem.status === "shipping"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-blue-100 text-blue-800"
-                              }`}
-                            >
-                              {orderItem.status === "delivered"
-                                ? "Đã giao"
-                                : orderItem.status === "shipping"
-                                ? "Đang giao"
-                                : "Đang xử lý"}
-                            </span>
-                          </div>
-                        </div>
+                        {order.items.length > 1 && (
+                          <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                            {order.items.length}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-stone-800 text-sm">
+                          #{order.id}
+                        </p>
+                        <p className="text-xs text-stone-600 truncate mt-0.5">
+                          {order.items[0]?.product?.name}
+                        </p>
+                        <p className="text-xs text-amber-700 font-semibold mt-1">
+                          {order.totalAmount.toLocaleString("vi-VN")}₫
+                        </p>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Order Detail */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-stone-800 mb-1">
+                    Đơn hàng #{selected.id}
+                  </h2>
+                  <p className="text-stone-600 text-sm">
+                    {new Date(selected.createdAt).toLocaleString("vi-VN")}
+                  </p>
+                </div>
+                <span
+                  className={`px-6 py-2.5 rounded-full text-sm font-semibold shadow-lg ${getStatusBadge(
+                    selected.status
+                  )}`}
+                >
+                  {selected.status}
+                </span>
+              </div>
+
+              {/* Order Items */}
+              {selected.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100 mb-3"
+                >
+                  <img
+                    src={item.product.imageUrl || "/placeholder.svg"}
+                    alt={item.product.name}
+                    className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-stone-800 mb-1">
+                      {item.product.name}
+                    </h4>
+                    <p className="text-stone-600 text-sm">
+                      Số lượng:{" "}
+                      <span className="font-semibold">{item.quantity}</span>
+                    </p>
+                    <p className="text-amber-700 font-bold mt-1">
+                      {item.price.toLocaleString("vi-VN")}₫
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              {/* ✅ Hiển thị nút “Đã nhận hàng” khi status = DELIVERED */}
+              {selected.status?.toUpperCase() === "DELIVERED" &&
+                (console.log("id", selected.id),
+                (
+                  <div className="mt-6 text-right">
+                    <button
+                      onClick={() => handleConfirmReceived(selected.id)}
+                      className="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 transition-all duration-300"
+                    >
+                      Đã nhận hàng
+                    </button>
+                  </div>
+                ))}
+
+              <div className="mt-6 pt-6 border-t-2 border-stone-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-stone-700">
+                    Tổng cộng:
+                  </span>
+                  <span className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                    {selected.totalAmount.toLocaleString("vi-VN")}₫
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Order Details */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-lg">
-                {/* Order Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-stone-800 mb-1">
-                      Đơn hàng #{order.id}
-                    </h2>
-                    <p className="text-stone-600">
-                      Đặt hàng ngày {order.orderDate}
-                    </p>
-                  </div>
-                  <div className="mt-4 md:mt-0">
-                    <div className="flex items-center space-x-2 text-stone-700">
-                      <Truck className="w-5 h-5" />
-                      <span className="font-medium">
-                        Mã vận đơn: {order.trackingNumber}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {/* Progress Timeline */}
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 sm:p-8">
+              <h3 className="text-xl font-bold text-stone-800 mb-6 flex items-center gap-2">
+                <Truck className="w-6 h-6 text-amber-600" />
+                Trạng thái đơn hàng
+              </h3>
 
-                {/* Product Info */}
-                <div className="bg-gradient-to-r from-amber-50 to-stone-50 rounded-xl p-6 mb-8">
-                  <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
-                    <img
-                      src={order.image}
-                      alt={order.product}
-                      className="w-24 h-24 object-cover rounded-xl shadow-md"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-stone-800 mb-2">
-                        {order.product}
-                      </h3>
-                      <p className="text-2xl font-bold text-amber-700 mb-2">
-                        {order.price}
-                      </p>
-                      <div className="flex items-center text-stone-600">
-                        <Clock className="w-4 h-4 mr-2" />
-                        <span>
-                          Dự kiến giao hàng: {order.estimatedDelivery}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Desktop Timeline */}
+              <div className="hidden md:block">
+                <div className="relative">
+                  {orderSteps.map((step, index) => {
+                    const currentIndex = getOrderStep(selected.status);
+                    const isCompleted =
+                      selected.status?.toLowerCase() === "completed";
+                    const isDone = isCompleted ? true : index < currentIndex;
+                    const isCurrent = isCompleted
+                      ? false
+                      : index === currentIndex;
 
-                {/* Order Timeline */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-semibold text-stone-800 mb-6">
-                    Trạng thái đơn hàng
-                  </h3>
-                  <div className="space-y-6">
-                    {order.timeline.map((step, index) => {
-                      const IconComponent = getStatusIcon(step.status);
-                      return (
-                        <div key={index} className="flex items-start space-x-4">
-                          <div className="flex-shrink-0">
+                    return (
+                      <div key={step.status} className="relative">
+                        {index < orderSteps.length - 1 && (
+                          <div className="absolute left-6 top-14 w-0.5 h-16 -ml-px">
                             <div
-                              className={`w-12 h-12 rounded-full border-4 flex items-center justify-center transition-all duration-300 ${getStatusColor(
-                                step.completed,
-                                step.current || false
-                              )}`}
+                              className={`h-full transition-all duration-500 ${
+                                isDone
+                                  ? "bg-gradient-to-b from-green-500 to-emerald-500"
+                                  : isCurrent
+                                  ? "bg-gradient-to-b from-amber-500 to-amber-300"
+                                  : "bg-stone-200"
+                              }`}
+                            ></div>
+                          </div>
+                        )}
+
+                        <div className="flex items-start gap-4 pb-6">
+                          <div
+                            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                              isDone
+                                ? "bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg shadow-green-500/50"
+                                : isCurrent
+                                ? "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/50 animate-pulse"
+                                : "bg-stone-100 border-2 border-stone-300"
+                            }`}
+                          >
+                            <div
+                              className={
+                                isDone
+                                  ? "text-white"
+                                  : isCurrent
+                                  ? "text-white"
+                                  : "text-stone-400"
+                              }
                             >
-                              <IconComponent className="w-5 h-5 text-white" />
+                              {step.icon}
                             </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div
-                              className={`p-4 rounded-xl border transition-all duration-200 ${
-                                step.current
-                                  ? "border-amber-300 bg-amber-50 shadow-md"
-                                  : step.completed
-                                  ? "border-green-200 bg-green-50"
-                                  : "border-stone-200 bg-stone-50"
+
+                          <div className="flex-1 pt-2">
+                            <h4
+                              className={`font-bold mb-1 ${
+                                isDone
+                                  ? "text-green-600"
+                                  : isCurrent
+                                  ? "text-amber-600"
+                                  : "text-stone-400"
                               }`}
                             >
-                              <h4
-                                className={`font-semibold text-lg ${
-                                  step.current || step.completed
-                                    ? "text-stone-800"
-                                    : "text-stone-500"
-                                }`}
-                              >
-                                {step.title}
-                              </h4>
-                              <p
-                                className={`text-sm mb-2 ${
-                                  step.current || step.completed
-                                    ? "text-stone-600"
-                                    : "text-stone-400"
-                                }`}
-                              >
-                                {step.description}
-                              </p>
-                              <p
-                                className={`text-sm font-medium ${
-                                  step.current
-                                    ? "text-amber-700"
-                                    : step.completed
-                                    ? "text-green-700"
-                                    : "text-stone-400"
-                                }`}
-                              >
-                                {step.time}
-                              </p>
-                            </div>
+                              {step.title}
+                            </h4>
+                            <p
+                              className={`text-sm ${
+                                isDone
+                                  ? "text-green-600/80"
+                                  : isCurrent
+                                  ? "text-amber-600/80"
+                                  : "text-stone-400"
+                              }`}
+                            >
+                              {step.description}
+                            </p>
                           </div>
+
+                          {(isDone || isCurrent) && (
+                            <div
+                              className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                                isDone
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {isDone ? "✓ Hoàn thành" : "Đang xử lý"}
+                            </div>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* Shipping Information */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-stone-50 to-amber-50 rounded-xl p-6 border border-stone-200">
-                    <h3 className="text-lg font-semibold text-stone-800 mb-4 flex items-center">
-                      <MapPin className="w-5 h-5 mr-2 text-amber-600" />
-                      Địa chỉ giao hàng
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center text-stone-700">
-                        <User className="w-4 h-4 mr-3 text-stone-500" />
-                        <span className="font-medium">
-                          {order.shippingAddress.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-stone-700">
-                        <Phone className="w-4 h-4 mr-3 text-stone-500" />
-                        <span>{order.shippingAddress.phone}</span>
-                      </div>
-                      <div className="flex items-start text-stone-700">
-                        <MapPin className="w-4 h-4 mr-3 mt-0.5 text-stone-500" />
-                        <span className="leading-relaxed">
-                          {order.shippingAddress.address}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+              {/* Mobile Timeline */}
+              <div className="md:hidden space-y-4">
+                {orderSteps.map((step, index) => {
+                  const currentIndex = getOrderStep(selected.status);
+                  const isDone = index < currentIndex;
+                  const isCurrent = index === currentIndex;
 
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-stone-200">
-                    <h3 className="text-lg font-semibold text-stone-800 mb-4 flex items-center">
-                      <Package className="w-5 h-5 mr-2 text-amber-600" />
-                      Thông tin vận chuyển
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-stone-600">
-                          Đơn vị vận chuyển:
-                        </span>
-                        <span className="font-medium text-stone-800">
-                          Giao Hàng Nhanh
-                        </span>
+                  return (
+                    <div
+                      key={step.status}
+                      className={`flex items-center gap-3 p-4 rounded-xl transition-all ${
+                        isDone
+                          ? "bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200"
+                          : isCurrent
+                          ? "bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300"
+                          : "bg-stone-50 border-2 border-stone-200"
+                      }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isDone
+                            ? "bg-gradient-to-br from-green-500 to-emerald-500 text-white"
+                            : isCurrent
+                            ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white"
+                            : "bg-stone-200 text-stone-400"
+                        }`}
+                      >
+                        {step.icon}
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-600">Phí vận chuyển:</span>
-                        <span className="font-medium text-stone-800">
-                          Miễn phí
-                        </span>
+                      <div className="flex-1">
+                        <p
+                          className={`font-bold text-sm ${
+                            isDone
+                              ? "text-green-700"
+                              : isCurrent
+                              ? "text-amber-700"
+                              : "text-stone-500"
+                          }`}
+                        >
+                          {step.title}
+                        </p>
+                        <p className="text-xs text-stone-600 mt-0.5">
+                          {step.description}
+                        </p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-600">
-                          Thời gian dự kiến:
-                        </span>
-                        <span className="font-medium text-stone-800">
-                          2-3 ngày làm việc
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-stone-600">Trọng lượng:</span>
-                        <span className="font-medium text-stone-800">
-                          0.2 kg
-                        </span>
-                      </div>
+                      {(isDone || isCurrent) && (
+                        <div
+                          className={`text-xs font-bold ${
+                            isDone ? "text-green-600" : "text-amber-600"
+                          }`}
+                        >
+                          {isDone ? "✓" : "•••"}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-};
-
-export default TrackOrdersPage;
+}

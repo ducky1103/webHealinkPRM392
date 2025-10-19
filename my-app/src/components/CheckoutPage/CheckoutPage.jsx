@@ -10,7 +10,7 @@ import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrd
 import { getProfile } from "../../redux/User/profile/getProfileSlice";
 import { createPayos } from "../../redux/User/payos/createPayosSlice";
 import { Modal, Spin, Radio } from "antd";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, CreditCard, Package, ShoppingCart, Trash2 } from "lucide-react";
 import payos from "../../img/payos.png";
 
 const CheckoutPage = () => {
@@ -71,37 +71,41 @@ const CheckoutPage = () => {
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-12 mt-20">
         {/* Thanh tiến trình */}
-        {/* ===== Progress Steps (Giống CartPage) ===== */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex flex-col items-center w-1/3 opacity-60">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 font-semibold">
-              1
-            </div>
-            <p className="mt-2 text-gray-500 font-medium">Cart</p>
-          </div>
-
-          <div className="h-1 w-1/3 bg-yellow-400"></div>
-
-          <div className="flex flex-col items-center w-1/3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-white font-semibold">
-              2
-            </div>
-            <p className="mt-2 text-yellow-600 font-medium">Checkout</p>
-          </div>
-
-          <div className="h-1 w-1/3 bg-gray-200"></div>
-
-          <div className="flex flex-col items-center w-1/3 opacity-60">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 font-semibold">
-              3
-            </div>
-            <p className="mt-2 text-gray-500 font-medium">Complete</p>
-          </div>
-        </div>
 
         <h1 className="text-3xl text-center font-bold mb-6 text-slate-800">
           Thanh toán đơn hàng
         </h1>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 mb-8">
+          <div className="flex items-center justify-between max-w-3xl mx-auto">
+            <div className="flex flex-col items-center flex-1 ">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-200 text-stone-500 font-semibold mb-2 transition-all">
+                <ShoppingCart className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-stone-500">Giỏ hàng</p>
+            </div>
+
+            <div className="h-1 flex-1 bg-gradient-to-r from-amber-400 to-amber-600 mx-2"></div>
+
+            <div className="flex flex-col items-center flex-1">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold mb-2 shadow-lg transition-all">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-amber-600">Đặt hàng</p>
+            </div>
+
+            <div className="h-1 flex-1 bg-stone-200 mx-2"></div>
+
+            <div className="flex flex-col items-center flex-1">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-stone-200 text-stone-500 font-semibold mb-2 transition-all">
+                <Package className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-medium text-stone-500">
+                Theo dõi đơn hàng
+              </p>
+            </div>
+          </div>
+        </div>
 
         {loading && <p>Đang tải đơn hàng...</p>}
         {error && <p className="text-red-500">Lỗi: {error}</p>}

@@ -192,6 +192,8 @@ function UserMenu() {
   const menuRef = useRef(null);
   const displayName = useMemo(() => getDisplayName(user), [user]);
 
+  const userid = useSelector((state) => state.account?.user?.id);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target))
@@ -253,7 +255,7 @@ function UserMenu() {
               onClick={() => setOpen(false)}
             />
             <MenuLink
-              to="/track-orders"
+              to={`/track-orders/${userid}`}
               label="Theo dõi đơn hàng"
               onClick={() => setOpen(false)}
             />

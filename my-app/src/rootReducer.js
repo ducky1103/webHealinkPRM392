@@ -11,7 +11,9 @@ import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrde
 import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import deleteOrderReducer from "./redux/User/order/deleteOrder/deleteOrderSlice";
 import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
+import updateStatusOrderReducer from "./redux/User/order/updateStatusOrder/updateStatusOrderSlice";
 import createPayosReducer from "./redux/User/payos/createPayosSlice";
+import cancelPaymentReducer from "./redux/User/cancelPayment/cancelPaymentSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
@@ -29,6 +31,8 @@ import postLetterReducer from "./redux/User/letter/postLetterSlice";
 import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
 import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
 import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
+import getAllUserReducer from "./redux/auth/admin/getUser/getAllUserSlice";
+import changePasswordReducer from "./redux/User/changePassword/changePasswordSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -53,6 +57,7 @@ const rootReducer = combineReducers({
   orderUser: getOrderUserReducer,
   deleteOrderId: deleteOrderReducer,
   checkoutCart: checkoutCartReducer,
+  updateStatus: updateStatusOrderReducer,
 
   //category
   fetchCategory: fetchCategoryReducer,
@@ -67,11 +72,18 @@ const rootReducer = combineReducers({
 
   //payment
   createPayos: createPayosReducer,
+  cancelPayos: cancelPaymentReducer,
   //comment
   postComment: postCommentReducer,
   getComments: getCommentsReducer,
   //ai
   postChat: postChatReducer,
+
+  //admin
+  getAllUser: getAllUserReducer,
+
+  //change password
+  changePass: changePasswordReducer,
 });
 
 export default rootReducer;

@@ -1,80 +1,78 @@
-import React, { useState } from "react";
-import { Table, Input, Select, Button, Tag, Avatar } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Table, Input, Select, Button, Tag, Avatar, Spin, Alert } from "antd";
+import { UserOutlined, ReloadOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUser } from "../../redux/auth/admin/getUser/getAllUserSlice"; // chỉnh path nếu khác
 
 const { Option } = Select;
 
 const AdminPage = () => {
+  const dispatch = useDispatch();
+  const { getUser, loading, error } = useSelector((state) => state.getAllUser);
+
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [sort, setSort] = useState("name");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(5);
 
-  // Mock Data
-  const mockUsers = [
-    {
-      id: 1,
-      name: "Bùi Thu Hương",
-      email: "buithuhuong@email.com",
-      phone: "0258147963",
-      role: "admin",
-      joined: "10-02-2025",
-    },
-    {
-      id: 2,
-      name: "Hoàng Văn Em",
-      email: "hoangvanem@email.com",
-      phone: "0859263741",
-      role: "admin",
-      joined: "10-02-2025",
-    },
-    {
-      id: 3,
-      name: "Lê Minh Cường",
-      email: "leminhcuong@email.com",
-      phone: "0369852147",
-      role: "user",
-      joined: "10-02-2025",
-    },
-    {
-      id: 4,
-      name: "Nguyễn Văn An",
-      email: "nguyenvanan@email.com",
-      phone: "0123456789",
-      role: "user",
-      joined: "10-02-2025",
-    },
-    {
-      id: 5,
-      name: "Phạm Thú Dân",
-      email: "phamthudan@email.com",
-      phone: "0741258963",
-      role: "user",
-      joined: "10-02-2025",
-    },
-  ];
+  // Gọi API khi load trang hoặc đổi page
+  useEffect(() => {
+    dispatch(getAllUser({ page, size: pageSize }));
+  }, [dispatch, page, pageSize]);
 
-  // Xử lý filter + search
-  const filteredUsers = mockUsers
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin size="large" />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Alert
+          message="Lỗi tải danh sách người dùng"
+          description={error}
+          type="error"
+        />
+      </div>
+    );
+
+  // Dữ liệu người dùng
+  const users = getUser?.content || [];
+
+  // Tìm kiếm + lọc + sắp xếp
+  const filteredUsers = users
     .filter((u) =>
-      `${u.name} ${u.email}`.toLowerCase().includes(search.toLowerCase())
+      `${u.fullName} ${u.email}`.toLowerCase().includes(search.toLowerCase())
     )
     .filter((u) => (roleFilter === "all" ? true : u.role === roleFilter))
     .sort((a, b) =>
       sort === "name"
-        ? a.name.localeCompare(b.name)
-        : a.joined.localeCompare(b.joined)
+        ? a.fullName.localeCompare(b.fullName)
+        : new Date(b.createdAt) - new Date(a.createdAt)
     );
 
-  // Cột cho Table
   const columns = [
     {
       title: "Avatar",
       dataIndex: "avatar",
       render: () => <Avatar size="large" icon={<UserOutlined />} />,
     },
-    { title: "Tên", dataIndex: "name" },
-    { title: "Email", dataIndex: "email" },
-    { title: "Số điện thoại", dataIndex: "phone" },
+    {
+      title: "Tên",
+      dataIndex: "fullName",
+      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+    },
     {
       title: "Vai trò",
       dataIndex: "role",
@@ -85,7 +83,18 @@ const AdminPage = () => {
           <Tag color="green">Người dùng</Tag>
         ),
     },
-    { title: "Ngày tham gia", dataIndex: "joined" },
+    {
+      title: "Ngày tham gia",
+      dataIndex: "createdAt",
+      render: (date) =>
+        new Date(date).toLocaleString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+    },
     {
       title: "Thao tác",
       render: () => (
@@ -121,6 +130,12 @@ const AdminPage = () => {
           <Option value="name">Sắp xếp theo tên</Option>
           <Option value="joined">Sắp xếp theo ngày tham gia</Option>
         </Select>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={() => dispatch(getAllUser({ page, size: pageSize }))}
+        >
+          Làm mới
+        </Button>
       </div>
 
       {/* Bảng người dùng */}
@@ -128,7 +143,12 @@ const AdminPage = () => {
         rowKey="id"
         dataSource={filteredUsers}
         columns={columns}
-        pagination={{ pageSize: 5 }}
+        pagination={{
+          current: page,
+          total: getUser?.totalElements || 0,
+          pageSize,
+          onChange: (p) => setPage(p),
+        }}
       />
     </div>
   );
