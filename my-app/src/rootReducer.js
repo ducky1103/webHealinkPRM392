@@ -30,6 +30,11 @@ import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentS
 import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
 import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
 import postFlashCardReducer from "./redux/User/flashCardAI/postFlashCardSlice";
+import updateCommentReducer from "./redux/User/comment/update_comment/updateCommentSlice";
+import deleteCommentReducer from "./redux/User/comment/delete_comment/deleteCommentSlice";
+import getAllUserReducer from "./redux/User/ManageUser/getUser/getAllUserSlice";
+import banUserReducer from "./redux/User/ManageUser/banUser/banUserSlice";
+import unbanUserReducer from "./redux/User/ManageUser/unbanUser/unBanUserSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -71,9 +76,15 @@ const rootReducer = combineReducers({
   //comment
   postComment: postCommentReducer,
   getComments: getCommentsReducer,
+  putComment: updateCommentReducer,
+  deleteComment: deleteCommentReducer,
   //ai
   postChat: postChatReducer,
   postFlashCard: postFlashCardReducer,
+  //user management
+  getAllUser: getAllUserReducer,
+  banUser: banUserReducer,
+  unbanUser: unbanUserReducer,
 });
 
 export default rootReducer;

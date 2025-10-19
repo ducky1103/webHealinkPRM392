@@ -258,6 +258,7 @@ function UserMenu() {
               label="Theo dõi đơn hàng"
               onClick={() => setOpen(false)}
             />
+            <MenuLink to="/game" label="Game" onClick={() => setOpen(false)} />
           </div>
 
           <div className="border-t border-slate-100 p-2">

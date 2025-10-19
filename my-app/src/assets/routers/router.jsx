@@ -11,7 +11,6 @@ import PodcastDetail from "../../components/PodcastPage/PodcastDetail";
 import StorePage from "../../components/StorePage/StorePage";
 import CartPage from "../../components/CartPage/CartPage";
 import CheckoutPage from "../../components/CheckoutPage/CheckoutPage";
-import PaymentMethodPage from "../../components/PaymentMethod/PaymentMethod";
 import PaymentSuccess from "../../components/PaymentMethod/PaymentSuccess";
 import PaymentCancel from "../../components/PaymentMethod/PaymentCancel";
 import WriteLetterPage from "../../components/WriteLetterPage/WriteLetterPage";
@@ -27,6 +26,7 @@ import ResetPasswordPage from "../../components/LoginPage/ResetPasswordPage";
 import RootLayout from "../../components/Root/RootLayout";
 import AdminProductPage from "../../components/Admin/AdminProduct";
 import AdminCategoryPage from "../../components/Admin/AdminCategoryPage";
+import Game from "../../components/Game/Game";
 
 const router = createBrowserRouter([
   {
@@ -42,7 +42,6 @@ const router = createBrowserRouter([
       { path: "store", element: <StorePage /> },
       { path: "cart", element: <CartPage /> },
       { path: "checkout/:id", element: <CheckoutPage /> },
-      { path: "payment_method/:id", element: <PaymentMethodPage /> },
       { path: "payment-success", element: <PaymentSuccess /> },
       { path: "payment-cancel", element: <PaymentCancel /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
@@ -51,6 +50,7 @@ const router = createBrowserRouter([
       { path: "otp-verification", element: <OTPVerificationPage /> }, // Thêm route này
       { path: "forgot-password", element: <ForgotPasswordPage /> },
       { path: "reset-password", element: <ResetPasswordPage /> },
+      { path: "game", element: <Game /> },
       {
         element: <PrivateRoute allowedRoles={["User", "admin"]} />,
         children: [

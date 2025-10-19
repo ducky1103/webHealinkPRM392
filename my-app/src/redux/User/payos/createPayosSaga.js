@@ -13,11 +13,12 @@ const URL_API = "http://localhost:8080";
 function* createPayosSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
-    const body = action.payload;
+    const orderId = action.payload;
+
     const response = yield call(
       axios.post,
       `${URL_API}/payos/create`,
-      { body },
+      { orderId },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -29,8 +30,8 @@ function* createPayosSaga(action) {
     if (response.status === 200 && response.data?.error === 0) {
       const payosData = response.data.data;
       yield put(createPayosSuccess(payosData));
-      toast.success("Khởi tạo thanh toán PayOS thành công ");
-      window.location.href = payosData.checkoutUrl;
+      toast.success("Khởi tạo thanh toán PayOS thành công");
+      window.location.href = payosData.checkoutUrl; // ✅ chuyển hướng sang PayOS
     } else {
       yield put(createPayosFail(response.data?.message));
       toast.error("Lỗi PayOS: " + (response.data?.message || "Không xác định"));

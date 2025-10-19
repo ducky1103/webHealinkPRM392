@@ -191,7 +191,7 @@ const AdminPodcastPage = () => {
 
     // Fix: Set multiple categories for update
     const selectedCategories = podcast.categories
-      ? podcast.categories.map((cat) => cat.id.toString())
+      ? podcast.categories.map((cat) => cat.id)
       : [];
 
     updateForm.setFieldsValue({

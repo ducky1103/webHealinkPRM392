@@ -14,19 +14,13 @@ import {
   InputNumber,
   Image,
 } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ShoppingCartOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 
 import { getAllProduct } from "../../redux/User/product/fetchProduct/getAllProductSlice";
 import { productPostRequest } from "../../redux/auth/admin/Product/post_product/postProductSlice";
 import { updateProductRequest } from "../../redux/auth/admin/Product/update_Product/updateProductSlice";
 import { deleteProductRequest } from "../../redux/auth/admin/Product/delete_product/deleteProductSlice";
-
+import img from "../../img/logo1.png";
 const { TextArea } = Input;
 
 const AdminProductPage = () => {
@@ -194,20 +188,25 @@ const AdminProductPage = () => {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 60,
-      sorter: (a, b) => b.id - a.id,
-      defaultSortOrder: "descend",
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      width: 80,
+      align: "center",
+      render: (_, __, index) => (
+        <div className="font-bold text-gray-600 text-center">
+          {index + 1 + (currentPage - 1) * pageSize}
+        </div>
+      ),
     },
     {
       title: "Hình ảnh",
       dataIndex: "imageUrl",
       key: "imageUrl",
-      width: 100,
+      width: 120,
+      align: "center",
       render: (imageUrl, record) => (
-        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+        <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden shadow-lg mx-auto">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -219,8 +218,8 @@ const AdminProductPage = () => {
               fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-200 to-blue-400">
-              <ShoppingCartOutlined className="text-blue-600 text-xl" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-200 to-purple-400">
+              <div className="text-white text-2xl">📦</div>
             </div>
           )}
         </div>
@@ -231,17 +230,21 @@ const AdminProductPage = () => {
       dataIndex: "name",
       key: "name",
       ellipsis: true,
-      width: 200,
+      width: 220,
+      render: (name) => (
+        <div className="font-semibold text-gray-800 text-lg">{name}</div>
+      ),
     },
     {
       title: "Giá",
       dataIndex: "price",
       key: "price",
-      width: 130,
+      width: 150,
+      align: "center",
       render: (price) => (
-        <span className="font-bold text-green-600">
+        <div className="font-bold text-green-600 text-lg">
           {price ? formatPrice(price) : "N/A"}
-        </span>
+        </div>
       ),
       sorter: (a, b) => a.price - b.price,
     },
@@ -249,21 +252,31 @@ const AdminProductPage = () => {
       title: "Tồn kho",
       dataIndex: "stockQuantity",
       key: "stockQuantity",
-      width: 100,
+      width: 120,
       align: "center",
-      render: (stock) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            (stock || 0) > 10
-              ? "bg-green-100 text-green-800"
-              : (stock || 0) > 0
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {stock || 0}
-        </span>
-      ),
+      render: (stock) => {
+        const stockNum = stock || 0;
+        let bgColor, textColor;
+
+        if (stockNum > 10) {
+          bgColor = "bg-green-100";
+          textColor = "text-green-800";
+        } else if (stockNum > 0) {
+          bgColor = "bg-yellow-100";
+          textColor = "text-yellow-800";
+        } else {
+          bgColor = "bg-red-100";
+          textColor = "text-red-800";
+        }
+
+        return (
+          <div
+            className={`px-3 py-2 rounded-full text-sm font-bold ${bgColor} ${textColor} inline-flex items-center gap-1`}
+          >
+            <span>{stockNum}</span>
+          </div>
+        );
+      },
       sorter: (a, b) => a.stockQuantity - b.stockQuantity,
     },
     {
@@ -271,21 +284,25 @@ const AdminProductPage = () => {
       dataIndex: "description",
       key: "description",
       ellipsis: true,
-      width: 250,
+      width: 280,
+      render: (description) => (
+        <div className="text-gray-600 text-sm">
+          {description || "Không có mô tả"}
+        </div>
+      ),
     },
     {
       title: "Thao tác",
       key: "actions",
-      width: 180,
+      width: 200,
       align: "center",
       render: (_, record) => (
-        <Space size="small" wrap>
+        <div className="flex justify-center gap-2">
           <Button
             type="primary"
             size="small"
-            icon={<EditOutlined />}
             onClick={() => handleUpdateProduct(record)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 border-0 rounded-full px-4 py-2 h-auto font-semibold shadow-lg"
           >
             Sửa
           </Button>
@@ -301,126 +318,167 @@ const AdminProductPage = () => {
               type="primary"
               danger
               size="small"
-              icon={<DeleteOutlined />}
+              className="border-0 rounded-full px-4 py-2 h-auto font-semibold shadow-lg"
             >
               Xóa
             </Button>
           </Popconfirm>
-        </Space>
+        </div>
       ),
     },
   ];
 
   return (
     <>
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <ShoppingCartOutlined className="text-blue-600" />
-              Quản lý sản phẩm
-            </h1>
-            <p className="text-gray-600">
-              Quản lý toàn bộ sản phẩm trong hệ thống
-            </p>
+      <div className="p-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <ShoppingCartOutlined className="text-3xl" />
+                  Quản lý sản phẩm
+                </h1>
+                <p className="text-blue-100 mt-1">
+                  Quản lý toàn bộ sản phẩm trong hệ thống
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  type="default"
+                  size="large"
+                  onClick={refetchProducts}
+                  loading={fetchLoading}
+                  className="bg-white text-blue-600 hover:bg-blue-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
+                >
+                  Làm mới
+                </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={handleCreateProduct}
+                  className="bg-white text-blue-600 hover:bg-blue-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
+                >
+                  Thêm sản phẩm mới
+                </Button>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              type="default"
-              size="large"
-              icon={<ReloadOutlined />}
-              onClick={refetchProducts}
+
+          {/* Statistics */}
+          <div className="p-6 bg-gray-50 border-b border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-blue-600">
+                      {pagination?.totalElements ||
+                        (Array.isArray(products) ? products.length : 0)}
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      Tổng sản phẩm
+                    </div>
+                  </div>
+                  <div className="text-4xl text-blue-400"></div>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-green-600">
+                      {Array.isArray(products)
+                        ? products.filter((p) => (p.stockQuantity || 0) > 0)
+                            .length
+                        : 0}
+                    </div>
+                    <div className="text-gray-600 font-medium">Còn hàng</div>
+                  </div>
+                  <div className="text-4xl text-green-400"></div>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl shadow-lg border border-yellow-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-yellow-600">
+                      {Array.isArray(products)
+                        ? products.filter(
+                            (p) =>
+                              (p.stockQuantity || 0) <= 5 &&
+                              (p.stockQuantity || 0) > 0
+                          ).length
+                        : 0}
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      Sắp hết hàng
+                    </div>
+                  </div>
+                  <div className="text-4xl text-yellow-400"></div>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl shadow-lg border border-red-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-red-600">
+                      {Array.isArray(products)
+                        ? products.filter((p) => (p.stockQuantity || 0) === 0)
+                            .length
+                        : 0}
+                    </div>
+                    <div className="text-gray-600 font-medium">Hết hàng</div>
+                  </div>
+                  <div className="text-4xl text-red-400"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Products Table */}
+          <div className="p-6">
+            <Table
+              columns={columns}
+              dataSource={Array.isArray(products) ? products : []}
+              rowKey="id"
               loading={fetchLoading}
-            >
-              Làm mới
-            </Button>
-            <Button
-              type="primary"
-              size="large"
-              icon={<PlusOutlined />}
-              onClick={handleCreateProduct}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Thêm sản phẩm mới
-            </Button>
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total:
+                  pagination?.totalElements ||
+                  (Array.isArray(products) ? products.length : 0),
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} của ${total} sản phẩm`,
+                pageSizeOptions: ["10", "20", "50", "100"],
+                className: "custom-pagination",
+              }}
+              onChange={handleTableChange}
+              scroll={{ x: 1100 }}
+              className="custom-table"
+              rowClassName="hover:bg-blue-50 transition-colors duration-200"
+              locale={{
+                emptyText: error
+                  ? "Lỗi khi tải dữ liệu"
+                  : "Không có sản phẩm nào",
+              }}
+            />
           </div>
-        </div>
-
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-            <div className="text-2xl font-bold text-blue-600">
-              {pagination?.totalElements ||
-                (Array.isArray(products) ? products.length : 0)}
-            </div>
-            <div className="text-gray-600">Tổng sản phẩm</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-            <div className="text-2xl font-bold text-green-600">
-              {Array.isArray(products)
-                ? products.filter((p) => (p.stockQuantity || 0) > 0).length
-                : 0}
-            </div>
-            <div className="text-gray-600">Còn hàng (trang hiện tại)</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-            <div className="text-2xl font-bold text-yellow-600">
-              {Array.isArray(products)
-                ? products.filter(
-                    (p) =>
-                      (p.stockQuantity || 0) <= 5 && (p.stockQuantity || 0) > 0
-                  ).length
-                : 0}
-            </div>
-            <div className="text-gray-600">Sắp hết hàng</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-            <div className="text-2xl font-bold text-red-600">
-              {Array.isArray(products)
-                ? products.filter((p) => (p.stockQuantity || 0) === 0).length
-                : 0}
-            </div>
-            <div className="text-gray-600">Hết hàng</div>
-          </div>
-        </div>
-
-        {/* Products Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <Table
-            columns={columns}
-            dataSource={Array.isArray(products) ? products : []}
-            rowKey="id"
-            loading={fetchLoading}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total:
-                pagination?.totalElements ||
-                (Array.isArray(products) ? products.length : 0),
-              showSizeChanger: true,
-              showQuickJumper: true,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} của ${total} sản phẩm`,
-              pageSizeOptions: ["10", "20", "50", "100"],
-            }}
-            onChange={handleTableChange}
-            scroll={{ x: 1100 }}
-            locale={{
-              emptyText: error
-                ? "Lỗi khi tải dữ liệu"
-                : "Không có sản phẩm nào",
-            }}
-          />
         </div>
       </div>
 
       {/* Create Modal */}
       <Modal
         title={
-          <div className="flex items-center gap-2">
-            <PlusOutlined className="text-blue-600" />
-            <span className="text-lg font-semibold">Thêm sản phẩm mới</span>
+          <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+            <span>
+              <img
+                src={img}
+                alt=""
+                className="w-8 h-8 rounded-md inline-block mr-2"
+              />
+            </span>
+            Đăng Sản Phẩm Mới
           </div>
         }
         open={createOpen}
@@ -435,6 +493,7 @@ const AdminProductPage = () => {
               setCreateOpen(false);
               createForm.resetFields();
             }}
+            className="px-6 py-2 h-auto rounded-lg font-semibold"
           >
             Hủy
           </Button>,
@@ -443,13 +502,19 @@ const AdminProductPage = () => {
             type="primary"
             loading={postLoading}
             onClick={handleSubmitCreate}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-[#6B4F3B] hover:bg-[#5a4330] px-6 py-2 h-auto rounded-lg font-semibold"
           >
-            Tạo sản phẩm
+            Đăng
           </Button>,
         ]}
-        width={700}
+        width={600}
         destroyOnClose
+        className="rounded-2xl overflow-hidden"
+        bodyStyle={{
+          background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+          borderRadius: "16px",
+          padding: "24px 28px",
+        }}
       >
         <Form
           form={createForm}
@@ -458,7 +523,9 @@ const AdminProductPage = () => {
           className="mt-4"
         >
           <Form.Item
-            label="Tên sản phẩm"
+            label={
+              <span className="text-[#6B4F3B] font-medium">Tên sản phẩm *</span>
+            }
             name="name"
             rules={[
               { required: true, message: "Vui lòng nhập tên sản phẩm!" },
@@ -466,11 +533,18 @@ const AdminProductPage = () => {
               { max: 100, message: "Tên sản phẩm không được quá 100 ký tự!" },
             ]}
           >
-            <Input placeholder="Nhập tên sản phẩm..." size="large" />
+            <Input
+              placeholder="Nhập tên sản phẩm..."
+              className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+            />
           </Form.Item>
 
           <Form.Item
-            label="Mô tả sản phẩm"
+            label={
+              <span className="text-[#6B4F3B] font-medium">
+                Mô tả sản phẩm *
+              </span>
+            }
             name="description"
             rules={[
               { required: true, message: "Vui lòng nhập mô tả sản phẩm!" },
@@ -481,13 +555,17 @@ const AdminProductPage = () => {
             <TextArea
               placeholder="Nhập mô tả chi tiết về sản phẩm..."
               rows={4}
-              size="large"
+              className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
             />
           </Form.Item>
 
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
-              label="Giá sản phẩm (VND)"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Giá sản phẩm (VND) *
+                </span>
+              }
               name="price"
               rules={[
                 { required: true, message: "Vui lòng nhập giá sản phẩm!" },
@@ -496,8 +574,8 @@ const AdminProductPage = () => {
             >
               <InputNumber
                 placeholder="0"
-                size="large"
                 style={{ width: "100%" }}
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                 }
@@ -508,7 +586,11 @@ const AdminProductPage = () => {
             </Form.Item>
 
             <Form.Item
-              label="Số lượng tồn kho"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Số lượng tồn kho *
+                </span>
+              }
               name="stockQuantity"
               rules={[
                 { required: true, message: "Vui lòng nhập số lượng!" },
@@ -521,8 +603,8 @@ const AdminProductPage = () => {
             >
               <InputNumber
                 placeholder="0"
-                size="large"
                 style={{ width: "100%" }}
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
                 min={0}
                 max={10000}
               />
@@ -530,7 +612,11 @@ const AdminProductPage = () => {
           </div>
 
           <Form.Item
-            label="Hình ảnh sản phẩm"
+            label={
+              <span className="text-[#6B4F3B] font-medium">
+                Hình ảnh sản phẩm *
+              </span>
+            }
             name="image"
             valuePropName="fileList"
             getValueFromEvent={(e) => {
@@ -545,10 +631,13 @@ const AdminProductPage = () => {
               beforeUpload={() => false}
               listType="picture-card"
               maxCount={1}
+              className="w-full"
             >
-              <div className="flex flex-col items-center justify-center p-4">
-                <PlusOutlined className="text-2xl mb-2" />
-                <div className="text-sm">Chọn hình ảnh</div>
+              <div className="flex flex-col items-center justify-center p-4 w-full">
+                <div className="text-2xl mb-2 text-[#6B4F3B]">📁</div>
+                <div className="text-sm font-medium text-[#6B4F3B]">
+                  Chọn ảnh
+                </div>
                 <div className="text-xs text-gray-500 mt-1">
                   PNG, JPG, JPEG (tối đa 5MB)
                 </div>
@@ -561,9 +650,15 @@ const AdminProductPage = () => {
       {/* Update Modal */}
       <Modal
         title={
-          <div className="flex items-center gap-2">
-            <EditOutlined className="text-orange-600" />
-            <span className="text-lg font-semibold">Cập nhật sản phẩm</span>
+          <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+            <span>
+              <img
+                src={img}
+                alt=""
+                className="w-8 h-8 rounded-md inline-block mr-2"
+              />
+            </span>
+            Cập Nhật Sản Phẩm
           </div>
         }
         open={updateOpen}
@@ -580,6 +675,7 @@ const AdminProductPage = () => {
               updateForm.resetFields();
               setSelectedProduct(null);
             }}
+            className="px-6 py-2 h-auto rounded-lg font-semibold"
           >
             Hủy
           </Button>,
@@ -587,13 +683,19 @@ const AdminProductPage = () => {
             key="submit"
             type="primary"
             onClick={handleSubmitUpdate}
-            className="bg-orange-600 hover:bg-orange-700"
+            className="bg-[#6B4F3B] hover:bg-[#5a4330] px-6 py-2 h-auto rounded-lg font-semibold"
           >
             Cập nhật
           </Button>,
         ]}
-        width={700}
+        width={600}
         destroyOnClose
+        className="rounded-2xl overflow-hidden"
+        bodyStyle={{
+          background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+          borderRadius: "16px",
+          padding: "24px 28px",
+        }}
       >
         <Form
           form={updateForm}
@@ -603,7 +705,7 @@ const AdminProductPage = () => {
         >
           {selectedProduct?.imageUrl && (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#6B4F3B] mb-2">
                 Hình ảnh hiện tại
               </label>
               <Image
@@ -618,7 +720,9 @@ const AdminProductPage = () => {
           )}
 
           <Form.Item
-            label="Tên sản phẩm"
+            label={
+              <span className="text-[#6B4F3B] font-medium">Tên sản phẩm *</span>
+            }
             name="name"
             rules={[
               { required: true, message: "Vui lòng nhập tên sản phẩm!" },
@@ -626,11 +730,18 @@ const AdminProductPage = () => {
               { max: 100, message: "Tên sản phẩm không được quá 100 ký tự!" },
             ]}
           >
-            <Input placeholder="Nhập tên sản phẩm..." size="large" />
+            <Input
+              placeholder="Nhập tên sản phẩm..."
+              className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
+            />
           </Form.Item>
 
           <Form.Item
-            label="Mô tả sản phẩm"
+            label={
+              <span className="text-[#6B4F3B] font-medium">
+                Mô tả sản phẩm *
+              </span>
+            }
             name="description"
             rules={[
               { required: true, message: "Vui lòng nhập mô tả sản phẩm!" },
@@ -641,13 +752,17 @@ const AdminProductPage = () => {
             <TextArea
               placeholder="Nhập mô tả chi tiết về sản phẩm..."
               rows={4}
-              size="large"
+              className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
             />
           </Form.Item>
 
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
-              label="Giá sản phẩm (VND)"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Giá sản phẩm (VND) *
+                </span>
+              }
               name="price"
               rules={[
                 { required: true, message: "Vui lòng nhập giá sản phẩm!" },
@@ -656,8 +771,8 @@ const AdminProductPage = () => {
             >
               <InputNumber
                 placeholder="0"
-                size="large"
                 style={{ width: "100%" }}
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                 }
@@ -668,7 +783,11 @@ const AdminProductPage = () => {
             </Form.Item>
 
             <Form.Item
-              label="Số lượng tồn kho"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Số lượng tồn kho *
+                </span>
+              }
               name="stockQuantity"
               rules={[
                 { required: true, message: "Vui lòng nhập số lượng!" },
@@ -681,8 +800,8 @@ const AdminProductPage = () => {
             >
               <InputNumber
                 placeholder="0"
-                size="large"
                 style={{ width: "100%" }}
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
                 min={0}
                 max={10000}
               />
@@ -690,7 +809,11 @@ const AdminProductPage = () => {
           </div>
 
           <Form.Item
-            label="Cập nhật hình ảnh (tùy chọn)"
+            label={
+              <span className="text-[#6B4F3B] font-medium">
+                Cập nhật hình ảnh (tùy chọn)
+              </span>
+            }
             name="image"
             valuePropName="fileList"
             getValueFromEvent={(e) => {
@@ -702,10 +825,13 @@ const AdminProductPage = () => {
               beforeUpload={() => false}
               listType="picture-card"
               maxCount={1}
+              className="w-full"
             >
-              <div className="flex flex-col items-center justify-center p-4">
-                <PlusOutlined className="text-2xl mb-2" />
-                <div className="text-sm">Chọn ảnh mới</div>
+              <div className="flex flex-col items-center justify-center p-4 w-full">
+                <div className="text-2xl mb-2 text-[#6B4F3B]">📁</div>
+                <div className="text-sm font-medium text-[#6B4F3B]">
+                  Chọn ảnh mới
+                </div>
                 <div className="text-xs text-gray-500 mt-1">
                   PNG, JPG, JPEG (tối đa 5MB)
                 </div>

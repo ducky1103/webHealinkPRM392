@@ -35,6 +35,11 @@ import watchGetComments from "./redux/User/comment/fetch_comment/fetchCommentSag
 import watchPostComment from "./redux/User/comment/post_comment/postCommentSaga";
 import watchPostChatSaga from "./redux/User/ChatAI/chatAiSaga";
 import watchPostFlashCard from "./redux/User/flashCardAI/postFlashCardSaga";
+import watchUpdateCommentSaga from "./redux/User/comment/update_comment/updateCommentSaga";
+import watchDeleteCommentSaga from "./redux/User/comment/delete_comment/deleteCommentSaga";
+import watchGetAllUser from "./redux/User/ManageUser/getUser/getAllUserSaga";
+import watchBanUser from "./redux/User/ManageUser/banUser/banUserSaga";
+import watchUnbanUser from "./redux/User/ManageUser/unbanUser/unBanUserSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -80,8 +85,14 @@ export default function* rootSaga() {
     //comment
     watchPostComment(),
     watchGetComments(),
+    watchUpdateCommentSaga(),
+    watchDeleteCommentSaga(),
     //ai
     watchPostChatSaga(),
     watchPostFlashCard(),
+    //user management
+    watchGetAllUser(),
+    watchBanUser(),
+    watchUnbanUser(),
   ]);
 }

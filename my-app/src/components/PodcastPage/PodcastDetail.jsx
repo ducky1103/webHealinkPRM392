@@ -1,21 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Headset, Calendar, Clock, ArrowLeft } from "lucide-react";
+import {
+  Headset,
+  Calendar,
+  Clock,
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  Check,
+  X,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "../HomePage/Header";
-import toast from "react-hot-toast";
+import { message, Popconfirm } from "antd";
 
 import { getComments } from "../../redux/User/comment/fetch_comment/fetchCommentSlice";
 import {
   postComment,
   resetPostComment,
 } from "../../redux/User/comment/post_comment/postCommentSilce";
+import { updateCommentRequest } from "../../redux/User/comment/update_comment/updateCommentSlice";
+import { deleteCommentRequest } from "../../redux/User/comment/delete_comment/deleteCommentSlice";
+import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
 
 const PodcastDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { fetchPodcast: podcasts } = useSelector((state) => state.fetchPodcast);
+  const { fetchPodcast: podcasts, loading: loadingPodcasts } = useSelector(
+    (state) => state.fetchPodcast
+  );
   const { comments, loading: loadingComments } = useSelector(
     (state) => state.getComments
   );
@@ -28,6 +42,8 @@ const PodcastDetail = () => {
   const podcast = podcasts?.find((p) => p.id.toString() === id);
 
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   // Fetch comments when component mounts
   useEffect(() => {
@@ -35,6 +51,13 @@ const PodcastDetail = () => {
       dispatch(getComments(id));
     }
   }, [dispatch, id]);
+
+  // Fetch podcast if not found in store (when refresh page)
+  useEffect(() => {
+    if (id && (!podcasts || podcasts.length === 0)) {
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    }
+  }, [dispatch, id, podcasts]);
 
   // Reset comment form after successful post
   useEffect(() => {
@@ -48,12 +71,12 @@ const PodcastDetail = () => {
 
   const handleAddComment = () => {
     if (newComment.trim() === "") {
-      toast.error("Bình luận không được để trống!");
+      message.error("⚠ Bình luận không được để trống!");
       return;
     }
 
     if (!user) {
-      toast.error("Vui lòng đăng nhập để bình luận!");
+      message.error("⚠ Vui lòng đăng nhập để bình luận!");
       return;
     }
 
@@ -65,6 +88,80 @@ const PodcastDetail = () => {
       })
     );
   };
+
+  // Handle edit comment
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditContent(comment.content);
+  };
+
+  // Handle update comment
+  const handleUpdateComment = () => {
+    if (editContent.trim() === "") {
+      message.error("⚠ Bình luận không được để trống!");
+      return;
+    }
+
+    dispatch(
+      updateCommentRequest({
+        commentId: editingCommentId,
+        podcastId: parseInt(id),
+        commentUser: user.username || "Ẩn danh",
+        content: editContent,
+      })
+    );
+
+    // Reset edit state
+    setEditingCommentId(null);
+    setEditContent("");
+
+    // Reload comments after update
+    setTimeout(() => {
+      dispatch(getComments(id));
+    }, 1000);
+  };
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditContent("");
+  };
+
+  // Handle delete comment
+  const handleDeleteComment = (comment) => {
+    // Kiểm tra quyền xóa - chỉ người comment mới xóa được
+    if (!user) {
+      message.error("⚠ Vui lòng đăng nhập để thực hiện thao tác này!");
+      return;
+    }
+
+    if (comment.commentUser !== user.username) {
+      message.error("⚠ Bạn chỉ có thể xóa bình luận của chính mình!");
+      return;
+    }
+
+    dispatch(deleteCommentRequest(comment.id));
+    // Reload comments after delete
+    setTimeout(() => {
+      dispatch(getComments(id));
+    }, 1000);
+  };
+
+  // Show loading while fetching podcast
+  if (loadingPodcasts) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-b from-amber-950 via-amber-900 to-amber-800 text-white">
+          <div className="max-w-6xl mx-auto px-6 py-16 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-amber-400 mx-auto mb-4"></div>
+            <h1 className="text-3xl font-bold mb-4">Đang tải podcast...</h1>
+            <p className="text-amber-200">Vui lòng chờ trong giây lát</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   // If podcast not found in Redux, show not found
   if (!podcast) {
@@ -231,13 +328,73 @@ const PodcastDetail = () => {
                       <span className="font-bold text-amber-200">
                         {comment.commentUser || "Ẩn danh"}
                       </span>
-                      <span className="text-sm text-amber-400">
-                        {comment.createdAt
-                          ? new Date(comment.createdAt).toLocaleString("vi-VN")
-                          : ""}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-amber-400">
+                          {comment.createdAt
+                            ? new Date(comment.createdAt).toLocaleString(
+                                "vi-VN"
+                              )
+                            : ""}
+                        </span>
+                        {/* Chỉ hiển thị nút Edit/Delete nếu user đã đăng nhập và là chủ sở hữu comment */}
+                        {user && comment.commentUser === user.username && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditComment(comment)}
+                              className="p-1 text-amber-400 hover:text-amber-300 transition-colors"
+                              title="Chỉnh sửa bình luận"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <Popconfirm
+                              title="Xóa bình luận"
+                              description="Bạn có chắc chắn muốn xóa bình luận này?"
+                              onConfirm={() => handleDeleteComment(comment)}
+                              okText="Xóa"
+                              cancelText="Hủy"
+                              okType="danger"
+                            >
+                              <button
+                                className="p-1 text-red-400 hover:text-red-300 transition-colors"
+                                title="Xóa bình luận"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </Popconfirm>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-white">{comment.content}</p>
+
+                    {/* Hiển thị nội dung comment hoặc form edit */}
+                    {editingCommentId === comment.id ? (
+                      <div className="space-y-3">
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="w-full p-3 rounded-lg bg-amber-100/20 border border-amber-600 text-white placeholder-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-20"
+                          placeholder="Chỉnh sửa bình luận..."
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleUpdateComment}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                          >
+                            <Check size={16} />
+                            Lưu
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                          >
+                            <X size={16} />
+                            Hủy
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-white">{comment.content}</p>
+                    )}
                   </div>
                 ))}
               </div>
