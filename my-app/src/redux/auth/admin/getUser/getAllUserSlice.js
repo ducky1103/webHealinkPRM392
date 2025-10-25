@@ -23,7 +23,7 @@ const initialState = {
   error: null,
 };
 
-const getAllUserReducer = (state = initialState, action) => {
+const getAllUserAdminReducer = (state = initialState, action) => {
   switch (action.type) {
     case GET_ALL_USER:
       return { ...state, loading: true, error: false };
@@ -35,4 +35,4 @@ const getAllUserReducer = (state = initialState, action) => {
       return state;
   }
 };
-export default getAllUserReducer;
+export default getAllUserAdminReducer;

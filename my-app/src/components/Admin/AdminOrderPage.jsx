@@ -14,7 +14,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getOrderUser } from "../../redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import { getAllUser } from "../../redux/auth/admin/getUser/getAllUserSlice";
 import { updateStatusOrder } from "../../redux/User/order/updateStatusOrder/updateStatusOrderSlice";
-import { Spin, Alert } from "antd";
+import { Spin, Alert, Tooltip } from "antd";
 
 const STATUS_FLOW = [
   "paid",
@@ -83,7 +83,7 @@ const AdminOrderPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const { getUser, loading: loadingUsers } = useSelector(
-    (state) => state.getAllUser
+    (state) => state.getAllUserAdmin
   );
   const { orderUser, loading: loadingOrders } = useSelector(
     (state) => state.orderUser
@@ -236,6 +236,7 @@ const AdminOrderPage = () => {
                       "Mã đơn",
                       "Ngày đặt",
                       "Tổng tiền",
+                      "Địa chỉ giao hàng",
                       "Trạng thái",
                       "Cập nhật",
                       "Thao tác",
@@ -249,6 +250,7 @@ const AdminOrderPage = () => {
                     ))}
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-200">
                   {filteredOrders.map((order) => {
                     const StatusIcon =
@@ -262,13 +264,28 @@ const AdminOrderPage = () => {
                         <td className="px-6 py-4 font-medium text-gray-900">
                           {order.id}
                         </td>
+
                         <td className="px-6 py-4 text-gray-600">
                           {order.orderDate ||
                             new Date(order.createdAt).toLocaleString()}
                         </td>
+
                         <td className="px-6 py-4 text-gray-900 font-semibold">
                           {formatCurrency(order.totalAmount)}
                         </td>
+
+                        <td className="px-6 py-4 text-gray-700 max-w-[250px] truncate">
+                          {order.address ? (
+                            <Tooltip title={order.address} placement="topLeft">
+                              <span className="cursor-pointer hover:text-blue-600">
+                                {order.address}
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            "Không có"
+                          )}
+                        </td>
+
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <StatusIcon className="w-4 h-4" />
@@ -283,53 +300,48 @@ const AdminOrderPage = () => {
                             </span>
                           </div>
                         </td>
+
                         <td className="px-6 py-4">
-                          <td className="px-6 py-4">
-                            <select
-                              value={order.status.toLowerCase()}
-                              disabled={isLocked}
-                              onChange={(e) =>
-                                onChangeStatus(order, e.target.value)
-                              }
-                              className={`px-3 py-1 border rounded-md text-sm ${
-                                isLocked
-                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                  : "bg-white"
-                              }`}
-                            >
-                              {STATUS_FLOW.map((s) => {
-                                const currentIndex = STATUS_FLOW.indexOf(
-                                  order.status.toLowerCase()
-                                );
-                                const optionIndex = STATUS_FLOW.indexOf(s);
-
-                                // ✅ Chặn rollback hoặc nhảy sai luồng
-                                const disabledOption =
-                                  optionIndex < currentIndex ||
-                                  (s === "received" &&
-                                    order.status.toLowerCase() !==
-                                      "delivered") ||
-                                  (s === "completed" &&
-                                    order.status.toLowerCase() !==
-                                      "received") ||
-                                  (s === "cancelled" &&
-                                    ["completed", "received"].includes(
-                                      order.status.toLowerCase()
-                                    ));
-
-                                return (
-                                  <option
-                                    key={s}
-                                    value={s}
-                                    disabled={disabledOption}
-                                  >
-                                    {statusConfig[s]?.label || s}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </td>
+                          <select
+                            value={order.status.toLowerCase()}
+                            disabled={isLocked}
+                            onChange={(e) =>
+                              onChangeStatus(order, e.target.value)
+                            }
+                            className={`px-3 py-1 border rounded-md text-sm ${
+                              isLocked
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white"
+                            }`}
+                          >
+                            {STATUS_FLOW.map((s) => {
+                              const currentIndex = STATUS_FLOW.indexOf(
+                                order.status.toLowerCase()
+                              );
+                              const optionIndex = STATUS_FLOW.indexOf(s);
+                              const disabledOption =
+                                optionIndex < currentIndex ||
+                                (s === "received" &&
+                                  order.status.toLowerCase() !== "delivered") ||
+                                (s === "completed" &&
+                                  order.status.toLowerCase() !== "received") ||
+                                (s === "cancelled" &&
+                                  ["completed", "received"].includes(
+                                    order.status.toLowerCase()
+                                  ));
+                              return (
+                                <option
+                                  key={s}
+                                  value={s}
+                                  disabled={disabledOption}
+                                >
+                                  {statusConfig[s]?.label || s}
+                                </option>
+                              );
+                            })}
+                          </select>
                         </td>
+
                         <td className="px-6 py-4">
                           <button
                             onClick={() => setSelectedOrder(order)}

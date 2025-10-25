@@ -31,8 +31,8 @@ function* getAllUserSaga(action) {
   }
 }
 
-function* watchGetAllUser() {
+function* watchGetAllUserAdmin() {
   yield takeLatest(GET_ALL_USER, getAllUserSaga);
 }
 
-export default watchGetAllUser;
+export default watchGetAllUserAdmin;

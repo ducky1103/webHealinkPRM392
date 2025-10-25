@@ -36,8 +36,19 @@ import watchPostLetter from "./redux/User/letter/postLetterSaga";
 import watchGetComments from "./redux/User/comment/fetch_comment/fetchCommentSaga";
 import watchPostComment from "./redux/User/comment/post_comment/postCommentSaga";
 import watchPostChatSaga from "./redux/User/ChatAI/chatAiSaga";
-import watchGetAllUser from "./redux/auth/admin/getUser/getAllUserSaga";
+import watchGetAllUserAdmin from "./redux/auth/admin/getUser/getAllUserSaga";
 import watchChangePassword from "./redux/User/changePassword/changePasswordSaga";
+import watchPostFlashCard from "./redux/User/flashCardAI/postFlashCardSaga";
+import watchUpdateCommentSaga from "./redux/User/comment/update_comment/updateCommentSaga";
+import watchDeleteCommentSaga from "./redux/User/comment/delete_comment/deleteCommentSaga";
+import watchGetAllUser from "./redux/User/ManageUser/getUser/getAllUserSaga";
+import watchBanUser from "./redux/User/ManageUser/banUser/banUserSaga";
+import watchUnbanUser from "./redux/User/ManageUser/unbanUser/unBanUserSaga";
+import { watchUpdateAddressSaga } from "./redux/User/order/updateAddress/updateAddressSaga";
+import watchFetchProductDetailSaga from "./redux/User/product/fetchProductDetail/fetchProductDetailSaga";
+import watchCreateCommentSaga from "./redux/User/comment_rating/create_comment/createCommentSaga";
+import watchFetchAllCommentByUserSaga from "./redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSaga";
+import watchFetchAllCommentByProductSaga from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -62,6 +73,7 @@ export default function* rootSaga() {
     watchDeleteOrder(),
     watchCheckoutCart(),
     watchUpdateStatusOrder(),
+    watchUpdateAddressSaga(),
 
     //password
     watchForgotPassword(),
@@ -78,6 +90,7 @@ export default function* rootSaga() {
     watchGetProfile(),
     //prodcut
     watchPostProductSaga(),
+    watchFetchProductDetailSaga(),
     watchUpdateProductSaga(),
     watchDeleteProductSaga(),
     //letter
@@ -89,13 +102,25 @@ export default function* rootSaga() {
     //comment
     watchPostComment(),
     watchGetComments(),
+    watchUpdateCommentSaga(),
+    watchDeleteCommentSaga(),
     //ai
     watchPostChatSaga(),
 
     //admin
-    watchGetAllUser(),
+    watchGetAllUserAdmin(),
 
     //change password
     watchChangePassword(),
+    watchPostFlashCard(),
+    //user management
+    watchGetAllUser(),
+    watchBanUser(),
+    watchUnbanUser(),
+
+    //user comment rating
+    watchCreateCommentSaga(),
+    watchFetchAllCommentByUserSaga(),
+    watchFetchAllCommentByProductSaga(),
   ]);
 }

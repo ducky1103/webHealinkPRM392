@@ -27,6 +27,8 @@ import RootLayout from "../../components/Root/RootLayout";
 import AdminProductPage from "../../components/Admin/AdminProduct";
 import AdminCategoryPage from "../../components/Admin/AdminCategoryPage";
 import ChangePasswordPage from "../../components/HomePage/ChangePassword/ChangePassword";
+import Game from "../../components/Game/Game";
+import ProductDetailPage from "../../components/ProductDetailPage/ProductDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +53,8 @@ const router = createBrowserRouter([
       { path: "forgot-password", element: <ForgotPasswordPage /> },
       { path: "reset-password", element: <ResetPasswordPage /> },
       { path: "change-password", element: <ChangePasswordPage /> },
+      { path: "game", element: <Game /> },
+      { path: "product/:id", element: <ProductDetailPage /> },
       {
         element: <PrivateRoute allowedRoles={["User", "admin"]} />,
         children: [

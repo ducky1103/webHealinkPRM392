@@ -83,9 +83,13 @@ const StorePage = () => {
                 <img
                   src={item.imageUrl}
                   alt={item.name}
-                  className="w-full h-40 object-cover rounded-lg mb-4"
+                  className="w-full h-40 object-cover rounded-lg mb-4 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                  onClick={() => navigate(`/product/${item.id}`)}
                 />
-                <h3 className="text-lg font-semibold text-slate-800 line-clamp-2">
+                <h3
+                  className="text-lg font-semibold text-slate-800 line-clamp-2 cursor-pointer hover:text-amber-600 transition-colors duration-200"
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
                   {item.name}
                 </h3>
               </div>

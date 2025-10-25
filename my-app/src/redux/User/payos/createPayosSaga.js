@@ -8,7 +8,7 @@ import {
 } from "./createPayosSlice";
 import { toast } from "react-toastify";
 
-const URL_API = "https://podcast-shoppings-1.onrender.com";
+const URL_API = "http://localhost:8080";
 
 function* createPayosSaga(action) {
   try {
@@ -18,7 +18,7 @@ function* createPayosSaga(action) {
     const response = yield call(
       axios.post,
       `${URL_API}/payos/create`,
-      { orderId }, // ✅ orderId gửi trong body
+      { orderId },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,6 +39,7 @@ function* createPayosSaga(action) {
   } catch (error) {
     yield put(createPayosFail(error.message));
     toast.error("Lỗi khi tạo thanh toán PayOS");
+    console.log;
   }
 }
 

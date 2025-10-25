@@ -31,8 +31,19 @@ import postLetterReducer from "./redux/User/letter/postLetterSlice";
 import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
 import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
 import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
-import getAllUserReducer from "./redux/auth/admin/getUser/getAllUserSlice";
+import getAllUserAdminReducer from "./redux/auth/admin/getUser/getAllUserSlice";
 import changePasswordReducer from "./redux/User/changePassword/changePasswordSlice";
+import postFlashCardReducer from "./redux/User/flashCardAI/postFlashCardSlice";
+import updateCommentReducer from "./redux/User/comment/update_comment/updateCommentSlice";
+import deleteCommentReducer from "./redux/User/comment/delete_comment/deleteCommentSlice";
+import getAllUserReducer from "./redux/User/ManageUser/getUser/getAllUserSlice";
+import banUserReducer from "./redux/User/ManageUser/banUser/banUserSlice";
+import unbanUserReducer from "./redux/User/ManageUser/unbanUser/unBanUserSlice";
+import updateAddressReducer from "./redux/User/order/updateAddress/updateAddressSlice";
+import fetchProductDetailReducer from "./redux/User/product/fetchProductDetail/fetchProductDetailSlice";
+import createCommentReducer from "./redux/User/comment_rating/create_comment/createCommentSlice";
+import fetchAllCommentByUserReducer from "./redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSlice";
+import fetchAllCommentByProductReducer from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -47,6 +58,7 @@ const rootReducer = combineReducers({
   deleteCart: deleteCartItemReducer,
   //product
   fetchProduct: getAllProductReducer,
+  fetchProductDetail: fetchProductDetailReducer,
   addProduct: addToCartReducer,
   updateProduct: updateProductReducer,
   postProduct: postProductReducer,
@@ -58,6 +70,7 @@ const rootReducer = combineReducers({
   deleteOrderId: deleteOrderReducer,
   checkoutCart: checkoutCartReducer,
   updateStatus: updateStatusOrderReducer,
+  updateAddress: updateAddressReducer,
 
   //category
   fetchCategory: fetchCategoryReducer,
@@ -76,14 +89,26 @@ const rootReducer = combineReducers({
   //comment
   postComment: postCommentReducer,
   getComments: getCommentsReducer,
+  putComment: updateCommentReducer,
+  deleteComment: deleteCommentReducer,
   //ai
   postChat: postChatReducer,
 
   //admin
-  getAllUser: getAllUserReducer,
+  getAllUserAdmin: getAllUserAdminReducer,
 
   //change password
   changePass: changePasswordReducer,
+  postFlashCard: postFlashCardReducer,
+  //user management
+  getAllUser: getAllUserReducer,
+  banUser: banUserReducer,
+  unbanUser: unbanUserReducer,
+
+  //user comment rating
+  createComment: createCommentReducer,
+  fetchAllCommentByUser: fetchAllCommentByUserReducer,
+  fetchAllCommentByProduct: fetchAllCommentByProductReducer,
 });
 
 export default rootReducer;
