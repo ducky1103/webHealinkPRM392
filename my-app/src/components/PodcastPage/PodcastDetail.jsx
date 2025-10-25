@@ -10,6 +10,7 @@ import {
   Trash2,
   Check,
   X,
+  Heart,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "../HomePage/Header";
@@ -23,6 +24,9 @@ import {
 import { updateCommentRequest } from "../../redux/User/comment/update_comment/updateCommentSlice";
 import { deleteCommentRequest } from "../../redux/User/comment/delete_comment/deleteCommentSlice";
 import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
+import { addFavoriteRequest } from "../../redux/User/favoritePodcast/add_favorite/addFavoriteSlice";
+import { removeFavoriteRequest } from "../../redux/User/favoritePodcast/remove_favorite/removeFavoriteSlice";
+import { getFavoriteRequest } from "../../redux/User/favoritePodcast/get_favorite/getFavoriteSlice";
 
 const PodcastDetail = () => {
   const { id } = useParams();
@@ -37,6 +41,11 @@ const PodcastDetail = () => {
     (state) => state.postComment
   );
   const { user } = useSelector((state) => state.account);
+  const { favoritePodcasts } = useSelector((state) => state.getFavorite);
+  const { loading: addingFavorite } = useSelector((state) => state.addFavorite);
+  const { loading: removingFavorite } = useSelector(
+    (state) => state.removeFavorite
+  );
 
   // Find podcast by ID from Redux store
   const podcast = podcasts?.find((p) => p.id.toString() === id);
@@ -44,6 +53,7 @@ const PodcastDetail = () => {
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Fetch comments when component mounts
   useEffect(() => {
@@ -58,6 +68,23 @@ const PodcastDetail = () => {
       dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
     }
   }, [dispatch, id, podcasts]);
+
+  // Fetch favorite podcasts when user is logged in
+  useEffect(() => {
+    if (user) {
+      dispatch(getFavoriteRequest({ page: 1, size: 100 }));
+    }
+  }, [dispatch, user]);
+
+  // Check if current podcast is in favorites
+  useEffect(() => {
+    if (favoritePodcasts && favoritePodcasts.content && podcast) {
+      const isInFavorites = favoritePodcasts.content.some(
+        (fav) => fav.podcastId === podcast.id
+      );
+      setIsFavorite(isInFavorites);
+    }
+  }, [favoritePodcasts, podcast]);
 
   // Reset comment form after successful post
   useEffect(() => {
@@ -145,6 +172,23 @@ const PodcastDetail = () => {
     setTimeout(() => {
       dispatch(getComments(id));
     }, 1000);
+  };
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = () => {
+    if (!user) {
+      message.error("⚠ Vui lòng đăng nhập để thêm vào yêu thích!");
+      return;
+    }
+
+    // Cập nhật state ngay lập tức để UI phản hồi nhanh
+    setIsFavorite(!isFavorite);
+
+    if (isFavorite) {
+      dispatch(removeFavoriteRequest(podcast.id));
+    } else {
+      dispatch(addFavoriteRequest(podcast.id));
+    }
   };
 
   // Show loading while fetching podcast
@@ -252,6 +296,31 @@ const PodcastDetail = () => {
                     <span>🏷️</span> {podcast.category}
                   </span>
                 )}
+
+                {/* Favorite Button */}
+                <button
+                  onClick={handleFavoriteToggle}
+                  disabled={addingFavorite || removingFavorite}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
+                    isFavorite
+                      ? "bg-red-500 text-white hover:bg-red-600"
+                      : "bg-amber-700 text-amber-200 hover:bg-amber-600"
+                  } ${
+                    addingFavorite || removingFavorite
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  <Heart
+                    size={14}
+                    className={isFavorite ? "fill-current" : ""}
+                  />
+                  {addingFavorite || removingFavorite
+                    ? "Đang xử lý..."
+                    : isFavorite
+                    ? "Đã yêu thích"
+                    : "Thêm yêu thích"}
+                </button>
               </div>
             </div>
           </div>

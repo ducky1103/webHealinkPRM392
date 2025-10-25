@@ -32,6 +32,10 @@ import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
 import postFlashCardReducer from "./redux/User/flashCardAI/postFlashCardSlice";
 import updateCommentReducer from "./redux/User/comment/update_comment/updateCommentSlice";
 import deleteCommentReducer from "./redux/User/comment/delete_comment/deleteCommentSlice";
+import getFavoriteReducer from "./redux/User/favoritePodcast/get_favorite/getFavoriteSlice";
+import addFavoriteReducer from "./redux/User/favoritePodcast/add_favorite/addFavoriteSlice";
+import removeFavoriteReducer from "./redux/User/favoritePodcast/remove_favorite/removeFavoriteSlice";
+
 import getAllUserReducer from "./redux/User/ManageUser/getUser/getAllUserSlice";
 import banUserReducer from "./redux/User/ManageUser/banUser/banUserSlice";
 import unbanUserReducer from "./redux/User/ManageUser/unbanUser/unBanUserSlice";
@@ -78,6 +82,11 @@ const rootReducer = combineReducers({
   getComments: getCommentsReducer,
   putComment: updateCommentReducer,
   deleteComment: deleteCommentReducer,
+  //favorite podcast
+  getFavorite: getFavoriteReducer,
+  addFavorite: addFavoriteReducer,
+  removeFavorite: removeFavoriteReducer,
+
   //ai
   postChat: postChatReducer,
   postFlashCard: postFlashCardReducer,

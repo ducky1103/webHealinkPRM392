@@ -49,6 +49,7 @@ function Header() {
             <LinkItem href="/podcast" label="Podcast" />
             <LinkItem href="/about-us" label="Về chúng tôi" />
             <LinkItem href="/store" label="Cửa hàng" />
+            <LinkItem href="/favorites" label="Yêu thích" />
             {/* 🔹 Truyền cartCount xuống */}
             <CartButton user={user} cartCount={cartCount} />
           </nav>

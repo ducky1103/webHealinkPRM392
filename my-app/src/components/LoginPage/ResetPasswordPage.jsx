@@ -5,10 +5,11 @@ import {
   LockOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import background from "../../img/bg3.webp";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import background from "../../img/bg6.jpg";
 import {
   resetPasswordRequest,
   verifyResetTokenRequest,
@@ -78,10 +79,24 @@ export default function ResetPasswordPage() {
           <img
             src={background}
             alt=""
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-90"
           />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl text-center">
+
+        {/* Back to Home Button */}
+        <div className="absolute top-6 left-6 z-20">
+          <Link to="/">
+            <Button
+              type="primary"
+              icon={<ArrowLeftOutlined />}
+              className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !border-0 shadow-lg rounded-full !h-10 !px-6"
+            >
+              Về trang chủ
+            </Button>
+          </Link>
+        </div>
+
+        <div className="relative z-10 w-96 p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-700">Đang xác thực token...</p>
         </div>
@@ -96,10 +111,24 @@ export default function ResetPasswordPage() {
           <img
             src={background}
             alt=""
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-90"
           />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
+
+        {/* Back to Home Button */}
+        <div className="absolute top-6 left-6 z-20">
+          <Link to="/">
+            <Button
+              type="primary"
+              icon={<ArrowLeftOutlined />}
+              className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !border-0 shadow-lg rounded-full !h-10 !px-6"
+            >
+              Về trang chủ
+            </Button>
+          </Link>
+        </div>
+
+        <div className="relative z-10 w-96 p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl">
           <Result
             status="error"
             title={
@@ -142,10 +171,10 @@ export default function ResetPasswordPage() {
           <img
             src={background}
             alt=""
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-90"
           />
         </div>
-        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
+        <div className="relative z-10 w-96 p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl">
           <Result
             status="success"
             title={

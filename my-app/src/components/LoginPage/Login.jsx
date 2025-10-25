@@ -1,6 +1,10 @@
 import { Form, Input, Button, Checkbox } from "antd";
-import { MailOutlined, LockOutlined } from "@ant-design/icons";
-import background from "../../img/bg3.webp";
+import {
+  MailOutlined,
+  LockOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
+import background from "../../img/bg6.jpg";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -38,12 +42,25 @@ export default function Login() {
         <img
           src={background}
           alt=""
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-90"
         />
       </div>
 
+      {/* Back to Home Button */}
+      <div className="absolute top-6 left-6 z-20">
+        <Link to="/">
+          <Button
+            type="primary"
+            icon={<ArrowLeftOutlined />}
+            className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !border-0 shadow-lg rounded-full !h-10 !px-6"
+          >
+            Về trang chủ
+          </Button>
+        </Link>
+      </div>
+
       {/* Login Card */}
-      <div className="relative z-10 w-96 p-8 bg-white/50 backdrop-blur-md rounded-2xl shadow-2xl">
+      <div className="relative z-10 w-96 p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Login
         </h2>
