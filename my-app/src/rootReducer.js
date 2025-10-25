@@ -11,7 +11,9 @@ import getAllOrderItemReducer from "./redux/User/order/fetchOrderItem/getAllOrde
 import getOrderUserReducer from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import deleteOrderReducer from "./redux/User/order/deleteOrder/deleteOrderSlice";
 import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartSlice";
+import updateStatusOrderReducer from "./redux/User/order/updateStatusOrder/updateStatusOrderSlice";
 import createPayosReducer from "./redux/User/payos/createPayosSlice";
+import cancelPaymentReducer from "./redux/User/cancelPayment/cancelPaymentSlice";
 import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
@@ -29,12 +31,19 @@ import postLetterReducer from "./redux/User/letter/postLetterSlice";
 import getCommentsReducer from "./redux/User/comment/fetch_comment/fetchCommentSlice";
 import postCommentReducer from "./redux/User/comment/post_comment/postCommentSilce";
 import postChatReducer from "./redux/User/ChatAI/chatAiSlice";
+import getAllUserAdminReducer from "./redux/auth/admin/getUser/getAllUserSlice";
+import changePasswordReducer from "./redux/User/changePassword/changePasswordSlice";
 import postFlashCardReducer from "./redux/User/flashCardAI/postFlashCardSlice";
 import updateCommentReducer from "./redux/User/comment/update_comment/updateCommentSlice";
 import deleteCommentReducer from "./redux/User/comment/delete_comment/deleteCommentSlice";
 import getAllUserReducer from "./redux/User/ManageUser/getUser/getAllUserSlice";
 import banUserReducer from "./redux/User/ManageUser/banUser/banUserSlice";
 import unbanUserReducer from "./redux/User/ManageUser/unbanUser/unBanUserSlice";
+import updateAddressReducer from "./redux/User/order/updateAddress/updateAddressSlice";
+import fetchProductDetailReducer from "./redux/User/product/fetchProductDetail/fetchProductDetailSlice";
+import createCommentReducer from "./redux/User/comment_rating/create_comment/createCommentSlice";
+import fetchAllCommentByUserReducer from "./redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSlice";
+import fetchAllCommentByProductReducer from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -49,6 +58,7 @@ const rootReducer = combineReducers({
   deleteCart: deleteCartItemReducer,
   //product
   fetchProduct: getAllProductReducer,
+  fetchProductDetail: fetchProductDetailReducer,
   addProduct: addToCartReducer,
   updateProduct: updateProductReducer,
   postProduct: postProductReducer,
@@ -59,6 +69,8 @@ const rootReducer = combineReducers({
   orderUser: getOrderUserReducer,
   deleteOrderId: deleteOrderReducer,
   checkoutCart: checkoutCartReducer,
+  updateStatus: updateStatusOrderReducer,
+  updateAddress: updateAddressReducer,
 
   //category
   fetchCategory: fetchCategoryReducer,
@@ -73,6 +85,7 @@ const rootReducer = combineReducers({
 
   //payment
   createPayos: createPayosReducer,
+  cancelPayos: cancelPaymentReducer,
   //comment
   postComment: postCommentReducer,
   getComments: getCommentsReducer,
@@ -80,11 +93,22 @@ const rootReducer = combineReducers({
   deleteComment: deleteCommentReducer,
   //ai
   postChat: postChatReducer,
+
+  //admin
+  getAllUserAdmin: getAllUserAdminReducer,
+
+  //change password
+  changePass: changePasswordReducer,
   postFlashCard: postFlashCardReducer,
   //user management
   getAllUser: getAllUserReducer,
   banUser: banUserReducer,
   unbanUser: unbanUserReducer,
+
+  //user comment rating
+  createComment: createCommentReducer,
+  fetchAllCommentByUser: fetchAllCommentByUserReducer,
+  fetchAllCommentByProduct: fetchAllCommentByProductReducer,
 });
 
 export default rootReducer;

@@ -11,7 +11,9 @@ import watchGetAllOrderItem from "./redux/User/order/fetchOrderItem/getAllOrderI
 import watchGetOrderUser from "./redux/User/order/fetchOrderByUser/getAllOrderByUserSaga";
 import watchDeleteOrder from "./redux/User/order/deleteOrder/deleteOrderSaga";
 import watchCheckoutCart from "./redux/User/cartApi/checkoutCart/checkoutCartSaga";
+import watchUpdateStatusOrder from "./redux/User/order/updateStatusOrder/updateStatusOrderSaga";
 import watchCreatePayos from "./redux/User/payos/createPayosSaga";
+import watchCancelPayment from "./redux/User/cancelPayment/cancelPaymentSaga";
 import watchForgotPassword, {
   watchCheckEmailExists,
   watchResetPassword,
@@ -34,12 +36,19 @@ import watchPostLetter from "./redux/User/letter/postLetterSaga";
 import watchGetComments from "./redux/User/comment/fetch_comment/fetchCommentSaga";
 import watchPostComment from "./redux/User/comment/post_comment/postCommentSaga";
 import watchPostChatSaga from "./redux/User/ChatAI/chatAiSaga";
+import watchGetAllUserAdmin from "./redux/auth/admin/getUser/getAllUserSaga";
+import watchChangePassword from "./redux/User/changePassword/changePasswordSaga";
 import watchPostFlashCard from "./redux/User/flashCardAI/postFlashCardSaga";
 import watchUpdateCommentSaga from "./redux/User/comment/update_comment/updateCommentSaga";
 import watchDeleteCommentSaga from "./redux/User/comment/delete_comment/deleteCommentSaga";
 import watchGetAllUser from "./redux/User/ManageUser/getUser/getAllUserSaga";
 import watchBanUser from "./redux/User/ManageUser/banUser/banUserSaga";
 import watchUnbanUser from "./redux/User/ManageUser/unbanUser/unBanUserSaga";
+import { watchUpdateAddressSaga } from "./redux/User/order/updateAddress/updateAddressSaga";
+import watchFetchProductDetailSaga from "./redux/User/product/fetchProductDetail/fetchProductDetailSaga";
+import watchCreateCommentSaga from "./redux/User/comment_rating/create_comment/createCommentSaga";
+import watchFetchAllCommentByUserSaga from "./redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSaga";
+import watchFetchAllCommentByProductSaga from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -54,6 +63,8 @@ export default function* rootSaga() {
     watchUpdateCartItem(),
     watchDeleteCartItem(),
     watchGetAllProduct(),
+
+    //order
     watchAddToCart(),
     watchCheckEmailExists(),
     watchGetAllOrder(),
@@ -61,6 +72,10 @@ export default function* rootSaga() {
     watchGetOrderUser(),
     watchDeleteOrder(),
     watchCheckoutCart(),
+    watchUpdateStatusOrder(),
+    watchUpdateAddressSaga(),
+
+    //password
     watchForgotPassword(),
     watchVerifyResetToken(),
     watchResetPassword(),
@@ -75,6 +90,7 @@ export default function* rootSaga() {
     watchGetProfile(),
     //prodcut
     watchPostProductSaga(),
+    watchFetchProductDetailSaga(),
     watchUpdateProductSaga(),
     watchDeleteProductSaga(),
     //letter
@@ -82,6 +98,7 @@ export default function* rootSaga() {
 
     //payment
     watchCreatePayos(),
+    watchCancelPayment(),
     //comment
     watchPostComment(),
     watchGetComments(),
@@ -89,10 +106,21 @@ export default function* rootSaga() {
     watchDeleteCommentSaga(),
     //ai
     watchPostChatSaga(),
+
+    //admin
+    watchGetAllUserAdmin(),
+
+    //change password
+    watchChangePassword(),
     watchPostFlashCard(),
     //user management
     watchGetAllUser(),
     watchBanUser(),
     watchUnbanUser(),
+
+    //user comment rating
+    watchCreateCommentSaga(),
+    watchFetchAllCommentByUserSaga(),
+    watchFetchAllCommentByProductSaga(),
   ]);
 }

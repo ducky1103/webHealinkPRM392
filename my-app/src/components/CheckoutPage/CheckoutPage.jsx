@@ -1,16 +1,15 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../HomePage/Header";
 import { getAllOrder } from "../../redux/User/order/fetchOrder/getAllOrderSlice";
 import { getAllOrderItem } from "../../redux/User/order/fetchOrderItem/getAllOrderItemSlice";
-// import { deleteOrder } from "../../redux/User/order/deleteOrder/deleteOrderSlice";
 import { getProfile } from "../../redux/User/profile/getProfileSlice";
 import { createPayos } from "../../redux/User/payos/createPayosSlice";
-import { Modal, Spin, Radio } from "antd";
-import { Eye, Trash2 } from "lucide-react";
+import { updateAddress } from "../../redux/User/order/updateAddress/updateAddressSlice"; // ✅ import action này
+import { Modal, Spin, Radio, Input, Button } from "antd";
+import { Eye, CreditCard, Package, ShoppingCart } from "lucide-react";
 import payos from "../../img/payos.png";
 
 const CheckoutPage = () => {
@@ -21,14 +20,16 @@ const CheckoutPage = () => {
   const { orderItem, loading: itemLoading } = useSelector(
     (state) => state.orderItem
   );
-  // const { loading: deleteLoading, success: deleteSuccess } = useSelector(
-  //   (state) => state.deleteOrderId
-  // );
   const { profile } = useSelector((state) => state.getProfile);
+  const { loading: updateLoading } = useSelector(
+    (state) => state.updateAddress || {}
+  );
   const userId = useSelector((state) => state.account?.user?.id);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("payos");
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); // ✅ modal cho địa chỉ
+  const [newAddress, setNewAddress] = useState(""); // ✅ địa chỉ mới
 
   useEffect(() => {
     if (id) dispatch(getAllOrder(id));
@@ -37,10 +38,6 @@ const CheckoutPage = () => {
   useEffect(() => {
     if (userId) dispatch(getProfile(userId));
   }, [dispatch, userId]);
-
-  // useEffect(() => {
-  //   if (deleteSuccess) navigate("/cart");
-  // }, [deleteSuccess, navigate]);
 
   const totalAmount = order?.totalAmount || 0;
   const formatPrice = (price) =>
@@ -54,51 +51,32 @@ const CheckoutPage = () => {
     setIsModalOpen(true);
   };
 
-  // const handleDeleteOrder = () => {
-  //   if (id && window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này?")) {
-  //     dispatch(deleteOrder({ id }));
-  //   }
-  // };
-
   const handleConfirmPayment = () => {
     if (paymentMethod === "payos") {
-      dispatch(createPayos(id)); // Gọi API PayOS
+      dispatch(createPayos(id));
     }
+  };
+
+  // ✅ Hàm mở modal nhập địa chỉ
+  const handleOpenAddressModal = () => {
+    setNewAddress(order?.address || "");
+    setIsAddressModalOpen(true);
+  };
+
+  // ✅ Hàm gửi địa chỉ mới
+  const handleSubmitAddress = () => {
+    if (!newAddress.trim()) return;
+    console.log("Data gửi đi:", newAddress);
+    dispatch(updateAddress({ id, address: newAddress }));
+    console.log("id-address", id);
+
+    setIsAddressModalOpen(false);
   };
 
   return (
     <>
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-12 mt-20">
-        {/* Thanh tiến trình */}
-        {/* ===== Progress Steps (Giống CartPage) ===== */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex flex-col items-center w-1/3 opacity-60">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 font-semibold">
-              1
-            </div>
-            <p className="mt-2 text-gray-500 font-medium">Cart</p>
-          </div>
-
-          <div className="h-1 w-1/3 bg-yellow-400"></div>
-
-          <div className="flex flex-col items-center w-1/3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-white font-semibold">
-              2
-            </div>
-            <p className="mt-2 text-yellow-600 font-medium">Checkout</p>
-          </div>
-
-          <div className="h-1 w-1/3 bg-gray-200"></div>
-
-          <div className="flex flex-col items-center w-1/3 opacity-60">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 font-semibold">
-              3
-            </div>
-            <p className="mt-2 text-gray-500 font-medium">Complete</p>
-          </div>
-        </div>
-
         <h1 className="text-3xl text-center font-bold mb-6 text-slate-800">
           Thanh toán đơn hàng
         </h1>
@@ -108,7 +86,7 @@ const CheckoutPage = () => {
 
         {!loading && order && order.id ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Thông tin giao hàng + phương thức thanh toán */}
+            {/* Thông tin giao hàng */}
             <div className="p-6 border rounded-lg bg-gradient-to-b from-amber-50 to-white shadow-sm">
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
                 Thông tin giao hàng
@@ -132,18 +110,30 @@ const CheckoutPage = () => {
                   readOnly
                   className="w-full p-3 border rounded-lg bg-gray-100"
                 />
-                <input
-                  type="text"
-                  placeholder="Địa chỉ nhận hàng"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                />
+
+                {/* ✅ Nút mở modal cập nhật địa chỉ */}
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={order.address || ""}
+                    readOnly
+                    className="w-full p-3 border rounded-lg bg-gray-100"
+                  />
+                  <Button
+                    onClick={handleOpenAddressModal}
+                    type="primary"
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    Cập nhật
+                  </Button>
+                </div>
+
                 <textarea
                   placeholder="Ghi chú cho shop"
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 ></textarea>
               </form>
 
-              {/* Phương thức thanh toán */}
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-3">
                   Phương thức thanh toán
@@ -168,7 +158,6 @@ const CheckoutPage = () => {
               <h2 className="text-xl font-semibold mb-4 text-slate-800">
                 Giỏ hàng của bạn
               </h2>
-
               <div className="space-y-4">
                 {order.items?.map((item) => (
                   <div
@@ -194,14 +183,12 @@ const CheckoutPage = () => {
                     <button
                       onClick={() => handleViewDetail(item.id)}
                       className="text-indigo-600 hover:text-indigo-800 transition-colors p-2"
-                      title="Xem chi tiết"
                     >
                       <Eye size={22} />
                     </button>
                   </div>
                 ))}
 
-                {/* Tổng cộng */}
                 <div className="border-t pt-4 mt-4">
                   <p className="text-sm text-slate-600">
                     Tạm tính: {formatPrice(totalAmount)}
@@ -211,28 +198,18 @@ const CheckoutPage = () => {
                   </p>
                 </div>
 
-                {/* Nút hành động */}
                 <button
                   onClick={() => navigate("/")}
-                  className="w-full rounded-lg bg-gray-500 text-white py-2 mt-4 hover:bg-gray-600 transition-all duration-300 shadow-md"
+                  className="w-full rounded-lg bg-red-500 text-white py-2 mt-4 hover:bg-gray-600 transition-all duration-300 shadow-md"
                 >
                   Tiếp tục mua hàng
                 </button>
 
-                {/* <button
-                  onClick={handleDeleteOrder}
-                  disabled={deleteLoading}
-                  className="w-full rounded-lg bg-red-600 text-white py-2 mt-3 hover:bg-red-700 transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <Trash2 size={18} />
-                  {deleteLoading ? "Đang xóa..." : "Xóa đơn hàng"}
-                </button> */}
-
                 <button
                   onClick={handleConfirmPayment}
-                  className="w-full rounded-lg bg-indigo-600 text-white py-2 mt-3 hover:bg-indigo-700 transition-all duration-300 shadow-md"
+                  className="w-full rounded-lg bg-green-600 text-white py-2 mt-3 hover:bg-indigo-700 transition-all duration-300 shadow-md"
                 >
-                  Tiếp tục thanh toán
+                  Thanh toán
                 </button>
               </div>
             </div>
@@ -241,6 +218,50 @@ const CheckoutPage = () => {
           !loading && <p className="text-slate-600">Không có đơn hàng nào.</p>
         )}
       </div>
+
+      <Modal
+        open={isAddressModalOpen}
+        onCancel={() => setIsAddressModalOpen(false)}
+        footer={null}
+        centered
+        className="rounded-xl"
+      >
+        <div className="p-2">
+          <h2 className="text-lg font-bold text-slate-800 mb-4 text-center">
+            🏠 Cập nhật địa chỉ giao hàng
+          </h2>
+
+          <p className="text-sm text-gray-500 mb-3">
+            Vui lòng nhập chính xác địa chỉ nhận hàng để đơn của bạn được giao
+            nhanh nhất.
+          </p>
+
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-inner">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Địa chỉ mới
+            </label>
+            <Input.TextArea
+              rows={3}
+              placeholder="VD: 123 Nguyễn Trãi, Phường 5, Quận 10, TP.HCM"
+              value={newAddress}
+              onChange={(e) => setNewAddress(e.target.value)}
+              className="rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-6">
+            <Button onClick={() => setIsAddressModalOpen(false)}>Hủy</Button>
+            <Button
+              type="primary"
+              loading={updateLoading}
+              onClick={handleSubmitAddress}
+              className="bg-indigo-600 hover:bg-indigo-700 rounded-lg"
+            >
+              Xác nhận
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Modal Chi tiết sản phẩm */}
       <Modal
