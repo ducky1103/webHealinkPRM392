@@ -1,8 +1,11 @@
 import React from "react";
 import { CheckCircle2, Home, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function PaymentSuccess() {
+  const userid = useSelector((state) => state.account?.user?.id);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-green-50">
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
@@ -23,7 +26,7 @@ export default function PaymentSuccess() {
             <Home className="w-4 h-4" /> Về trang chủ
           </Link>
           <Link
-            to="/orders"
+            to={`/track-orders/${userid}`}
             className="flex items-center justify-center gap-2 border border-green-500 text-green-600 px-5 py-2 rounded-xl hover:bg-green-50 transition"
           >
             <CreditCard className="w-4 h-4" /> Xem đơn hàng

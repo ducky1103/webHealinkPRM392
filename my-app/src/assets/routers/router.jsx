@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import HomePage from "../../components/HomePage/HomePage";
 import Login from "../../components/LoginPage/Login";
 import RegisterPage from "../../components/LoginPage/RegisterPage";
@@ -26,8 +26,10 @@ import ResetPasswordPage from "../../components/LoginPage/ResetPasswordPage";
 import RootLayout from "../../components/Root/RootLayout";
 import AdminProductPage from "../../components/Admin/AdminProduct";
 import AdminCategoryPage from "../../components/Admin/AdminCategoryPage";
+import ChangePasswordPage from "../../components/HomePage/ChangePassword/ChangePassword";
 import Game from "../../components/Game/Game";
 import FavoritePage from "../../components/FavoritePage/FavoritePage";
+import ProductDetailPage from "../../components/ProductDetailPage/ProductDetailPage";
 
 const router = createBrowserRouter([
   {
@@ -46,13 +48,15 @@ const router = createBrowserRouter([
       { path: "payment-success", element: <PaymentSuccess /> },
       { path: "payment-cancel", element: <PaymentCancel /> },
       { path: "healing-diary", element: <HealingDiaryPage /> },
-      { path: "track-orders", element: <TrackOrdersPage /> },
+      { path: "track-orders/:id", element: <TrackOrdersPage /> },
       { path: "verify-otp", element: <OTPVerificationPage /> },
       { path: "otp-verification", element: <OTPVerificationPage /> }, // Thêm route này
       { path: "forgot-password", element: <ForgotPasswordPage /> },
       { path: "reset-password", element: <ResetPasswordPage /> },
+      { path: "change-password", element: <ChangePasswordPage /> },
       { path: "game", element: <Game /> },
       { path: "favorites", element: <FavoritePage /> },
+      { path: "product/:id", element: <ProductDetailPage /> },
       {
         element: <PrivateRoute allowedRoles={["User", "admin"]} />,
         children: [
@@ -73,7 +77,12 @@ const router = createBrowserRouter([
           { index: true, element: <AdminPage /> },
           { path: "postcard", element: <AdminPodcastPage /> },
           { path: "packages", element: <AdminServicePage /> },
-          { path: "orders", element: <AdminOrderPage /> },
+          // ⚡ thêm redirect khi vào /Admin/orders
+          {
+            path: "orders",
+            element: <Navigate to="/Admin/orders/1" replace />,
+          },
+          { path: "orders/:userId", element: <AdminOrderPage /> },
           { path: "podcast", element: <AdminPodcastPage /> },
           { path: "products", element: <AdminProductPage /> },
           {
