@@ -7,10 +7,11 @@ import {
   LockOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
-import background from "../../img/bg3.webp";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import background from "../../img/bg6.jpg";
 import { verifyOTP, resendOTP } from "../../redux/auth/authSlice";
 import { resetPasswordRequest } from "../../redux/auth/forgotPassword/forgotPasswordSlice";
 
@@ -155,12 +156,25 @@ export default function OTPVerificationPage() {
           <img
             src={background}
             alt=""
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-90"
           />
         </div>
 
+        {/* Back to Home Button */}
+        <div className="absolute top-6 left-6 z-20">
+          <Link to="/">
+            <Button
+              type="primary"
+              icon={<ArrowLeftOutlined />}
+              className="!bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 !border-0 shadow-lg rounded-full !h-10 !px-6"
+            >
+              Về trang chủ
+            </Button>
+          </Link>
+        </div>
+
         {/* OTP Verification Card */}
-        <div className="relative z-10 w-96 p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl">
+        <div className="relative z-10 w-96 p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl">
           {/* Header */}
           <div className="text-center mb-6">
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
