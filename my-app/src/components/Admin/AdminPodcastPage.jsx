@@ -17,6 +17,7 @@ import {
   Checkbox,
   Row,
   Col,
+  Slider,
 } from "antd";
 import {
   PlusOutlined,
@@ -32,6 +33,8 @@ import { deletePodcastRequest } from "../../redux/auth/admin/Podcast/delete_podc
 import { updatePodcastRequest } from "../../redux/auth/admin/Podcast/update_podcast/updatePodcastSlice";
 import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
 import { fetchCategoryRequest } from "../../redux/auth/admin/Categories/fetch_category/fetchCategorySlice";
+import { fetchPodcastByCategoryRequest } from "../../redux/User/podcast/get_podcast_by_category/getPodcastByCategorySlice";
+import audioManager from "../../utils/audioManager";
 
 const { TextArea } = Input;
 const { Meta } = Card;
@@ -65,6 +68,9 @@ const AdminPodcastPage = () => {
   const { fetchCategory: categories } = useSelector(
     (state) => state.fetchCategory
   );
+  const { podcastsByCategory, loading: categoryLoading } = useSelector(
+    (state) => state.fetchPodcastByCategory
+  );
 
   const [podcasts, setPodcasts] = useState([]);
   const [open, setOpen] = useState(false);
@@ -73,6 +79,9 @@ const AdminPodcastPage = () => {
   const [form] = Form.useForm();
   const [updateForm] = Form.useForm();
   const [currentAudio, setCurrentAudio] = useState(null);
+  const [audioProgress, setAudioProgress] = useState({});
+  const [audioDuration, setAudioDuration] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Fetch podcasts on component mount
   useEffect(() => {
@@ -80,12 +89,52 @@ const AdminPodcastPage = () => {
     dispatch(fetchCategoryRequest());
   }, [dispatch]);
 
+  // Cleanup audio when component unmounts or page changes
+  useEffect(() => {
+    return () => {
+      audioManager.cleanup();
+      setCurrentAudio(null);
+      setAudioProgress({});
+      setAudioDuration({});
+    };
+  }, []);
+
   // Update podcasts state when fetchedPodcasts changes
   useEffect(() => {
     if (fetchedPodcasts) {
       setPodcasts(fetchedPodcasts);
     }
   }, [fetchedPodcasts]);
+
+  // Update podcasts when category changes
+  useEffect(() => {
+    console.log("=== Update podcasts effect ===");
+    console.log("Selected category:", selectedCategory);
+    console.log("Fetched podcasts:", fetchedPodcasts);
+    console.log("Podcasts by category:", podcastsByCategory);
+    console.log("Category loading:", categoryLoading);
+
+    if (selectedCategory === "all") {
+      if (fetchedPodcasts) {
+        console.log("Setting all podcasts, count:", fetchedPodcasts.length);
+        setPodcasts(fetchedPodcasts);
+      }
+    } else {
+      // Only update if we have data, don't clear if still loading
+      if (categoryLoading === false) {
+        if (podcastsByCategory) {
+          console.log(
+            "Setting podcasts by category, count:",
+            podcastsByCategory.length
+          );
+          setPodcasts(podcastsByCategory);
+        } else {
+          console.log("No podcasts found for category (empty response)");
+          setPodcasts([]);
+        }
+      }
+    }
+  }, [selectedCategory, fetchedPodcasts, podcastsByCategory, categoryLoading]);
 
   // Refetch after successful create
   useEffect(() => {
@@ -163,40 +212,159 @@ const AdminPodcastPage = () => {
       return;
     }
 
+    // Stop audio if the deleted podcast is currently playing
+    if (currentAudio && currentAudio.podcastId === id) {
+      currentAudio.audio.pause();
+      currentAudio.audio.remove();
+      setCurrentAudio(null);
+      setAudioProgress({});
+      setAudioDuration({});
+    }
+
     dispatch(deletePodcastRequest(id));
   };
 
-  const handlePlayAudio = (audioUrl) => {
-    if (currentAudio) {
-      currentAudio.audio.pause();
-      if (currentAudio.url === audioUrl) {
-        setCurrentAudio(null);
-        return;
-      }
+  const handlePlayAudio = (audioUrl, podcastId) => {
+    // Validate audioUrl
+    if (!audioUrl) {
+      message.error("Không có file âm thanh cho podcast này!");
+      return;
     }
 
-    const audio = new Audio(audioUrl);
-    audio
-      .play()
-      .then(() => setCurrentAudio({ audio, url: audioUrl }))
-      .catch((error) => {
-        message.error("Không thể phát âm thanh!");
+    // Check if URL is valid
+    if (!audioUrl.startsWith("http") && !audioUrl.startsWith("/")) {
+      message.error("Đường dẫn file âm thanh không hợp lệ!");
+      return;
+    }
+
+    // If same audio is playing, pause it
+    if (currentAudio && currentAudio.url === audioUrl) {
+      currentAudio.audio.pause();
+      setCurrentAudio(null);
+      setAudioProgress((prev) => ({
+        ...prev,
+        [podcastId]: 0,
+      }));
+      return;
+    }
+
+    // Stop any currently playing audio
+    audioManager.stopAllAudio();
+
+    try {
+      const audio = new Audio(audioUrl);
+
+      // Prevent autoplay - only play when explicitly requested
+      audio.preload = "metadata";
+      audio.autoplay = false;
+
+      audio.addEventListener("loadedmetadata", () => {
+        setAudioDuration((prev) => ({
+          ...prev,
+          [podcastId]: audio.duration,
+        }));
       });
 
-    audio.onended = () => setCurrentAudio(null);
+      audio.addEventListener("timeupdate", () => {
+        setAudioProgress((prev) => ({
+          ...prev,
+          [podcastId]: audio.currentTime,
+        }));
+      });
+
+      audio.addEventListener("ended", () => {
+        setCurrentAudio(null);
+        setAudioProgress((prev) => ({
+          ...prev,
+          [podcastId]: 0,
+        }));
+      });
+
+      audio.addEventListener("error", (e) => {
+        console.error("Audio error:", e);
+        message.error(
+          "Không thể tải file âm thanh. File có thể không tồn tại!"
+        );
+        setCurrentAudio(null);
+      });
+
+      // Only play when user explicitly clicks
+      audio
+        .play()
+        .then(() => {
+          audioManager.setCurrentAudio(audio);
+          setCurrentAudio({ audio, url: audioUrl, podcastId });
+          console.log("Audio started playing:", audioUrl);
+        })
+        .catch((error) => {
+          console.error("Play error:", error);
+          message.error("Không thể phát âm thanh! Vui lòng kiểm tra file.");
+        });
+    } catch (error) {
+      console.error("Audio creation error:", error);
+      message.error("Lỗi khi tạo audio player!");
+    }
+  };
+
+  const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleSeekAudio = (podcastId, seekTime) => {
+    if (currentAudio && currentAudio.podcastId === podcastId) {
+      currentAudio.audio.currentTime = seekTime;
+      setAudioProgress((prev) => ({
+        ...prev,
+        [podcastId]: seekTime,
+      }));
+    }
+  };
+
+  const handleCategoryChange = (categoryName) => {
+    console.log("🔄 Changing category to:", categoryName);
+
+    // Stop any playing audio when changing category
+    if (currentAudio) {
+      currentAudio.audio.pause();
+      currentAudio.audio.remove();
+      setCurrentAudio(null);
+      setAudioProgress({});
+      setAudioDuration({});
+    }
+
+    setSelectedCategory(categoryName);
+
+    // If "all", fetch all podcasts
+    if (categoryName === "all") {
+      console.log("📋 Fetching ALL podcasts");
+      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+    } else {
+      console.log("📂 Fetching podcasts for category ID:", categoryName);
+      dispatch(fetchPodcastByCategoryRequest(categoryName));
+    }
   };
 
   const handleUpdatePodcast = (podcast) => {
+    console.log("📝 Podcast for update:", podcast);
+    console.log("📝 Podcast categories:", podcast.categories);
+
     setSelectedPodcast(podcast);
 
-    // Fix: Set multiple categories for update
+    // Fix: Set multiple categories for update - handle both object and id
     const selectedCategories = podcast.categories
-      ? podcast.categories.map((cat) => cat.id)
+      ? podcast.categories
+          .filter((cat) => cat && (cat.id != null || cat.categoryId != null))
+          .map((cat) => cat.id || cat.categoryId)
       : [];
+
+    console.log("✅ Selected categories for form:", selectedCategories);
 
     updateForm.setFieldsValue({
       title: podcast.title,
-      categories: selectedCategories, // Change from category to categories
+      categories: selectedCategories,
       description: podcast.description,
     });
     setUpdateOpen(true);
@@ -272,22 +440,69 @@ const AdminPodcastPage = () => {
               type="primary"
               size="large"
               icon={<PlusOutlined />}
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                // Stop audio when opening modal
+                if (currentAudio) {
+                  currentAudio.audio.pause();
+                  currentAudio.audio.remove();
+                  setCurrentAudio(null);
+                  setAudioProgress({});
+                  setAudioDuration({});
+                }
+                setOpen(true);
+              }}
               className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 hover:from-blue-600 hover:to-purple-700 shadow-lg h-12 px-8 rounded-xl"
             >
               Đăng Podcast Mới
             </Button>
           </div>
+
+          {/* Category Filter */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+              <Button
+                type="default"
+                onClick={() => {
+                  handleCategoryChange("all");
+                }}
+                className={
+                  selectedCategory === "all"
+                    ? "bg-[#C59B6D] border-[#C59B6D] hover:bg-[#A97942] text-white"
+                    : "bg-[#F7E9D7] border-[#E4C9A2] hover:bg-[#EFD1A5] hover:border-[#C59B6D] text-[#8B5E34]"
+                }
+              >
+                Tất cả
+              </Button>
+
+              {Array.isArray(categories) &&
+                categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    type="default"
+                    onClick={() => {
+                      handleCategoryChange(category.name);
+                    }}
+                    className={
+                      selectedCategory === category.name
+                        ? "bg-[#C59B6D] border-[#C59B6D] hover:bg-[#A97942] text-white"
+                        : "bg-[#F7E9D7] border-[#E4C9A2] hover:bg-[#EFD1A5] hover:border-[#C59B6D] text-[#8B5E34]"
+                    }
+                  >
+                    {category.name}
+                  </Button>
+                ))}
+            </div>
+          </div>
         </div>
         {/* Loading State */}
-        {fetchLoading ? (
+        {fetchLoading || categoryLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center space-y-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
               <p className="text-gray-500">Đang tải podcast...</p>
             </div>
           </div>
-        ) : podcasts.length === 0 ? (
+        ) : !podcasts || podcasts.length === 0 ? (
           <div className="text-center py-20">
             <div className="space-y-4">
               <div className="text-6xl text-gray-300">🎧</div>
@@ -311,7 +526,7 @@ const AdminPodcastPage = () => {
               <Card
                 key={podcast.id}
                 hoverable
-                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white flex flex-col"
+                className="rounded-2xl border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-white flex flex-col h-full"
                 cover={
                   <div className="relative h-52 overflow-hidden">
                     <img
@@ -330,29 +545,51 @@ const AdminPodcastPage = () => {
                     </div>
                   </div>
                 }
-                bodyStyle={{ padding: "16px" }}
+                bodyStyle={{
+                  padding: "16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1,
+                }}
               >
-                <div className="flex flex-col justify-between h-[170px] space-y-3">
-                  <div>
-                    <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+                <div className="flex flex-col h-full">
+                  {/* Description with fixed height */}
+                  <div className="flex-1 mb-3">
+                    <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed min-h-[3.5rem]">
                       {podcast.description}
                     </p>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                      <div className="flex items-center space-x-1">
-                        <SoundOutlined className="text-blue-500" />
-                        <span>{podcast.duration || "N/A"}</span>
-                      </div>
-                      <span>
-                        {new Date(podcast.createdAt).toLocaleDateString(
-                          "vi-VN"
-                        )}
-                      </span>
-                    </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-between pt-3 space-x-2">
+                  {/* Audio Player */}
+                  {currentAudio?.url === podcast.audioUrl && (
+                    <div className="space-y-2 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 mb-3">
+                      <Slider
+                        min={0}
+                        max={audioDuration[podcast.id] || 100}
+                        value={audioProgress[podcast.id] || 0}
+                        onChange={(value) => handleSeekAudio(podcast.id, value)}
+                        tooltip={{ formatter: (value) => formatTime(value) }}
+                      />
+                      <div className="flex justify-between text-xs font-medium text-gray-600">
+                        <span>{formatTime(audioProgress[podcast.id])}</span>
+                        <span>{formatTime(audioDuration[podcast.id])}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Metadata */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100 mb-3">
+                    <div className="flex items-center space-x-1">
+                      <SoundOutlined className="text-amber-600" />
+                      <span>{podcast.duration || "N/A"}</span>
+                    </div>
+                    <span>
+                      {new Date(podcast.createdAt).toLocaleDateString("vi-VN")}
+                    </span>
+                  </div>
+
+                  {/* Action Buttons - Fixed at bottom */}
+                  <div className="flex items-center justify-between pt-3 space-x-2 mt-auto">
                     <Button
                       type="text"
                       icon={
@@ -362,16 +599,37 @@ const AdminPodcastPage = () => {
                           <PlayCircleOutlined />
                         )
                       }
-                      className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-0 flex-1"
-                      onClick={() => handlePlayAudio(podcast.audioUrl)}
+                      className={`text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-0 flex-1 flex items-center justify-center ${
+                        !podcast.audioUrl ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      disabled={!podcast.audioUrl}
+                      onClick={() => {
+                        console.log("Podcast data:", podcast);
+                        console.log("Audio URL:", podcast.audioUrl);
+                        handlePlayAudio(podcast.audioUrl, podcast.id);
+                      }}
                     >
-                      {currentAudio?.url === podcast.audioUrl ? "Dừng" : "Phát"}
+                      {!podcast.audioUrl
+                        ? "Không có audio"
+                        : currentAudio?.url === podcast.audioUrl
+                        ? "Dừng"
+                        : "Phát"}
                     </Button>
                     <Button
                       type="text"
                       icon={<FileImageOutlined />}
-                      className="text-green-600 hover:text-green-800 hover:bg-green-50 border-0"
-                      onClick={() => handleUpdatePodcast(podcast)}
+                      className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-0 flex items-center justify-center"
+                      onClick={() => {
+                        // Stop audio when opening update modal
+                        if (currentAudio) {
+                          currentAudio.audio.pause();
+                          currentAudio.audio.remove();
+                          setCurrentAudio(null);
+                          setAudioProgress({});
+                          setAudioDuration({});
+                        }
+                        handleUpdatePodcast(podcast);
+                      }}
                     >
                       Sửa
                     </Button>
@@ -386,8 +644,7 @@ const AdminPodcastPage = () => {
                       <Button
                         type="text"
                         icon={<DeleteOutlined />}
-                        danger
-                        className="hover:bg-red-50 border-0"
+                        className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-0 flex items-center justify-center"
                       >
                         Xóa
                       </Button>

@@ -14,9 +14,8 @@ const AdminLayout = () => {
 
   const menuItems = [
     { label: "Tài Khoản", to: "" },
-    { label: "Postcard", to: "postcard" },
     { label: "Đơn Hàng", to: "orders" },
-    { label: "Các Gói", to: "packages" },
+    // { label: "Các Gói", to: "packages" },
     { label: "Sản Phẩm", to: "products" },
     { label: "Podcast", to: "podcast" },
     { label: "Categories", to: "categories" },

@@ -12,6 +12,21 @@ const whispers = [
   "Không sao cả nếu hôm nay cậu chỉ muốn yên lặng và thở.",
   "Cậu là một phần dịu dàng của thế giới này, đừng quên điều đó.",
   "Ngay cả bóng đêm cũng cần những vì sao — và cậu chính là một trong số đó.",
+  "Mỗi bước đi của cậu đều có ý nghĩa, dù nhỏ bé đến đâu.",
+  "Cậu xứng đáng được yêu thương và chăm sóc.",
+  "Hôm nay cậu đã cố gắng rất nhiều rồi, hãy tự hào về điều đó.",
+  "Cậu không cần phải hoàn hảo, chỉ cần là chính mình thôi.",
+  "Những vết thương sẽ lành, và cậu sẽ mạnh mẽ hơn.",
+  "Cậu có quyền được nghỉ ngơi và tận hưởng những khoảnh khắc bình yên.",
+  "Mỗi ngày mới là một cơ hội để bắt đầu lại.",
+  "Cậu đã vượt qua rất nhiều thử thách, hãy tin vào sức mạnh của mình.",
+  "Cậu không cô đơn, luôn có ai đó quan tâm đến cậu.",
+  "Hãy để trái tim cậu được nghỉ ngơi, nó đã làm việc quá nhiều rồi.",
+  "Cậu xứng đáng được hạnh phúc, dù điều đó có vẻ khó khăn.",
+  "Mỗi lần cậu thức dậy là một chiến thắng nhỏ.",
+  "Cậu đã đủ tốt rồi, không cần phải cố gắng thêm nữa.",
+  "Hãy tin rằng mọi thứ sẽ ổn, dù hiện tại có khó khăn.",
+  "Cậu là một món quà quý giá của thế giới này.",
 ];
 
 function Game() {
@@ -23,6 +38,7 @@ function Game() {
   const [stars, setStars] = useState([]);
   const [trees, setTrees] = useState([]);
   const [floatingFireflies, setFloatingFireflies] = useState([]);
+  const [ripples, setRipples] = useState([]);
   const canvasRef = useRef(null);
   const particleIdRef = useRef(0);
 
@@ -42,29 +58,72 @@ function Game() {
     const animate = () => {
       setFireflies((prev) =>
         prev.map((f) => {
-          let x = f.x + f.vx;
-          let y = f.y + f.vy;
+          let x = f.x;
+          let y = f.y;
           let vx = f.vx;
           let vy = f.vy;
+          let isMoving = f.isMoving;
+          let moveProgress = f.moveProgress;
 
+          // Xử lý chuyển động mượt mà khi click
+          if (f.isMoving && f.targetX && f.targetY) {
+            moveProgress += 0.03; // Tăng tốc độ di chuyển
+
+            // Sử dụng easing function để tạo chuyển động mượt mà
+            const easeProgress = 1 - Math.pow(1 - moveProgress, 2); // easeOutQuad
+
+            // Tính toán vị trí mới với easing
+            const startX = f.x;
+            const startY = f.y;
+            const deltaX = f.targetX - startX;
+            const deltaY = f.targetY - startY;
+
+            x = startX + deltaX * easeProgress;
+            y = startY + deltaY * easeProgress;
+
+            // Khi đã đến gần target, chuyển sang chế độ bay tự do
+            if (moveProgress >= 1) {
+              isMoving = false;
+              // Tạo vận tốc ban đầu từ hướng di chuyển với tốc độ vừa phải
+              const finalDeltaX = f.targetX - f.x;
+              const finalDeltaY = f.targetY - f.y;
+              vx = finalDeltaX * 0.02;
+              vy = finalDeltaY * 0.02;
+            }
+          } else {
+            // Chuyển động tự do sau khi hoàn thành di chuyển
+            x = f.x + f.vx;
+            y = f.y + f.vy;
+          }
+
+          // Xử lý va chạm với biên
           if (x < 5) vx = Math.abs(vx) * 0.7;
           if (x > 95) vx = -Math.abs(vx) * 0.7;
           if (y < 5) vy = Math.abs(vy) * 0.7;
           if (y > 95) vy = -Math.abs(vy) * 0.7;
 
-          if (Math.random() < 0.02) {
+          // Thêm chuyển động ngẫu nhiên nhẹ nhàng
+          if (!isMoving && Math.random() < 0.03) {
             vx += (Math.random() - 0.5) * 0.02;
             vy += (Math.random() - 0.5) * 0.02;
           }
 
-          const speed = Math.sqrt(vx * vx + vy * vy);
-          if (speed > 0.12) {
-            vx *= 0.96;
-            vy *= 0.96;
+          // Đảm bảo đom đóm luôn có chút chuyển động
+          if (!isMoving && Math.abs(vx) < 0.001 && Math.abs(vy) < 0.001) {
+            vx += (Math.random() - 0.5) * 0.01;
+            vy += (Math.random() - 0.5) * 0.01;
           }
 
-          vx *= 0.995;
-          vy *= 0.995;
+          // Giới hạn tốc độ
+          const speed = Math.sqrt(vx * vx + vy * vy);
+          if (speed > 0.08) {
+            vx *= 0.95;
+            vy *= 0.95;
+          }
+
+          // Giảm tốc độ dần nhưng không quá chậm
+          vx *= 0.999;
+          vy *= 0.999;
 
           return {
             ...f,
@@ -72,6 +131,8 @@ function Game() {
             y,
             vx,
             vy,
+            isMoving,
+            moveProgress,
             glowPhase: (f.glowPhase + 0.03) % (Math.PI * 2),
             brightness: 0.6 + Math.sin(f.glowPhase) * 0.4,
           };
@@ -80,6 +141,12 @@ function Game() {
 
       setClickParticles((prev) =>
         prev.map((p) => ({ ...p, life: p.life - 1 })).filter((p) => p.life > 0)
+      );
+
+      setRipples((prev) =>
+        prev
+          .map((r) => ({ ...r, life: r.life - 1, scale: r.scale + 0.02 }))
+          .filter((r) => r.life > 0)
       );
 
       requestAnimationFrame(animate);
@@ -130,18 +197,25 @@ function Game() {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
+    // Tạo chuyển động mượt mà hơn với easing
     const angle = Math.random() * Math.PI * 2;
-    const speed = 0.05 + Math.random() * 0.03;
+    const distance = 30 + Math.random() * 40; // Tăng khoảng cách di chuyển
+    const targetX = Math.max(10, Math.min(90, x + Math.cos(angle) * distance));
+    const targetY = Math.max(10, Math.min(90, y + Math.sin(angle) * distance));
 
     const newFirefly = {
       id: Date.now(),
       x,
       y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
+      vx: 0, // Bắt đầu với vận tốc 0
+      vy: 0,
+      targetX, // Thêm target position
+      targetY,
       brightness: 1,
       size: Math.random() * 6 + 10,
       glowPhase: Math.random() * Math.PI * 2,
+      isMoving: true, // Flag để biết đom đóm đang di chuyển
+      moveProgress: 0, // Tiến trình di chuyển
     };
 
     setFireflies((prev) => [...prev, newFirefly]);
@@ -153,6 +227,16 @@ function Game() {
       life: 30,
     }));
     setClickParticles((prev) => [...prev, ...particles]);
+
+    // Thêm hiệu ứng ripple
+    const ripple = {
+      id: particleIdRef.current++,
+      x,
+      y,
+      life: 40,
+      scale: 0,
+    };
+    setRipples((prev) => [...prev, ripple]);
 
     const whisper = whispers[Math.floor(Math.random() * whispers.length)];
     setCurrentWhisper(whisper);
@@ -168,6 +252,7 @@ function Game() {
     setClickParticles([]);
     setFloatingFireflies([]);
     setTrees([]);
+    setRipples([]);
   };
 
   const getBackgroundGradient = () => {
@@ -254,8 +339,10 @@ function Game() {
         ref={canvasRef}
         onClick={handleCanvasClick}
         className={`absolute inset-0 ${
-          fireflies.length < 10 ? "cursor-pointer" : "cursor-default"
-        }`}
+          fireflies.length < 10
+            ? "cursor-pointer hover:bg-white/5"
+            : "cursor-default"
+        } transition-all duration-300`}
       >
         {fireflies.map((f) => (
           <div
@@ -265,7 +352,9 @@ function Game() {
               left: `${f.x}%`,
               top: `${f.y}%`,
               transform: "translate(-50%, -50%)",
-              transition: "all 0.15s ease-out",
+              transition: f.isMoving
+                ? "all 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+                : "all 0.2s ease-out",
             }}
           >
             <div
@@ -308,6 +397,21 @@ function Game() {
           >
             <Sparkles className="w-4 h-4 text-yellow-300" />
           </div>
+        ))}
+
+        {ripples.map((r) => (
+          <div
+            key={r.id}
+            className="absolute pointer-events-none rounded-full border-2 border-yellow-300/50"
+            style={{
+              left: `${r.x}%`,
+              top: `${r.y}%`,
+              width: `${r.scale * 100}px`,
+              height: `${r.scale * 100}px`,
+              opacity: r.life / 40,
+              transform: "translate(-50%, -50%)",
+            }}
+          />
         ))}
       </div>
 
@@ -353,9 +457,9 @@ function Game() {
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-[fadeIn_1s_ease-out]">
           <button
             onClick={resetForest}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-10 py-4 rounded-full font-light text-lg shadow-2xl hover:shadow-pink-500/50 hover:scale-105 transition-all duration-300 border-2 border-white/30"
+            className="bg-gradient-to-r from-amber-600 to-orange-700 text-white px-10 py-4 rounded-full font-light text-lg shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300 border-2 border-amber-300/30"
           >
-            Bắt đầu hành trình mới
+            Khám phá hành trình mới
           </button>
         </div>
       )}

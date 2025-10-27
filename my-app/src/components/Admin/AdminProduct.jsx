@@ -19,7 +19,10 @@ import { ShoppingCartOutlined } from "@ant-design/icons";
 import { getAllProduct } from "../../redux/User/product/fetchProduct/getAllProductSlice";
 import { productPostRequest } from "../../redux/auth/admin/Product/post_product/postProductSlice";
 import { updateProductRequest } from "../../redux/auth/admin/Product/update_Product/updateProductSlice";
-import { deleteProductRequest } from "../../redux/auth/admin/Product/delete_product/deleteProductSlice";
+import {
+  deleteProductRequest,
+  deleteProductReset,
+} from "../../redux/auth/admin/Product/delete_product/deleteProductSlice";
 import img from "../../img/logo1.png";
 const { TextArea } = Input;
 
@@ -38,9 +41,8 @@ const AdminProductPage = () => {
   const { product: updatedProduct, loading: updateLoading } = useSelector(
     (state) => state.updateProduct
   );
-  const { delete: deletedProduct, loading: deleteLoading } = useSelector(
-    (state) => state.deleteProduct
-  );
+  const deleteProductState = useSelector((state) => state.deleteProduct);
+  console.log("Delete product state:", deleteProductState);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
@@ -54,6 +56,14 @@ const AdminProductPage = () => {
   useEffect(() => {
     dispatch(getAllProduct({ page: currentPage, size: pageSize }));
   }, [dispatch, currentPage, pageSize]);
+
+  // Handle error state
+  useEffect(() => {
+    if (error) {
+      console.error("Product fetch error:", error);
+      message.error("Lỗi khi tải dữ liệu sản phẩm. Vui lòng thử lại!");
+    }
+  }, [error]);
 
   useEffect(() => {
     if (postProduct) {
@@ -71,30 +81,16 @@ const AdminProductPage = () => {
     }
   }, [updatedProduct, dispatch, currentPage, pageSize]);
   useEffect(() => {
-    if (deletedProduct) {
+    console.log("Delete state changed:", deleteProductState);
+    if (deleteProductState.success) {
+      console.log("Product deleted successfully, refetching...");
+      dispatch(getAllProduct({ page: currentPage, size: pageSize }));
+      // Reset delete state sau khi refetch
       setTimeout(() => {
-        // ✅ Kiểm tra nếu xóa hết sản phẩm ở trang cuối
-        const totalPages = Math.ceil(
-          (pagination?.totalElements - 1) / pageSize
-        );
-
-        // Nếu trang hiện tại lớn hơn tổng số trang sau khi xóa, quay về trang cuối
-        if (currentPage > totalPages && totalPages > 0) {
-          setCurrentPage(totalPages);
-          dispatch(getAllProduct({ page: totalPages, size: pageSize }));
-        } else {
-          // Refresh trang hiện tại
-          dispatch(getAllProduct({ page: currentPage, size: pageSize }));
-        }
-      }, 500);
+        dispatch(deleteProductReset());
+      }, 1000);
     }
-  }, [
-    deletedProduct,
-    dispatch,
-    currentPage,
-    pageSize,
-    pagination?.totalElements,
-  ]);
+  }, [deleteProductState.success, dispatch, currentPage, pageSize]);
 
   const refetchProducts = () => {
     dispatch(getAllProduct({ page: currentPage, size: pageSize }));
@@ -333,14 +329,14 @@ const AdminProductPage = () => {
       <div className="p-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-6 py-4">
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-2xl font-bold text-white flex items-center gap-3">
                   <ShoppingCartOutlined className="text-3xl" />
                   Quản lý sản phẩm
                 </h1>
-                <p className="text-blue-100 mt-1">
+                <p className="text-amber-100 mt-1">
                   Quản lý toàn bộ sản phẩm trong hệ thống
                 </p>
               </div>
@@ -350,7 +346,7 @@ const AdminProductPage = () => {
                   size="large"
                   onClick={refetchProducts}
                   loading={fetchLoading}
-                  className="bg-white text-blue-600 hover:bg-blue-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
+                  className="bg-white text-amber-700 hover:bg-amber-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
                 >
                   Làm mới
                 </Button>
@@ -358,9 +354,9 @@ const AdminProductPage = () => {
                   type="primary"
                   size="large"
                   onClick={handleCreateProduct}
-                  className="bg-white text-blue-600 hover:bg-blue-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
+                  className="bg-white text-amber-700 hover:bg-amber-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
                 >
-                  Thêm sản phẩm mới
+                  Đăng Sản Phẩm Mới
                 </Button>
               </div>
             </div>

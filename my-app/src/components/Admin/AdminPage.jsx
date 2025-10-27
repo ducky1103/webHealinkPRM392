@@ -234,20 +234,20 @@ const AdminPage = () => {
     <div className="p-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+        <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-6 py-4">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-white">
                 Quản lý người dùng
               </h2>
-              <p className="text-blue-100 mt-1">
+              <p className="text-amber-100 mt-1">
                 Quản lý tài khoản và quyền truy cập
               </p>
             </div>
             <Button
               type="primary"
               size="large"
-              className="bg-white text-blue-600 hover:bg-blue-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
+              className="bg-white text-amber-700 hover:bg-amber-50 border-0 font-semibold px-6 py-2 h-auto rounded-full shadow-lg"
               onClick={() => {
                 dispatch(getAllUser({}));
               }}

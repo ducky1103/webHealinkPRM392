@@ -27,6 +27,7 @@ import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podca
 import { addFavoriteRequest } from "../../redux/User/favoritePodcast/add_favorite/addFavoriteSlice";
 import { removeFavoriteRequest } from "../../redux/User/favoritePodcast/remove_favorite/removeFavoriteSlice";
 import { getFavoriteRequest } from "../../redux/User/favoritePodcast/get_favorite/getFavoriteSlice";
+import audioManager from "../../utils/audioManager";
 
 const PodcastDetail = () => {
   const { id } = useParams();
@@ -95,6 +96,13 @@ const PodcastDetail = () => {
       dispatch(getComments(id));
     }
   }, [commentSuccess, dispatch, id]);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      audioManager.cleanup();
+    };
+  }, []);
 
   const handleAddComment = () => {
     if (newComment.trim() === "") {
@@ -334,6 +342,22 @@ const PodcastDetail = () => {
                 src={podcast.audioUrl}
                 className="w-full"
                 preload="metadata"
+                autoPlay={false}
+                ref={(audio) => {
+                  if (audio) {
+                    audioManager.registerAudio(audio);
+                  }
+                }}
+                onError={(e) => {
+                  console.error("Audio error:", e);
+                  message.error(
+                    "Không thể tải file âm thanh. File có thể không tồn tại!"
+                  );
+                }}
+                onLoadStart={() => {
+                  // Dừng tất cả audio khác khi bắt đầu load audio mới
+                  audioManager.stopAllAudio();
+                }}
               >
                 Trình duyệt của bạn không hỗ trợ audio player.
               </audio>

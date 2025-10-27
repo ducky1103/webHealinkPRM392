@@ -22,6 +22,7 @@ import { postCategoryRequest } from "../../redux/auth/admin/Categories/post_cate
 import { fetchCategoryRequest } from "../../redux/auth/admin/Categories/fetch_category/fetchCategorySlice";
 import { deleteCategoryRequest } from "../../redux/auth/admin/Categories/delete_category/deleteCategorySlice";
 import { updateCategoryRequest } from "../../redux/auth/admin/Categories/update_category/updateCategorySlice";
+import img from "../../img/logo1.png";
 
 const AdminCategoryPage = () => {
   const dispatch = useDispatch();
@@ -77,7 +78,6 @@ const AdminCategoryPage = () => {
 
       const categoryData = {
         name: values.name,
-        description: values.description || "",
       };
 
       console.log("Creating category:", categoryData);
@@ -111,7 +111,6 @@ const AdminCategoryPage = () => {
 
       const updateData = {
         name: values.name,
-        description: values.description || "",
       };
 
       console.log("Updating category:", {
@@ -137,11 +136,11 @@ const AdminCategoryPage = () => {
   // Table columns
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "#",
+      key: "index",
       width: 80,
       align: "center",
+      render: (_, __, index) => index + 1,
     },
     {
       title: "Tên Category",
@@ -154,19 +153,6 @@ const AdminCategoryPage = () => {
           <span className="font-medium">{text}</span>
         </div>
       ),
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      render: (text) => text || "Không có mô tả",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date) =>
-        date ? new Date(date).toLocaleDateString("vi-VN") : "N/A",
     },
     {
       title: "Hành động",
@@ -271,8 +257,15 @@ const AdminCategoryPage = () => {
         {/* Modal for Adding Category */}
         <Modal
           title={
-            <div className="text-xl font-semibold text-gray-800 pb-4 border-b border-gray-200">
-              Tạo Category Mới
+            <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+              <span>
+                <img
+                  src={img}
+                  alt=""
+                  className="w-8 h-8 rounded-md inline-block mr-2"
+                />
+              </span>
+              Đăng Category Mới
             </div>
           }
           open={open}
@@ -280,33 +273,53 @@ const AdminCategoryPage = () => {
             setOpen(false);
             form.resetFields();
           }}
-          onOk={handleAddCategory}
-          okText="Tạo"
-          cancelText="Hủy"
-          confirmLoading={loading}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => {
+                setOpen(false);
+                form.resetFields();
+              }}
+              className="px-6 py-2 h-auto rounded-lg font-semibold"
+            >
+              Hủy
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={handleAddCategory}
+              className="bg-[#6B4F3B] hover:bg-[#5a4330] px-6 py-2 h-auto rounded-lg font-semibold"
+            >
+              Đăng
+            </Button>,
+          ]}
           width={500}
+          destroyOnClose
+          className="rounded-2xl overflow-hidden"
+          bodyStyle={{
+            background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+            borderRadius: "16px",
+            padding: "24px 28px",
+          }}
         >
-          <Form form={form} layout="vertical">
+          <Form form={form} layout="vertical" className="mt-4">
             <Form.Item
               name="name"
-              label="Tên Category"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Tên Category *
+                </span>
+              }
               rules={[
                 { required: true, message: "Vui lòng nhập tên category" },
                 { min: 2, message: "Tên category phải có ít nhất 2 ký tự" },
                 { max: 50, message: "Tên category không được quá 50 ký tự" },
               ]}
             >
-              <Input placeholder="Nhập tên category..." />
-            </Form.Item>
-
-            <Form.Item
-              name="description"
-              label="Mô tả (tùy chọn)"
-              rules={[{ max: 200, message: "Mô tả không được quá 200 ký tự" }]}
-            >
-              <Input.TextArea
-                rows={3}
-                placeholder="Nhập mô tả cho category..."
+              <Input
+                placeholder="Nhập tên category..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
               />
             </Form.Item>
           </Form>
@@ -315,8 +328,15 @@ const AdminCategoryPage = () => {
         {/* Modal for Editing Category */}
         <Modal
           title={
-            <div className="text-xl font-semibold text-gray-800 pb-4 border-b border-gray-200">
-              Chỉnh sửa Category
+            <div className="text-center text-xl font-semibold text-[#6B4F3B]">
+              <span>
+                <img
+                  src={img}
+                  alt=""
+                  className="w-8 h-8 rounded-md inline-block mr-2"
+                />
+              </span>
+              Cập Nhật Category
             </div>
           }
           open={editOpen}
@@ -326,40 +346,59 @@ const AdminCategoryPage = () => {
             editForm.resetFields();
             setSelectedCategory(null);
           }}
-          onOk={handleEditCategory}
-          okText="Cập nhật"
-          cancelText="Hủy"
-          confirmLoading={updateLoading}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => {
+                setEditOpen(false);
+                editForm.resetFields();
+                setSelectedCategory(null);
+              }}
+              className="px-6 py-2 h-auto rounded-lg font-semibold"
+            >
+              Hủy
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleEditCategory}
+              className="bg-[#6B4F3B] hover:bg-[#5a4330] px-6 py-2 h-auto rounded-lg font-semibold"
+            >
+              Cập nhật
+            </Button>,
+          ]}
           width={500}
-          destroyOnClose={true} // Fix: Destroy modal on close
-          forceRender={false} // Fix: Don't force render
+          destroyOnClose={true}
+          className="rounded-2xl overflow-hidden"
+          bodyStyle={{
+            background: "linear-gradient(145deg, #f9f5f1, #fffdfa)",
+            borderRadius: "16px",
+            padding: "24px 28px",
+          }}
         >
           <Form
             form={editForm}
             layout="vertical"
-            preserve={false} // Fix: Don't preserve form values
-            key={selectedCategory?.id} // Fix: Re-render form when category changes
+            preserve={false}
+            key={selectedCategory?.id}
+            className="mt-4"
           >
             <Form.Item
               name="name"
-              label="Tên Category"
+              label={
+                <span className="text-[#6B4F3B] font-medium">
+                  Tên Category *
+                </span>
+              }
               rules={[
                 { required: true, message: "Vui lòng nhập tên category" },
                 { min: 2, message: "Tên category phải có ít nhất 2 ký tự" },
                 { max: 50, message: "Tên category không được quá 50 ký tự" },
               ]}
             >
-              <Input placeholder="Nhập tên category..." />
-            </Form.Item>
-
-            <Form.Item
-              name="description"
-              label="Mô tả (tùy chọn)"
-              rules={[{ max: 200, message: "Mô tả không được quá 200 ký tự" }]}
-            >
-              <Input.TextArea
-                rows={3}
-                placeholder="Nhập mô tả cho category..."
+              <Input
+                placeholder="Nhập tên category..."
+                className="rounded-xl border-[#E5D3BF] focus:border-[#B58E6B] focus:ring-[#B58E6B]"
               />
             </Form.Item>
           </Form>
