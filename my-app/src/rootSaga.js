@@ -41,6 +41,10 @@ import watchChangePassword from "./redux/User/changePassword/changePasswordSaga"
 import watchPostFlashCard from "./redux/User/flashCardAI/postFlashCardSaga";
 import watchUpdateCommentSaga from "./redux/User/comment/update_comment/updateCommentSaga";
 import watchDeleteCommentSaga from "./redux/User/comment/delete_comment/deleteCommentSaga";
+import watchGetFavoriteSaga from "./redux/User/favoritePodcast/get_favorite/getFavoriteSaga";
+import watchAddFavoriteSaga from "./redux/User/favoritePodcast/add_favorite/addFavoriteSaga";
+import watchRemoveFavoriteSaga from "./redux/User/favoritePodcast/remove_favorite/removeFavoriteSaga";
+
 import watchGetAllUser from "./redux/User/ManageUser/getUser/getAllUserSaga";
 import watchBanUser from "./redux/User/ManageUser/banUser/banUserSaga";
 import watchUnbanUser from "./redux/User/ManageUser/unbanUser/unBanUserSaga";
@@ -105,6 +109,11 @@ export default function* rootSaga() {
     watchGetComments(),
     watchUpdateCommentSaga(),
     watchDeleteCommentSaga(),
+    //favorite podcast
+    watchGetFavoriteSaga(),
+    watchAddFavoriteSaga(),
+    watchRemoveFavoriteSaga(),
+
     //ai
     watchPostChatSaga(),
 
