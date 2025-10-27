@@ -8,7 +8,7 @@ import {
 } from "./createPayosSlice";
 import { toast } from "react-toastify";
 
-const URL_API = "http://localhost:8080";
+const URL_API = "https://podcast-shoppings-1.onrender.com";
 
 function* createPayosSaga(action) {
   try {

@@ -7,15 +7,16 @@ import {
 } from "./createCommentSlice";
 import { toast } from "react-toastify";
 import {
-  fetchAllCommentByUserFailure,
-  fetchAllCommentByUserSuccess,
-} from "../fetchAllCommentByUser/fetchAllCommentByUserSlice";
+  fetchAllCommentByOrderItemIdFailure,
+  fetchAllCommentByOrderItemIdSuccess,
+} from "../fetchAllCommentByOrderItemId/fetchAllCommentByOrderItemIdSlice";
 
 const URL_API = import.meta.env.VITE_API_URL;
-console.log("API", URL_API);
 function* createCommentSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
+    const orderItemId = action.payload.orderItemId;
+
     const response = yield call(
       axios.post,
       `${URL_API}/review/create`,
@@ -27,12 +28,15 @@ function* createCommentSaga(action) {
         },
       }
     );
+
     if (response.status === 200 || response.status === 201) {
       yield put(createCommentSuccess(response.data));
-      toast.success("Comment created successfully");
+      toast.success("Đánh giá thành công");
+
+      // Fetch lại comments cho orderItem sau khi tạo thành công
       const fetch = yield call(
         axios.get,
-        `${URL_API}/review/user/${action.payload}`,
+        `${URL_API}/review/order/${orderItemId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -40,18 +44,22 @@ function* createCommentSaga(action) {
           },
         }
       );
+
       if (fetch.status === 200 || fetch.status === 201) {
-        yield put(fetchAllCommentByUserSuccess(fetch.data));
+        const comments = fetch.data?.data || [];
+        yield put(fetchAllCommentByOrderItemIdSuccess(orderItemId, comments));
       } else {
-        yield put(fetchAllCommentByUserFailure("Failed to fetch comments"));
+        yield put(
+          fetchAllCommentByOrderItemIdFailure("Failed to fetch comments")
+        );
       }
     } else {
       yield put(createCommentFailure("Failed to create comment"));
-      toast.error("Failed to create comment");
+      toast.error("Đánh giá thất bại");
     }
   } catch (error) {
     yield put(createCommentFailure(error.message));
-    toast.error("An error occurred while creating comment");
+    toast.error("Đã có lỗi xảy ra khi tạo đánh giá");
   }
 }
 function* watchCreateCommentSaga() {

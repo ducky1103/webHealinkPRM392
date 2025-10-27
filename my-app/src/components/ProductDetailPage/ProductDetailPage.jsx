@@ -164,7 +164,7 @@ const ProductDetailPage = () => {
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {productDetail.active ? "Còn hàng" : "Hết hàng"}
+                  {productDetail.active ? "Còn hàng" : "Dừng bán"}
                 </span>
               </div>
 
