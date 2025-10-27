@@ -17,25 +17,45 @@ import { Spin, Alert } from "antd";
 import { getOrderUser } from "../../redux/User/order/fetchOrderByUser/getAllOrderByUserSlice";
 import { updateStatusOrder } from "../../redux/User/order/updateStatusOrder/updateStatusOrderSlice";
 import { createComment } from "../../redux/User/comment_rating/create_comment/createCommentSlice";
-import { fetchAllCommentByUser } from "../../redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSlice";
+import { fetchAllCommentByOrderItemId } from "../../redux/User/comment_rating/fetchAllCommentByOrderItemId/fetchAllCommentByOrderItemIdSlice";
 import { toast } from "react-toastify";
 
 export default function TrackOrdersPage() {
   const dispatch = useDispatch();
   const { orderUser, loading, error } = useSelector((state) => state.orderUser);
-  const { fetchCommentUser } = useSelector(
-    (state) => state.fetchAllCommentByUser
+  const { commentsByOrderItemId = {} } = useSelector(
+    (state) => state.fetchAllCommentByOrderItemId
   );
   const user = useSelector((state) => state.account.user);
   const [selectedOrder, setSelectedOrder] = useState(0);
   const [reviewData, setReviewData] = useState({});
 
+  // Fetch orders khi user đăng nhập
   useEffect(() => {
     if (user?.id) {
       dispatch(getOrderUser({ userId: user.id, page: 1, size: 200 }));
-      dispatch(fetchAllCommentByUser(user.id)); // 👈 thêm dòng này
     }
   }, [dispatch, user]);
+
+  // Fetch comments cho tất cả order items khi có đơn hàng
+  useEffect(() => {
+    if (orderUser?.content) {
+      const fetchedOrderItems = new Set();
+
+      orderUser.content.forEach((order) => {
+        if (order.items) {
+          order.items.forEach((item) => {
+            // Chỉ fetch nếu chưa fetch comments cho orderItemId này
+            const orderItemId = item.id;
+            if (orderItemId && !fetchedOrderItems.has(orderItemId)) {
+              fetchedOrderItems.add(orderItemId);
+              dispatch(fetchAllCommentByOrderItemId(orderItemId));
+            }
+          });
+        }
+      });
+    }
+  }, [orderUser, dispatch]);
 
   const getOrderStep = (status) => {
     const statusMap = {
@@ -195,20 +215,27 @@ export default function TrackOrdersPage() {
     }
   };
 
-  const handleSubmitReview = (productId) => {
-    const review = reviewData[productId];
+  const handleSubmitReview = async (orderItemId) => {
+    const review = reviewData[orderItemId];
     if (!review?.star || !review?.comment) {
       toast.warn("Vui lòng chọn số sao và nhập bình luận!");
       return;
     }
 
     const payload = {
-      productId,
+      orderItemId,
       comment: review.comment,
       star: review.star,
     };
 
-    dispatch(createComment(payload));
+    await dispatch(createComment(payload));
+
+    // Clear review data cho orderItem này
+    setReviewData((prev) => {
+      const newData = { ...prev };
+      delete newData[orderItemId];
+      return newData;
+    });
   };
 
   return (
@@ -356,9 +383,8 @@ export default function TrackOrdersPage() {
 
               {/* Order Items */}
               {selected.items.map((item) => {
-                const userComments = fetchCommentUser.filter(
-                  (c) => c.product.id === item.product.id
-                );
+                // Lấy comments theo orderItemId từ store
+                const userComments = commentsByOrderItemId[item.id] || [];
 
                 return (
                   <div
@@ -385,50 +411,57 @@ export default function TrackOrdersPage() {
                       </div>
                     </div>
 
-                    {/* Nếu đã đánh giá thì hiển thị lại comment */}
-                    {userComments.length > 0 ? (
-                      <div className="mt-4 bg-stone-50 p-4 rounded-xl border border-stone-200">
-                        <h4 className="text-stone-800 font-semibold mb-2">
-                          Các đánh giá của bạn
-                        </h4>
+                    {/* Hiển thị form đánh giá chỉ khi đơn hàng đã hoàn thành (completed) */}
+                    {selected.status?.toLowerCase() === "completed" && (
+                      <div className="space-y-4">
+                        {/* Hiển thị các đánh giá đã có */}
+                        {userComments.length > 0 && (
+                          <div className="mt-4 bg-stone-50 p-4 rounded-xl border border-stone-200">
+                            <h4 className="text-stone-800 font-semibold mb-2">
+                              Các đánh giá của bạn
+                            </h4>
 
-                        {userComments.map((c) => (
-                          <div
-                            key={c.id}
-                            className="border-b border-stone-200 pb-3 mb-3 last:border-none last:pb-0 last:mb-0"
-                          >
-                            <div className="flex gap-1 mb-2">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <svg
-                                  key={star}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className={`w-5 h-5 ${
-                                    c.star >= star
-                                      ? "text-yellow-400 fill-yellow-400"
-                                      : "text-stone-300"
-                                  }`}
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                >
-                                  <path d="M12 .587l3.668 7.57L24 9.423l-6 5.857 1.416 8.26L12 18.896l-7.416 4.644L6 15.28 0 9.423l8.332-1.266z" />
-                                </svg>
-                              ))}
-                            </div>
-                            <p className="text-stone-700 text-sm italic">
-                              “{c.comment}”
-                            </p>
-                            <p className="text-xs text-stone-500 mt-2">
-                              {new Date(c.dateCreated).toLocaleString("vi-VN")}
-                            </p>
+                            {userComments.map((c) => (
+                              <div
+                                key={c.id}
+                                className="border-b border-stone-200 pb-3 mb-3 last:border-none last:pb-0 last:mb-0"
+                              >
+                                <div className="flex gap-1 mb-2">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <svg
+                                      key={star}
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className={`w-5 h-5 ${
+                                        c.star >= star
+                                          ? "text-yellow-400 fill-yellow-400"
+                                          : "text-stone-300"
+                                      }`}
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M12 .587l3.668 7.57L24 9.423l-6 5.857 1.416 8.26L12 18.896l-7.416 4.644L6 15.28 0 9.423l8.332-1.266z" />
+                                    </svg>
+                                  ))}
+                                </div>
+                                <p className="text-stone-700 text-sm italic">
+                                  "{c.comment}"
+                                </p>
+                                <p className="text-xs text-stone-500 mt-2">
+                                  {new Date(c.dateCreated).toLocaleString(
+                                    "vi-VN"
+                                  )}
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      // Nếu chưa đánh giá và đơn hàng đã hoàn thành thì cho phép đánh giá
-                      selected.status?.toLowerCase() === "completed" && (
+                        )}
+
+                        {/* Luôn hiển thị form đánh giá mới */}
                         <div className="mt-4 bg-stone-50 p-4 rounded-xl border border-stone-200">
                           <h4 className="text-stone-800 font-semibold mb-2">
-                            Đánh giá sản phẩm
+                            {userComments.length > 0
+                              ? "Thêm đánh giá mới"
+                              : "Đánh giá sản phẩm"}
                           </h4>
 
                           {/* ⭐ Rating Stars */}
@@ -439,8 +472,8 @@ export default function TrackOrdersPage() {
                                 onClick={() =>
                                   setReviewData((prev) => ({
                                     ...prev,
-                                    [item.product.id]: {
-                                      ...prev[item.product.id],
+                                    [item.id]: {
+                                      ...prev[item.id],
                                       star,
                                     },
                                   }))
@@ -449,8 +482,7 @@ export default function TrackOrdersPage() {
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   className={`w-6 h-6 transition-all ${
-                                    (reviewData[item.product.id]?.star || 0) >=
-                                    star
+                                    (reviewData[item.id]?.star || 0) >= star
                                       ? "text-yellow-400 fill-yellow-400"
                                       : "text-stone-300"
                                   }`}
@@ -467,12 +499,12 @@ export default function TrackOrdersPage() {
                             rows="3"
                             placeholder="Nhập cảm nhận của bạn..."
                             className="w-full border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none"
-                            value={reviewData[item.product.id]?.comment || ""}
+                            value={reviewData[item.id]?.comment || ""}
                             onChange={(e) =>
                               setReviewData((prev) => ({
                                 ...prev,
-                                [item.product.id]: {
-                                  ...prev[item.product.id],
+                                [item.id]: {
+                                  ...prev[item.id],
                                   comment: e.target.value,
                                 },
                               }))
@@ -480,30 +512,40 @@ export default function TrackOrdersPage() {
                           />
 
                           <button
-                            onClick={() => handleSubmitReview(item.product.id)}
+                            onClick={() => handleSubmitReview(item.id)}
                             className="mt-3 px-5 py-2 bg-amber-500 text-white font-semibold rounded-lg hover:bg-amber-600 transition-all"
                           >
                             Gửi đánh giá
                           </button>
+                          <button
+                            onClick={() => {
+                              setReviewData((prev) => {
+                                const newData = { ...prev };
+                                delete newData[item.id];
+                                return newData;
+                              });
+                            }}
+                            className="mt-2 ml-2 px-4 py-2 bg-stone-300 text-white font-semibold rounded-lg hover:bg-stone-400 transition-all text-sm"
+                          >
+                            Hủy
+                          </button>
                         </div>
-                      )
+                      </div>
                     )}
                   </div>
                 );
               })}
               {/* ✅ Hiển thị nút “Đã nhận hàng” khi status = DELIVERED */}
-              {selected.status?.toUpperCase() === "DELIVERED" &&
-                (console.log("id", selected.id),
-                (
-                  <div className="mt-6 text-right">
-                    <button
-                      onClick={() => handleConfirmReceived(selected.id)}
-                      className="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 transition-all duration-300"
-                    >
-                      Đã nhận hàng
-                    </button>
-                  </div>
-                ))}
+              {selected.status?.toUpperCase() === "DELIVERED" && (
+                <div className="mt-6 text-right">
+                  <button
+                    onClick={() => handleConfirmReceived(selected.id)}
+                    className="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 transition-all duration-300"
+                  >
+                    Đã nhận hàng
+                  </button>
+                </div>
+              )}
 
               <div className="mt-6 pt-6 border-t-2 border-stone-200">
                 <div className="flex justify-between items-center">
