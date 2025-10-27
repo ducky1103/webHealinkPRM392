@@ -54,6 +54,7 @@ import watchCreateCommentSaga from "./redux/User/comment_rating/create_comment/c
 import watchFetchAllCommentByUserSaga from "./redux/User/comment_rating/fetchAllCommentByUser/fetchAllCommentByUserSaga";
 import watchFetchAllCommentByProductSaga from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSaga";
 import watchFetchPodcastByCategory from "./redux/User/podcast/get_podcast_by_category/getPodcastByCategorySaga";
+import watchFetchAllCommentByOrderItemIdSaga from "./redux/User/comment_rating/fetchAllCommentByOrderItemId/fetchAllCommentByOrderItemIdSaga";
 
 export default function* rootSaga() {
   yield all([
@@ -135,5 +136,6 @@ export default function* rootSaga() {
 
     //podcast by category
     watchFetchPodcastByCategory(),
+    watchFetchAllCommentByOrderItemIdSaga(),
   ]);
 }

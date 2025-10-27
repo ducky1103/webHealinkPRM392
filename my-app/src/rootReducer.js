@@ -50,6 +50,7 @@ import fetchAllCommentByUserReducer from "./redux/User/comment_rating/fetchAllCo
 import fetchAllCommentByProductReducer from "./redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSlice";
 import fetchPodcastByCategoryReducer from "./redux/User/podcast/get_podcast_by_category/getPodcastByCategorySlice";
 
+import fetchAllCommentByOrderItemIdReducer from "./redux/User/comment_rating/fetchAllCommentByOrderItemId/fetchAllCommentByOrderItemIdSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
@@ -123,6 +124,7 @@ const rootReducer = combineReducers({
 
   //podcast by category
   fetchPodcastByCategory: fetchPodcastByCategoryReducer,
+  fetchAllCommentByOrderItemId: fetchAllCommentByOrderItemIdReducer,
 });
 
 export default rootReducer;

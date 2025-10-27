@@ -108,30 +108,16 @@ const AdminPodcastPage = () => {
 
   // Update podcasts when category changes
   useEffect(() => {
-    console.log("=== Update podcasts effect ===");
-    console.log("Selected category:", selectedCategory);
-    console.log("Fetched podcasts:", fetchedPodcasts);
-    console.log("Podcasts by category:", podcastsByCategory);
-    console.log("Category loading:", categoryLoading);
-
     if (selectedCategory === "all") {
       if (fetchedPodcasts) {
-        console.log("Setting all podcasts, count:", fetchedPodcasts.length);
         setPodcasts(fetchedPodcasts);
       }
     } else {
-      // Only update if we have data, don't clear if still loading
-      if (categoryLoading === false) {
-        if (podcastsByCategory) {
-          console.log(
-            "Setting podcasts by category, count:",
-            podcastsByCategory.length
-          );
-          setPodcasts(podcastsByCategory);
-        } else {
-          console.log("No podcasts found for category (empty response)");
-          setPodcasts([]);
-        }
+      // Always update when category changes, even if loading
+      if (podcastsByCategory) {
+        setPodcasts(podcastsByCategory);
+      } else if (categoryLoading === false) {
+        setPodcasts([]);
       }
     }
   }, [selectedCategory, fetchedPodcasts, podcastsByCategory, categoryLoading]);
@@ -146,23 +132,30 @@ const AdminPodcastPage = () => {
   // Refetch after successful update
   useEffect(() => {
     if (updatedPodcast) {
-      console.log("Podcast updated successfully:", updatedPodcast);
-      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+      // Refetch based on current category
+      if (selectedCategory === "all") {
+        dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+      } else {
+        dispatch(fetchPodcastByCategoryRequest(selectedCategory));
+      }
     }
-  }, [updatedPodcast, dispatch]);
+  }, [updatedPodcast, dispatch, selectedCategory]);
 
   // Refetch after successful delete
   useEffect(() => {
     if (deletedPodcastId) {
-      dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+      // Refetch based on current category
+      if (selectedCategory === "all") {
+        dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
+      } else {
+        dispatch(fetchPodcastByCategoryRequest(selectedCategory));
+      }
     }
-  }, [deletedPodcastId, dispatch]);
+  }, [deletedPodcastId, dispatch, selectedCategory]);
 
   const handleAddPodcast = async () => {
     try {
       const values = await form.validateFields();
-
-      console.log("Form values:", values); // Debug
 
       const formData = new FormData();
       formData.append("title", values.title);
@@ -191,10 +184,6 @@ const AdminPodcastPage = () => {
       formData.append("file", values.audio.fileList[0].originFileObj);
 
       // Debug FormData
-      console.log("FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value instanceof File ? `File: ${value.name}` : value);
-      }
 
       dispatch(postPostcardRequest(formData));
 
@@ -294,7 +283,6 @@ const AdminPodcastPage = () => {
         .then(() => {
           audioManager.setCurrentAudio(audio);
           setCurrentAudio({ audio, url: audioUrl, podcastId });
-          console.log("Audio started playing:", audioUrl);
         })
         .catch((error) => {
           console.error("Play error:", error);
@@ -324,8 +312,6 @@ const AdminPodcastPage = () => {
   };
 
   const handleCategoryChange = (categoryName) => {
-    console.log("🔄 Changing category to:", categoryName);
-
     // Stop any playing audio when changing category
     if (currentAudio) {
       currentAudio.audio.pause();
@@ -339,42 +325,66 @@ const AdminPodcastPage = () => {
 
     // If "all", fetch all podcasts
     if (categoryName === "all") {
-      console.log("📋 Fetching ALL podcasts");
       dispatch(fetchPostcastRequest({ page: 1, size: 100 }));
     } else {
-      console.log("📂 Fetching podcasts for category ID:", categoryName);
       dispatch(fetchPodcastByCategoryRequest(categoryName));
     }
   };
 
   const handleUpdatePodcast = (podcast) => {
-    console.log("📝 Podcast for update:", podcast);
-    console.log("📝 Podcast categories:", podcast.categories);
-
     setSelectedPodcast(podcast);
 
     // Fix: Set multiple categories for update - handle both object and id
     const selectedCategories = podcast.categories
       ? podcast.categories
           .filter((cat) => cat && (cat.id != null || cat.categoryId != null))
-          .map((cat) => cat.id || cat.categoryId)
+          .map((cat) => (cat.id || cat.categoryId).toString())
       : [];
 
-    console.log("✅ Selected categories for form:", selectedCategories);
-
+    // Set form values with current data
     updateForm.setFieldsValue({
       title: podcast.title,
       categories: selectedCategories,
       description: podcast.description,
     });
+
+    // Show current image and audio if they exist
+    if (podcast.imageUrl) {
+      updateForm.setFieldsValue({
+        image: {
+          fileList: [
+            {
+              uid: "-1",
+              name: "current-image.jpg",
+              status: "done",
+              url: podcast.imageUrl,
+            },
+          ],
+        },
+      });
+    }
+
+    if (podcast.audioUrl) {
+      updateForm.setFieldsValue({
+        audio: {
+          fileList: [
+            {
+              uid: "-2",
+              name: "current-audio.mp3",
+              status: "done",
+              url: podcast.audioUrl,
+            },
+          ],
+        },
+      });
+    }
+
     setUpdateOpen(true);
   };
 
   const handleSubmitUpdate = async () => {
     try {
       const values = await updateForm.validateFields();
-
-      console.log("Update values:", values); // Debug
 
       const formData = new FormData();
       formData.append("title", values.title);
@@ -389,18 +399,35 @@ const AdminPodcastPage = () => {
       }
 
       // Files are optional for update
-      if (values.image?.fileList?.[0]?.originFileObj) {
-        formData.append("imageFile", values.image.fileList[0].originFileObj);
+
+      // Check for new image file
+      const imageFile = values.image?.fileList?.[0];
+      if (imageFile) {
+        // Check if it's a new file - either has originFileObj or is not the existing file
+        const hasOriginFile = imageFile.originFileObj;
+        const isNotExistingFile =
+          imageFile.uid !== "-1" && imageFile.uid !== "-2";
+        const isNewFile = hasOriginFile || isNotExistingFile;
+
+        if (isNewFile) {
+          const fileToUpload = imageFile.originFileObj || imageFile;
+          formData.append("imageFile", fileToUpload);
+        }
       }
 
-      if (values.audio?.fileList?.[0]?.originFileObj) {
-        formData.append("file", values.audio.fileList[0].originFileObj);
-      }
+      // Check for new audio file
+      const audioFile = values.audio?.fileList?.[0];
+      if (audioFile) {
+        // Check if it's a new file - either has originFileObj or is not the existing file
+        const hasOriginFile = audioFile.originFileObj;
+        const isNotExistingFile =
+          audioFile.uid !== "-1" && audioFile.uid !== "-2";
+        const isNewFile = hasOriginFile || isNotExistingFile;
 
-      // Debug FormData
-      console.log("Update FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value instanceof File ? `File: ${value.name}` : value);
+        if (isNewFile) {
+          const fileToUpload = audioFile.originFileObj || audioFile;
+          formData.append("file", fileToUpload);
+        }
       }
 
       dispatch(
@@ -411,8 +438,8 @@ const AdminPodcastPage = () => {
       setUpdateOpen(false);
       setSelectedPodcast(null);
     } catch (error) {
+      console.error("❌ Update validation error:", error);
       message.error("Vui lòng điền đầy đủ thông tin!");
-      console.error("Update validation error:", error);
     }
   };
 
@@ -420,6 +447,35 @@ const AdminPodcastPage = () => {
     beforeUpload: () => false,
     maxCount: 1,
     showUploadList: true,
+  };
+
+  // Upload props for update form with onChange handlers
+  const updateImageUploadProps = {
+    beforeUpload: () => false,
+    maxCount: 1,
+    showUploadList: true,
+    onChange: (info) => {
+      // Update the form field value
+      updateForm.setFieldsValue({
+        image: {
+          fileList: info.fileList,
+        },
+      });
+    },
+  };
+
+  const updateAudioUploadProps = {
+    beforeUpload: () => false,
+    maxCount: 1,
+    showUploadList: true,
+    onChange: (info) => {
+      // Update the form field value
+      updateForm.setFieldsValue({
+        audio: {
+          fileList: info.fileList,
+        },
+      });
+    },
   };
 
   return (
@@ -467,8 +523,8 @@ const AdminPodcastPage = () => {
                 }}
                 className={
                   selectedCategory === "all"
-                    ? "bg-[#C59B6D] border-[#C59B6D] hover:bg-[#A97942] text-white"
-                    : "bg-[#F7E9D7] border-[#E4C9A2] hover:bg-[#EFD1A5] hover:border-[#C59B6D] text-[#8B5E34]"
+                    ? "bg-amber-600 border-amber-600 hover:bg-amber-700 text-white shadow-md"
+                    : "bg-amber-50 border-amber-200 hover:bg-amber-100 hover:border-amber-400 text-amber-800"
                 }
               >
                 Tất cả
@@ -484,8 +540,8 @@ const AdminPodcastPage = () => {
                     }}
                     className={
                       selectedCategory === category.name
-                        ? "bg-[#C59B6D] border-[#C59B6D] hover:bg-[#A97942] text-white"
-                        : "bg-[#F7E9D7] border-[#E4C9A2] hover:bg-[#EFD1A5] hover:border-[#C59B6D] text-[#8B5E34]"
+                        ? "bg-amber-600 border-amber-600 hover:bg-amber-700 text-white shadow-md"
+                        : "bg-amber-50 border-amber-200 hover:bg-amber-100 hover:border-amber-400 text-amber-800"
                     }
                   >
                     {category.name}
@@ -577,6 +633,26 @@ const AdminPodcastPage = () => {
                     </div>
                   )}
 
+                  {/* Categories */}
+                  <div className="mb-3">
+                    <div className="flex flex-wrap gap-1">
+                      {podcast.categories && podcast.categories.length > 0 ? (
+                        podcast.categories.map((category, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200"
+                          >
+                            {category.name || category}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-gray-400">
+                          Chưa có thể loại
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Metadata */}
                   <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100 mb-3">
                     <div className="flex items-center space-x-1">
@@ -604,8 +680,6 @@ const AdminPodcastPage = () => {
                       }`}
                       disabled={!podcast.audioUrl}
                       onClick={() => {
-                        console.log("Podcast data:", podcast);
-                        console.log("Audio URL:", podcast.audioUrl);
                         handlePlayAudio(podcast.audioUrl, podcast.id);
                       }}
                     >
@@ -898,34 +972,61 @@ const AdminPodcastPage = () => {
               name="image"
               label={
                 <span className="text-[#6B4F3B] font-medium">
-                  Ảnh Thumbnail *
+                  Ảnh Thumbnail (tùy chọn)
                 </span>
               }
             >
-              <Upload {...uploadProps} listType="picture" accept="image/*">
+              <Upload
+                {...updateImageUploadProps}
+                listType="picture"
+                accept="image/*"
+              >
                 <Button
                   icon={<UploadOutlined />}
                   className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
                 >
-                  Chọn ảnh
+                  Chọn ảnh mới
                 </Button>
               </Upload>
+              {selectedPodcast?.imageUrl && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-2">Ảnh hiện tại:</p>
+                  <img
+                    src={selectedPodcast.imageUrl}
+                    alt="Current thumbnail"
+                    className="w-20 h-20 object-cover rounded-lg border"
+                  />
+                </div>
+              )}
             </Form.Item>
 
             <Form.Item
               name="audio"
               label={
-                <span className="text-[#6B4F3B] font-medium">File MP3 *</span>
+                <span className="text-[#6B4F3B] font-medium">
+                  File MP3 (tùy chọn)
+                </span>
               }
             >
-              <Upload {...uploadProps} accept=".mp3,audio/*">
+              <Upload {...updateAudioUploadProps} accept=".mp3,audio/*">
                 <Button
                   icon={<UploadOutlined />}
                   className="rounded-lg border-[#DCC7B1] bg-[#fffaf6] hover:bg-[#f1ebe6] text-[#5B4636]"
                 >
-                  Chọn file MP3
+                  Chọn file MP3 mới
                 </Button>
               </Upload>
+              {selectedPodcast?.audioUrl && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-2">
+                    File âm thanh hiện tại:
+                  </p>
+                  <audio controls className="w-full">
+                    <source src={selectedPodcast.audioUrl} type="audio/mpeg" />
+                    Trình duyệt không hỗ trợ phát âm thanh.
+                  </audio>
+                </div>
+              )}
             </Form.Item>
           </Form>
         </Modal>

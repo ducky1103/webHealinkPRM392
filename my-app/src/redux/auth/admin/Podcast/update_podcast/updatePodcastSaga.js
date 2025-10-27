@@ -6,7 +6,6 @@ import {
   updatePodcastFail,
   updatePodcastSuccess,
 } from "./updatePodcastSlice";
-import { fetchPodcastSuccess } from "../fetch_podcast/fetchPodcastSlice";
 
 const URL_API = import.meta.env.VITE_API_URL;
 
@@ -15,42 +14,51 @@ function* updatePodcastSaga(action) {
     const token = yield select((state) => state.account.token);
     const { id, updateData } = action.payload;
 
-    console.log("Updating podcast:", { id, updateData }); // Debug log
-
-    // Fix: Extract categoryIds from FormData (same as post)
+    // Extract title, description, and categoryIds from FormData
+    let title = "";
+    let description = "";
     let categoryIds = [];
+
+    // Create a new FormData to avoid modifying the original
+    const formData = new FormData();
+
     for (let [key, value] of updateData.entries()) {
-      if (key === "categoryIds") {
+      if (key === "title") {
+        title = value;
+        // Don't add to new FormData, will be sent as query param
+      } else if (key === "description") {
+        description = value;
+        // Don't add to new FormData, will be sent as query param
+      } else if (key === "categoryIds") {
         try {
-          categoryIds = JSON.parse(value); // Parse JSON array
+          categoryIds = JSON.parse(value);
         } catch {
-          categoryIds = [value]; // Fallback: single value
+          categoryIds = [value];
         }
-        updateData.delete("categoryIds"); // Remove from body
-        break;
+        // Don't add to new FormData, will be sent as query param
+      } else {
+        // Keep file fields in FormData
+        formData.append(key, value);
       }
     }
-
-    console.log("Extracted categoryIds:", categoryIds); // Debug log
 
     if (!categoryIds.length) {
       throw new Error("Bạn phải chọn ít nhất một danh mục (category).");
     }
 
-    // Fix: Build URL with query params (same as post)
+    // Build URL with query params
     const params = new URLSearchParams();
-    categoryIds.forEach((id) => params.append("categoryIds", id));
+    if (title) params.append("title", title);
+    if (description) params.append("description", description);
+    // Add each category as separate query parameter
+    categoryIds.forEach((catId) => {
+      params.append("category", catId.toString());
+    });
     const url = `${URL_API}/podcasts/${id}?${params.toString()}`;
 
-    console.log("Update URL:", url); // Debug log
-
     // Debug FormData contents
-    console.log("FormData contents:");
-    for (let [key, value] of updateData.entries()) {
-      console.log(key, value instanceof File ? `File: ${value.name}` : value);
-    }
 
-    const response = yield call(axios.put, url, updateData, {
+    const response = yield call(axios.put, url, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
@@ -58,27 +66,9 @@ function* updatePodcastSaga(action) {
       timeout: 30000, // Avoid hanging requests
     });
 
-    console.log("Update response:", response); // Debug log
-
     if ([200, 201].includes(response.status)) {
       yield put(updatePodcastSuccess(response.data));
       toast.success("Cập nhật podcast thành công!");
-
-      // Refetch podcasts
-      const page = 1;
-      const size = 100;
-      const fetchUrl = `${URL_API}/podcasts?page=${page}&size=${size}`;
-
-      const fetchResponse = yield call(axios.get, fetchUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (fetchResponse.status === 200) {
-        const podcasts = fetchResponse.data.content || fetchResponse.data;
-        yield put(fetchPodcastSuccess(podcasts));
-      }
     } else {
       throw new Error("Cập nhật podcast thất bại!");
     }
