@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { toast } from "react-toastify";
 import { ArrowLeft, ShoppingBag, Star } from "lucide-react";
 import Header from "../HomePage/Header";
 import { fetchProductDetail } from "../../redux/User/product/fetchProductDetail/fetchProductDetailSlice";
-import { addToCart } from "../../redux/User/product/postProductToCart/postProductToCartSlice";
 import { fetchAllCommentByProduct } from "../../redux/User/comment_rating/fetchCommentByProduct/fetchAllCommentByProductSlice";
 
 const ProductDetailPage = () => {
@@ -36,26 +34,6 @@ const ProductDetailPage = () => {
       dispatch(fetchAllCommentByProduct(id));
     }
   }, [dispatch, id]);
-
-  const handleAddToCart = () => {
-    if (!user) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng 🛒");
-      return;
-    }
-
-    if (!productDetail) {
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
-      return;
-    }
-
-    dispatch(
-      addToCart({
-        productId: productDetail.id,
-        quantity: 1,
-      })
-    );
-    toast.success("Đã thêm sản phẩm vào giỏ hàng! 🛒");
-  };
 
   const handleBackToStore = () => {
     navigate("/store");
@@ -189,23 +167,6 @@ const ProductDetailPage = () => {
 
             {/* Nút giỏ hàng */}
             <div className="space-y-4">
-              <button
-                onClick={handleAddToCart}
-                disabled={
-                  !productDetail.active || productDetail.stockQuantity === 0
-                }
-                className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-all duration-300 flex items-center justify-center ${
-                  !productDetail.active || productDetail.stockQuantity === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-amber-500 hover:bg-amber-600 hover:shadow-lg hover:scale-105"
-                }`}
-              >
-                <ShoppingBag className="mr-2" size={20} />
-                {!productDetail.active || productDetail.stockQuantity === 0
-                  ? "Sản phẩm không khả dụng"
-                  : "Thêm vào giỏ hàng"}
-              </button>
-
               {user && (
                 <button
                   onClick={() => navigate("/cart")}

@@ -89,65 +89,73 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-secondary/10 to-background">
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 🌿 Nền nâu ấm, thư giãn */}
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-50 via-amber-100/40 to-stone-50" />
+      {/* Blobs trang trí */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-80 h-80 rounded-full bg-amber-300/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -right-24 w-96 h-96 rounded-full bg-orange-300/25 blur-3xl" />
+
+      <div className="sticky top-0 z-50 bg-white/60 backdrop-blur-md border-b border-amber-900/5">
         <Header />
       </div>
 
-      <div className="flex items-center justify-center p-4 md:p-8 mt-20">
+      <div className="flex items-center justify-center p-4 md:p-8 mt-16">
         <div className="w-full max-w-2xl">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-1">Hồ sơ cá nhân</h1>
-              <p className="text-muted-foreground">
-                Thông tin chi tiết về tài khoản của bạn
+              <h1 className="text-3xl font-bold mb-1 text-amber-950">
+                Hồ sơ cá nhân
+              </h1>
+              <p className="text-stone-700/70">
+                Nuôi dưỡng bình an – chăm sóc chính mình mỗi ngày
               </p>
             </div>
             <button
               onClick={handleReload}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-secondary hover:bg-secondary/80 transition-all hover:rotate-180 duration-500"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-amber-600/10 text-amber-800 hover:bg-amber-600/20 transition-all hover:rotate-180 duration-500"
             >
               <ReloadOutlined />
             </button>
           </div>
 
-          <div className="bg-card/90 backdrop-blur-md border border-border rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] overflow-hidden">
-            <div className="relative bg-secondary/30 p-8 md:p-12 flex flex-col md:flex-row items-center gap-6">
+          <div className="bg-white/70 backdrop-blur-xl border border-amber-900/10 rounded-3xl shadow-[0_20px_40px_-20px_rgba(217,119,6,0.25)] overflow-hidden">
+            <div className="relative bg-gradient-to-br from-amber-50 to-amber-100/60 p-8 md:p-12 flex flex-col md:flex-row items-center gap-6">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-accent/20 flex items-center justify-center border-4 border-background shadow-inner">
-                  <UserOutlined className="text-4xl text-accent" />
+                <div className="w-28 h-28 rounded-full bg-white flex items-center justify-center ring-8 ring-white shadow-xl">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-600 to-stone-700 flex items-center justify-center text-white">
+                    <UserOutlined className="text-4xl" />
+                  </div>
                 </div>
                 {profile.active && (
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-background flex items-center justify-center">
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
                     <CheckCircleOutlined className="text-white text-sm" />
                   </div>
                 )}
               </div>
 
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-2xl font-bold mb-2">
+                <h2 className="text-2xl font-bold mb-2 text-amber-950">
                   {profile.fullName || "Người dùng"}
                 </h2>
-                <p className="text-muted-foreground mb-1">
-                  @{profile.username}
-                </p>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background/50 text-sm">
-                  <MailOutlined className="text-accent" />
+                <p className="text-stone-700/70 mb-1">@{profile.username}</p>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 text-sm text-stone-800">
+                  <MailOutlined className="text-amber-700" />
                   <span>{profile.email}</span>
                 </div>
               </div>
             </div>
 
             <div className="p-8 md:p-12 space-y-6">
-              <div className="flex items-start gap-4 pb-6 border-b border-border">
-                <PhoneOutlined className="text-accent text-xl" />
+              <div className="flex items-start gap-4 pb-6 border-b border-amber-900/10">
+                <PhoneOutlined className="text-amber-700 text-xl" />
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground mb-1">
+                  <p className="text-sm text-stone-700/70 mb-1">
                     Số điện thoại
                   </p>
                   <p>
                     {profile.phoneNumber || (
-                      <span className="text-muted-foreground italic">
+                      <span className="text-stone-600/70 italic">
                         Chưa cập nhật
                       </span>
                     )}
@@ -155,20 +163,20 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 pb-6 border-b border-border">
+              <div className="flex items-start gap-4 pb-6 border-b border-amber-900/10">
                 {profile.active ? (
-                  <CheckCircleOutlined className="text-green-400 text-xl" />
+                  <CheckCircleOutlined className="text-emerald-600 text-xl" />
                 ) : (
                   <CloseCircleOutlined className="text-red-400 text-xl" />
                 )}
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground mb-1">
+                  <p className="text-sm text-stone-700/70 mb-1">
                     Trạng thái tài khoản
                   </p>
                   <span
                     className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
                       profile.active
-                        ? "bg-green-500/10 text-green-500"
+                        ? "bg-emerald-500/10 text-emerald-600"
                         : "bg-red-500/10 text-red-500"
                     }`}
                   >
@@ -181,7 +189,7 @@ export default function ProfilePage() {
               <div className="flex justify-center pt-4">
                 <button
                   onClick={goToChangePassword}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500 from-primary to-accent text-white text-base font-semibold shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                  className="flex items-center gap-2 px-7 py-3 rounded-2xl bg-gradient-to-r from-amber-700 to-stone-700 text-white text-base font-semibold shadow-[0_10px_24px_-10px_rgba(217,119,6,0.45)] hover:shadow-[0_14px_30px_-12px_rgba(68,64,60,0.6)] hover:scale-[1.03] transition-all duration-300 border border-white/20"
                 >
                   <LockOutlined /> Đổi mật khẩu
                 </button>

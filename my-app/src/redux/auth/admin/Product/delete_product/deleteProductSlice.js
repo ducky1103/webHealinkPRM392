@@ -1,6 +1,7 @@
 export const DELETE_PRODUCT_REQUEST = "DELETE_PRODUCT_REQUEST";
 export const DELETE_PRODUCT_SUCCESS = "DELETE_PRODUCT_SUCCESS";
 export const DELETE_PRODUCT_FAIL = "DELETE_PRODUCT_FAIL";
+export const DELETE_PRODUCT_RESET = "DELETE_PRODUCT_RESET";
 
 export const deleteProductRequest = (id) => ({
   type: DELETE_PRODUCT_REQUEST,
@@ -13,6 +14,9 @@ export const deleteProductSuccess = (id) => ({
 export const deleteProductFail = (error) => ({
   type: DELETE_PRODUCT_FAIL,
   payload: error,
+});
+export const deleteProductReset = () => ({
+  type: DELETE_PRODUCT_RESET,
 });
 export const initialState = {
   loading: false,
@@ -41,6 +45,13 @@ export const deleteProductReducer = (state = initialState, action) => {
         loading: false,
         success: false,
         error: action.payload,
+      };
+    case DELETE_PRODUCT_RESET:
+      return {
+        ...state,
+        loading: false,
+        success: false,
+        error: null,
       };
     default:
       return state;

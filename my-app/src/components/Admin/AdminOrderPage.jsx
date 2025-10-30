@@ -192,24 +192,28 @@ const AdminOrderPage = () => {
     STATUS_FLOW.indexOf(status?.toLowerCase() ?? "");
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Quản lý Đơn Hàng
-          </h1>
-          <p className="text-gray-600">
-            Bạn có thể thay đổi trạng thái đơn hàng bằng dropdown bên dưới.
-          </p>
+        <div className="bg-white rounded-2xl border border-amber-200 shadow-lg p-8 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-amber-800 mb-2">
+                Quản lý Đơn Hàng
+              </h1>
+              <p className="text-amber-700">
+                Bạn có thể thay đổi trạng thái đơn hàng bằng dropdown bên dưới.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Select User */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 mb-6">
-          <label className="block text-sm text-gray-600 mb-1">
+        <div className="bg-white rounded-2xl border border-amber-200 shadow-md p-6 mb-6">
+          <label className="block text-sm font-medium text-amber-800 mb-2">
             Chọn khách hàng:
           </label>
           <select
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-3 border border-amber-300 rounded-xl focus:border-amber-500 focus:ring-amber-500 text-amber-800"
             value={selectedUser}
             onChange={handleSelectUser}
             disabled={loadingUsers}
@@ -227,10 +231,10 @@ const AdminOrderPage = () => {
 
         {/* Table Orders */}
         {!loadingOrders && filteredOrders.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-amber-200 shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gradient-to-r from-amber-50 to-orange-50">
                   <tr>
                     {[
                       "Mã đơn",
@@ -243,7 +247,7 @@ const AdminOrderPage = () => {
                     ].map((h) => (
                       <th
                         key={h}
-                        className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                        className="px-6 py-4 text-left text-xs font-semibold text-amber-800 uppercase tracking-wider"
                       >
                         {h}
                       </th>
@@ -345,7 +349,7 @@ const AdminOrderPage = () => {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => setSelectedOrder(order)}
-                            className="px-3 py-1 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
+                            className="px-4 py-2 text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 border border-amber-200 hover:border-amber-300 transition-colors"
                           >
                             <Eye className="w-4 h-4 inline-block mr-1" />
                             Chi tiết
@@ -361,8 +365,16 @@ const AdminOrderPage = () => {
         )}
 
         {!loadingOrders && filteredOrders.length === 0 && (
-          <div className="text-center text-gray-500 py-10">
-            Khách hàng này không có đơn hàng nào.
+          <div className="text-center text-amber-600 py-12">
+            <div className="space-y-4">
+              <div className="text-6xl text-amber-300">📦</div>
+              <h3 className="text-xl font-semibold text-amber-700">
+                Khách hàng này không có đơn hàng nào
+              </h3>
+              <p className="text-amber-600">
+                Hãy chọn khách hàng khác để xem đơn hàng
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -464,7 +476,7 @@ const AdminOrderPage = () => {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="px-4 py-2 bg-gray-100 rounded-md"
+                className="px-6 py-2 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 border border-amber-300 transition-colors"
               >
                 Đóng
               </button>

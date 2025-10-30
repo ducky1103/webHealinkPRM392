@@ -1,20 +1,39 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sparkles, Heart } from "lucide-react";
 
 const whispers = [
-  "Cậu không cần phải mạnh mẽ mọi lúc đâu, chỉ cần thật với lòng mình thôi.",
-  "Dù hôm nay mệt, nhưng cậu vẫn đang tiến về phía sáng đấy.",
-  "Trái tim cậu đã đi qua nhiều bão giông rồi, giờ là lúc được nghỉ ngơi.",
-  "Cậu không hề nhỏ bé đâu, chỉ là thế giới này quá rộng thôi.",
-  "Đôi khi im lặng cũng là một cách để chữa lành.",
-  "Ánh sáng trong cậu vẫn đang thở, chỉ cần một chút ấm áp để bừng lên.",
-  "Cậu đã đi xa hơn mình nghĩ rất nhiều rồi.",
-  "Không sao cả nếu hôm nay cậu chỉ muốn yên lặng và thở.",
-  "Cậu là một phần dịu dàng của thế giới này, đừng quên điều đó.",
-  "Ngay cả bóng đêm cũng cần những vì sao — và cậu chính là một trong số đó.",
+  "Đừng sợ thất bại; đó là cách bạn học được để thành công. — Michael Jordan",
+  "Tình yêu đích thực bắt đầu khi không còn điều kiện. — Osho",
+  "Đi chậm không sao, miễn là đừng bao giờ dừng lại. — Khổng Tử",
+  "Sự kiên trì biến điều không thể thành có thể. — Napoleon Hill",
+  "Bạn trở thành điều bạn nghĩ đến phần lớn thời gian. — Earl Nightingale",
+  "Hạnh phúc không phải đích đến, mà là hành trình. — Zig Ziglar",
+  "Nơi nào có tình yêu, nơi đó có sự sống. — Mahatma Gandhi",
+  "Dũng cảm không phải là không sợ hãi, mà là vượt qua nó. — Nelson Mandela",
+  "Đừng so sánh. Hoa hồng và hoa sen nở theo cách riêng. — Thích Nhất Hạnh",
+  "Thành công là tổng của những nỗ lực nhỏ lặp đi lặp lại mỗi ngày. — R. Collier",
+  "Khi bạn thay đổi cách nhìn, điều bạn nhìn cũng thay đổi. — Wayne Dyer",
+  "Tình yêu chữa lành mọi vết thương, nếu bạn cho nó thời gian. — Steve Maraboli",
+  "Bạn không bao giờ quá già để đặt mục tiêu mới. — C.S. Lewis",
+  "Tĩnh lặng là nơi tâm hồn tìm thấy câu trả lời. — Rumi",
+  "Thất bại chỉ là cơ hội để bắt đầu thông minh hơn. — Henry Ford",
+  "Hãy tử tế. Bất kỳ ai bạn gặp cũng đang chiến đấu một cuộc chiến riêng. — Plato",
+  "Sống là nghệ thuật cân bằng giữa buông bỏ và nắm giữ. — Rumi",
+  "Kỷ luật là chiếc cầu nối giữa mục tiêu và thành tựu. — Jim Rohn",
+  "Niềm tin là cơ bắp: dùng càng nhiều, càng mạnh. — Robin Sharma",
+  "Giông bão làm rễ sâu hơn. — Dolly Parton",
+  "Đặt trái tim vào mọi việc bạn làm. — Steve Jobs",
+  "Đôi khi điều bạn mất đi mở đường cho điều tốt hơn. — Seneca",
+  "Ân cần với chính mình, rồi bạn sẽ ân cần với đời. — Buddha",
+  "Nếu muốn đi xa, hãy đi cùng nhau. — Tục ngữ Châu Phi",
+  "Không có con đường đến hạnh phúc, hạnh phúc là con đường. — Thích Nhất Hạnh",
+  "Điều vĩ đại được xây từ thói quen nhỏ. — James Clear",
+  "Mỗi ngày một phần trăm tốt hơn. — Atomic Habits",
 ];
 
 function Game() {
+  const navigate = useNavigate();
   const [fireflies, setFireflies] = useState([]);
   const [currentWhisper, setCurrentWhisper] = useState("");
   const [showWhisper, setShowWhisper] = useState(false);
@@ -25,6 +44,7 @@ function Game() {
   const [floatingFireflies, setFloatingFireflies] = useState([]);
   const canvasRef = useRef(null);
   const particleIdRef = useRef(0);
+  const audioRef = useRef(null);
 
   useEffect(() => {
     const starArray = Array.from({ length: 50 }, () => ({
@@ -47,24 +67,27 @@ function Game() {
           let vx = f.vx;
           let vy = f.vy;
 
-          if (x < 5) vx = Math.abs(vx) * 0.7;
-          if (x > 95) vx = -Math.abs(vx) * 0.7;
-          if (y < 5) vy = Math.abs(vy) * 0.7;
-          if (y > 95) vy = -Math.abs(vy) * 0.7;
+          // Phản hồi mép nhẹ nhàng hơn
+          if (x < 5) vx = Math.abs(vx) * 0.6;
+          if (x > 95) vx = -Math.abs(vx) * 0.6;
+          if (y < 5) vy = Math.abs(vy) * 0.6;
+          if (y > 95) vy = -Math.abs(vy) * 0.6;
 
-          if (Math.random() < 0.02) {
-            vx += (Math.random() - 0.5) * 0.02;
-            vy += (Math.random() - 0.5) * 0.02;
+          // Dao động nhỏ, mượt hơn
+          if (Math.random() < 0.015) {
+            vx += (Math.random() - 0.5) * 0.01;
+            vy += (Math.random() - 0.5) * 0.01;
           }
 
           const speed = Math.sqrt(vx * vx + vy * vy);
-          if (speed > 0.12) {
-            vx *= 0.96;
-            vy *= 0.96;
+          if (speed > 0.08) {
+            vx *= 0.97;
+            vy *= 0.97;
           }
 
-          vx *= 0.995;
-          vy *= 0.995;
+          // Tăng damping để chuyển động êm
+          vx *= 0.998;
+          vy *= 0.998;
 
           return {
             ...f,
@@ -92,8 +115,29 @@ function Game() {
   useEffect(() => {
     if (fireflies.length >= 10 && !isForestBright) {
       setIsForestBright(true);
-      setCurrentWhisper("Cậu đã thắp sáng cả khu rừng rồi! 🌲✨");
+      setCurrentWhisper(
+        "Hành trình của bạn đã lan tỏa những tia sáng tích cực.\nHãy luôn giữ ngọn lửa niềm tin và tình yêu thương trong tim! 🌟"
+      );
       setShowWhisper(true);
+
+      if (!audioRef.current) {
+        audioRef.current = new Audio("/audio/audio3.mp3");
+        audioRef.current.volume = 0;
+        audioRef.current.loop = true;
+      }
+      audioRef.current.play().catch(() => {});
+
+      const targetVolume = 0.6;
+      const step = 0.05;
+      const interval = setInterval(() => {
+        if (!audioRef.current) {
+          clearInterval(interval);
+          return;
+        }
+        const next = Math.min(targetVolume, audioRef.current.volume + step);
+        audioRef.current.volume = next;
+        if (next >= targetVolume) clearInterval(interval);
+      }, 150);
 
       const treeArray = Array.from({ length: 15 }, (_, i) => ({
         id: i,
@@ -131,7 +175,8 @@ function Game() {
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     const angle = Math.random() * Math.PI * 2;
-    const speed = 0.05 + Math.random() * 0.03;
+    // Tốc độ thấp hơn để chuyển động nhẹ nhàng
+    const speed = 0.002 + Math.random() * 0.0015;
 
     const newFirefly = {
       id: Date.now(),
@@ -154,10 +199,11 @@ function Game() {
     }));
     setClickParticles((prev) => [...prev, ...particles]);
 
-    const whisper = whispers[Math.floor(Math.random() * whispers.length)];
+    const randomIndex = Math.floor(Math.random() * whispers.length);
+    const whisper = whispers[randomIndex];
     setCurrentWhisper(whisper);
     setShowWhisper(true);
-    setTimeout(() => setShowWhisper(false), 4000);
+    setTimeout(() => setShowWhisper(false), 100000);
   };
 
   const resetForest = () => {
@@ -168,6 +214,17 @@ function Game() {
     setClickParticles([]);
     setFloatingFireflies([]);
     setTrees([]);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  const handleBackHome = () => {
+    // Tắt nhạc và hiệu ứng trước khi rời trang
+    resetForest();
+    navigate("/");
   };
 
   const getBackgroundGradient = () => {
@@ -183,6 +240,15 @@ function Game() {
 
   return (
     <div className="min-h-screen w-full overflow-hidden relative">
+      {/* Back button */}
+      <div className="absolute top-4 left-4 z-30">
+        <button
+          onClick={handleBackHome}
+          className="bg-gradient-to-r from-amber-800 to-stone-700 text-white px-5 py-2 rounded-full text-sm shadow-2xl hover:shadow-amber-600/40 hover:scale-105 transition-all duration-300 border-2 border-white/20"
+        >
+          ← Về trang chủ
+        </button>
+      </div>
       <div
         className={`absolute inset-0 bg-gradient-to-br ${getBackgroundGradient()} transition-all duration-[2500ms]`}
       />
@@ -206,7 +272,6 @@ function Game() {
       {isForestBright && (
         <>
           <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-green-900/40 to-transparent pointer-events-none transition-opacity duration-2000" />
-
           {trees.map((tree) => (
             <div
               key={tree.id}
@@ -227,7 +292,6 @@ function Game() {
               </div>
             </div>
           ))}
-
           {floatingFireflies.map((f) => (
             <div
               key={f.id}
@@ -265,7 +329,6 @@ function Game() {
               left: `${f.x}%`,
               top: `${f.y}%`,
               transform: "translate(-50%, -50%)",
-              transition: "all 0.15s ease-out",
             }}
           >
             <div
@@ -278,16 +341,12 @@ function Game() {
                   opacity: f.brightness * 0.7,
                   boxShadow: `0 0 ${f.size * 2.5}px ${
                     f.size * 1.2
-                  }px rgba(250, 204, 21, ${f.brightness * 0.5})`,
-                  transition: "all 0.4s ease-out",
+                  }px rgba(250,204,21,${f.brightness * 0.5})`,
                 }}
               />
               <div
                 className="absolute inset-0 rounded-full bg-yellow-100"
-                style={{
-                  opacity: f.brightness,
-                  transition: "all 0.4s ease-out",
-                }}
+                style={{ opacity: f.brightness }}
               />
             </div>
           </div>
@@ -311,41 +370,64 @@ function Game() {
         ))}
       </div>
 
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center gap-4">
-        <div className="bg-black/30 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
-          <div className="flex items-center gap-3">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-500 ${
-                  i < fireflies.length
-                    ? "bg-yellow-400 shadow-lg shadow-yellow-400/50 scale-110"
-                    : "bg-white/20"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-        <p className="text-white/70 text-sm font-light">
-          {fireflies.length < 10
-            ? "Chạm vào màn hình để thắp sáng đom đóm"
-            : "Khu rừng đã sáng rực rỡ!"}
-        </p>
-      </div>
-
+      {/* Beautiful Letter Design */}
       <div
-        className={`absolute top-1/3 left-1/2 transform -translate-x-1/2 transition-all duration-1000 max-w-xl px-6 z-10 ${
+        className={`absolute top-1/4 left-1/2 transform -translate-x-1/2 transition-all duration-1000 max-w-3xl px-6 z-10 ${
           showWhisper ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl px-8 py-6 shadow-2xl border border-white/30">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Heart className="w-5 h-5 text-pink-300 animate-pulse" />
-            <Sparkles className="w-4 h-4 text-yellow-300" />
+        <div className="relative">
+          {/* Decorative corners */}
+          <div className="absolute -top-3 -left-3 w-8 h-8 border-t-2 border-l-2 border-amber-300/60 rounded-tl-lg"></div>
+          <div className="absolute -top-3 -right-3 w-8 h-8 border-t-2 border-r-2 border-amber-300/60 rounded-tr-lg"></div>
+          <div className="absolute -bottom-3 -left-3 w-8 h-8 border-b-2 border-l-2 border-amber-300/60 rounded-bl-lg"></div>
+          <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-2 border-r-2 border-amber-300/60 rounded-br-lg"></div>
+
+          {/* Main letter card */}
+          <div className="bg-gradient-to-br from-amber-50/95 via-white/90 to-amber-50/95 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-amber-200/50 overflow-hidden">
+            {/* Decorative header */}
+            <div className="bg-gradient-to-r from-amber-100/50 via-yellow-50/50 to-amber-100/50 border-b border-amber-200/30 py-4 px-8">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"></div>
+                <Heart className="w-5 h-5 text-rose-400 animate-pulse drop-shadow-sm" />
+                <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
+                <Heart className="w-5 h-5 text-rose-400 animate-pulse drop-shadow-sm" />
+                <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"></div>
+              </div>
+              <p className="text-center text-amber-800/60 text-sm font-light mt-2 tracking-widest">
+                LỜI NHẮN TỪ Healink Family
+              </p>
+            </div>
+
+            {/* Letter content */}
+            <div className="px-10 py-8 max-h-96 overflow-y-auto">
+              <div className="relative">
+                {/* Decorative quotation marks */}
+                <div className="absolute -top-2 -left-4 text-6xl text-amber-300/40 font-serif leading-none">
+                  "
+                </div>
+                <div className="absolute -bottom-6 -right-4 text-6xl text-amber-300/40 font-serif leading-none">
+                  "
+                </div>
+
+                <p className="text-lg md:text-xl text-slate-700 text-center font-light leading-relaxed tracking-wide whitespace-pre-line relative z-10 py-2">
+                  {currentWhisper}
+                </p>
+              </div>
+            </div>
+
+            {/* Decorative footer */}
+            <div className="bg-gradient-to-r from-amber-100/30 via-yellow-50/30 to-amber-100/30 border-t border-amber-200/30 py-3 px-8">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-400/50"></div>
+                <div className="w-2 h-2 rounded-full bg-rose-400/50"></div>
+                <div className="w-2 h-2 rounded-full bg-amber-400/50"></div>
+              </div>
+            </div>
           </div>
-          <p className="text-xl md:text-2xl text-white text-center font-light leading-relaxed tracking-wide">
-            {currentWhisper}
-          </p>
+
+          {/* Soft shadow effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-300/10 to-rose-300/10 rounded-2xl blur-xl -z-10 transform scale-105"></div>
         </div>
       </div>
 
@@ -353,7 +435,7 @@ function Game() {
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-[fadeIn_1s_ease-out]">
           <button
             onClick={resetForest}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-10 py-4 rounded-full font-light text-lg shadow-2xl hover:shadow-pink-500/50 hover:scale-105 transition-all duration-300 border-2 border-white/30"
+            className="bg-gradient-to-r from-amber-800 to-stone-700 text-white px-10 py-4 rounded-full font-light text-lg shadow-2xl hover:shadow-amber-600/40 hover:scale-105 transition-all duration-300 border-2 border-white/20"
           >
             Bắt đầu hành trình mới
           </button>
@@ -365,7 +447,7 @@ function Game() {
           <div className="text-center space-y-6 px-6">
             <div className="text-8xl mb-4 animate-pulse">🌙</div>
             <h1 className="text-5xl md:text-6xl font-light text-white tracking-wide">
-              Đom Đóm Trong Tim
+              Healink Trong Tim
             </h1>
             <p className="text-xl text-white/70 font-light max-w-md mx-auto">
               Chạm để thắp sáng hy vọng trong đêm tối
@@ -380,22 +462,10 @@ function Game() {
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
         @keyframes floatFirefly {
-          0%, 100% {
-            transform: translate(0, 0);
-            opacity: 0.7;
-          }
-          25% {
-            transform: translate(15px, -20px);
-            opacity: 1;
-          }
-          50% {
-            transform: translate(30px, -10px);
-            opacity: 0.8;
-          }
-          75% {
-            transform: translate(15px, 5px);
-            opacity: 0.9;
-          }
+          0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+          25% { transform: translate(15px, -20px); opacity: 1; }
+          50% { transform: translate(30px, -10px); opacity: 0.8; }
+          75% { transform: translate(15px, 5px); opacity: 0.9; }
         }
       `}</style>
     </div>
