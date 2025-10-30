@@ -14,7 +14,6 @@ import checkoutCartReducer from "./redux/User/cartApi/checkoutCart/checkoutCartS
 import updateStatusOrderReducer from "./redux/User/order/updateStatusOrder/updateStatusOrderSlice";
 import createPayosReducer from "./redux/User/payos/createPayosSlice";
 import cancelPaymentReducer from "./redux/User/cancelPayment/cancelPaymentSlice";
-import accountReducers from "./redux/auth/authSlice";
 import postPostcardReducer from "./redux/auth/admin/Podcast/post_postcard/postPoscastSlice";
 import fetchPodcastReducer from "./redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
 import updatePodcastReducer from "./redux/auth/admin/Podcast/update_podcast/updatePodcastSlice";
@@ -51,6 +50,7 @@ import fetchAllCommentByProductReducer from "./redux/User/comment_rating/fetchCo
 import fetchPodcastByCategoryReducer from "./redux/User/podcast/get_podcast_by_category/getPodcastByCategorySlice";
 
 import fetchAllCommentByOrderItemIdReducer from "./redux/User/comment_rating/fetchAllCommentByOrderItemId/fetchAllCommentByOrderItemIdSlice";
+import accountReducers from "./redux/auth/authSlice";
 const rootReducer = combineReducers({
   account: accountReducers,
   forgotPassword: forgotPasswordReducer,
