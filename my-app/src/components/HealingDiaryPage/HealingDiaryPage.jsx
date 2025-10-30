@@ -160,7 +160,7 @@ const HealingDiaryPage = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-50 text-amber-900 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-50 text-amber-900 mt-[50px] relative overflow-hidden">
         {/* Floating Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 text-amber-400 opacity-30 animate-float">

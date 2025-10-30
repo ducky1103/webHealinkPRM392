@@ -19,8 +19,13 @@ export const getAllProductFail = (error) => ({
 
 const initialState = {
   product: [],
-  loading: null,
+  loading: false,
   error: null,
+  pagination: {
+    pageNumber: 0,
+    totalElements: 0,
+    totalPages: 0,
+  },
 };
 
 const getAllProductReducer = (state = initialState, action) => {
@@ -28,7 +33,16 @@ const getAllProductReducer = (state = initialState, action) => {
     case GET_ALL_PRODUCT:
       return { ...state, loading: true, error: null };
     case GET_ALL_PRODUCT_SUCCESS:
-      return { ...state, loading: false, product: action.payload };
+      return {
+        ...state,
+        loading: false,
+        product: action.payload.content || [], // Lấy content array từ response
+        pagination: {
+          pageNumber: action.payload.pageNumber || 0,
+          totalElements: action.payload.totalElements || 0,
+          totalPages: action.payload.totalPages || 0,
+        },
+      };
     case GET_ALL_PRODUCT_FAIL:
       return { ...state, loading: false, error: action.payload };
     default:

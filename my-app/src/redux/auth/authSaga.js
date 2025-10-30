@@ -27,14 +27,16 @@ export function* fetchLogin(action) {
   try {
     const loginPayload = {
       username: action.payload.username,
-      passwordHash: parseInt(action.payload.password), // Convert to number
+      passwordHash: action.payload.password,
     };
 
     const response = yield call(
       axios.post,
       `${API_BASE}/auth/login`,
-      loginPayload // Gửi payload đã convert
+      loginPayload
     );
+
+    console.log("📡 Login response status:", response.status);
 
     const token = response.data?.token;
 
@@ -57,6 +59,11 @@ export function* fetchLogin(action) {
         );
 
         const fullUserData = userResponse.data;
+
+        // Kiểm tra trạng thái active của user
+        if (!fullUserData.active) {
+          throw new Error("Tài khoản đã bị cấm!");
+        }
 
         yield put(
           fetchSuccess({
@@ -84,7 +91,9 @@ export function* fetchLogin(action) {
     let errorMessage = "Đăng nhập thất bại!";
 
     // Check specific error messages
-    if (error.response?.status === 401) {
+    if (error.message === "Tài khoản đã bị cấm!") {
+      errorMessage = "Tài khoản đã bị cấm! Vui lòng liên hệ quản trị viên.";
+    } else if (error.response?.status === 401) {
       errorMessage = "Tài khoản hoặc mật khẩu không đúng!";
     } else if (error.response?.status === 500) {
       errorMessage = "Lỗi server, vui lòng thử lại sau!";
@@ -94,6 +103,10 @@ export function* fetchLogin(action) {
 
     yield put(fetchFail(errorMessage));
     toast.error(errorMessage);
+
+    if (action.payload.onError) {
+      action.payload.onError(error);
+    }
   }
 }
 

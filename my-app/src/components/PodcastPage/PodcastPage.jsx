@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Header from "../HomePage/Header";
 import Footer from "../HomePage/Footer";
 import { Headset, ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchPostcastRequest } from "../../redux/auth/admin/fetch_podcast/fetchPodcastSlice";
+import { fetchPostcastRequest } from "../../redux/auth/admin/Podcast/fetch_podcast/fetchPodcastSlice";
 
 const PodcastPage = () => {
   const navigate = useNavigate();
@@ -13,51 +13,48 @@ const PodcastPage = () => {
 
   // Redux state
   const {
-    fetchPodcast: podcasts,
+    fetchPodcast: allPodcasts,
     loading,
     error,
   } = useSelector((state) => state.fetchPodcast);
+  const { fetchCategpory: allCategories } = useSelector(
+    (state) => state.fetchCategory
+  );
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const podcastsPerPage = 8; // 8 podcasts per page
-  const podcastsPerRow = 4; // 4 podcasts per row
+  // Local pagination state
+  const [page, setPage] = useState(1);
+  const podcastsPerPage = 8;
 
-  // Fetch podcasts on component mount
+  // Fetch ALL podcasts once (không thay đổi saga)
   useEffect(() => {
-    dispatch(
-      fetchPostcastRequest({
-        page: currentPage,
-        size: podcastsPerPage,
-      })
-    );
-  }, [dispatch, currentPage]);
+    dispatch(fetchPostcastRequest({}));
+  }, [dispatch]);
 
-  // Calculate pagination
-  const totalPodcasts = podcasts?.length || 0;
+  // Calculate pagination manually
+  const totalPodcasts = allPodcasts?.length || 0;
   const totalPages = Math.ceil(totalPodcasts / podcastsPerPage);
 
   // Get current page podcasts
-  const indexOfLastPodcast = currentPage * podcastsPerPage;
+  const indexOfLastPodcast = page * podcastsPerPage;
   const indexOfFirstPodcast = indexOfLastPodcast - podcastsPerPage;
   const currentPodcasts =
-    podcasts?.slice(indexOfFirstPodcast, indexOfLastPodcast) || [];
+    allPodcasts?.slice(indexOfFirstPodcast, indexOfLastPodcast) || [];
 
   // Pagination handlers
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+    if (page < totalPages) {
+      setPage(page + 1);
     }
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+    if (page > 1) {
+      setPage(page - 1);
     }
   };
 
   const handlePageClick = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    setPage(pageNumber);
   };
 
   if (loading) {
@@ -85,11 +82,7 @@ const PodcastPage = () => {
           <div className="text-center text-red-600">
             <p>Lỗi khi tải podcast: {error}</p>
             <button
-              onClick={() =>
-                dispatch(
-                  fetchPostcastRequest({ page: 1, size: podcastsPerPage })
-                )
-              }
+              onClick={() => dispatch(fetchPostcastRequest({}))}
               className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
             >
               Thử lại
@@ -104,7 +97,7 @@ const PodcastPage = () => {
   return (
     <>
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-12 mt-8">
         {/* Header */}
         <div className="flex items-center justify-center mb-10 space-x-4 text-amber-600">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-10 text-center">
@@ -114,11 +107,11 @@ const PodcastPage = () => {
         </div>
 
         {/* Podcast Grid */}
-        {currentPodcasts.length > 0 ? (
+        {currentPodcasts?.length > 0 ? (
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-6 text-slate-700 border-l-4 border-indigo-500 pl-3">
-                Tất cả Podcast ({totalPodcasts} bài)
+                Tất cả Podcast ({totalPodcasts} bài) - Trang {page}/{totalPages}
               </h2>
 
               {/* Grid 4x2 (4 podcasts per row, 2 rows = 8 total) */}
@@ -178,9 +171,9 @@ const PodcastPage = () => {
                 {/* Previous button */}
                 <button
                   onClick={handlePrevPage}
-                  disabled={currentPage === 1}
+                  disabled={page === 1}
                   className={`p-2 rounded-lg ${
-                    currentPage === 1
+                    page === 1
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-amber-100 text-amber-600 hover:bg-amber-200"
                   }`}
@@ -196,7 +189,7 @@ const PodcastPage = () => {
                       key={pageNumber}
                       onClick={() => handlePageClick(pageNumber)}
                       className={`px-3 py-2 rounded-lg ${
-                        currentPage === pageNumber
+                        page === pageNumber
                           ? "bg-amber-600 text-white"
                           : "bg-amber-100 text-amber-600 hover:bg-amber-200"
                       }`}
@@ -209,9 +202,9 @@ const PodcastPage = () => {
                 {/* Next button */}
                 <button
                   onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
+                  disabled={page === totalPages}
                   className={`p-2 rounded-lg ${
-                    currentPage === totalPages
+                    page === totalPages
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-amber-100 text-amber-600 hover:bg-amber-200"
                   }`}
@@ -221,22 +214,18 @@ const PodcastPage = () => {
               </div>
             )}
           </>
-        ) : (
+        ) : totalPodcasts === 0 ? (
           <div className="text-center py-12">
             <Headset className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600">Chưa có podcast nào để hiển thị.</p>
             <button
-              onClick={() =>
-                dispatch(
-                  fetchPostcastRequest({ page: 1, size: podcastsPerPage })
-                )
-              }
+              onClick={() => dispatch(fetchPostcastRequest({}))}
               className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
             >
               Tải lại
             </button>
           </div>
-        )}
+        ) : null}
       </div>
       <Footer />
     </>
