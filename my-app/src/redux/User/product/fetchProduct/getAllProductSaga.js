@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { call, put, select, takeLatest } from "redux-saga/effects";
 import axios from "axios";
 import {
@@ -10,7 +11,7 @@ const URL_API = import.meta.env.VITE_API_URL;
 function* getAllProductSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
-    const response = yield call(axios.get, `${URL_API}/products`, {
+    const response = yield call(axios.get, `${URL_API}/products/active`, {
       params: {
         page: action.payload.page,
         size: action.payload.size,

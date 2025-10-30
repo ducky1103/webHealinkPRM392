@@ -15,6 +15,14 @@ const StorePage = () => {
     (state) => state.fetchProduct
   );
 
+  // Format giá
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
   useEffect(() => {
     dispatch(getAllProduct({ page: 1, size: 10 }));
   }, [dispatch]);
@@ -25,21 +33,12 @@ const StorePage = () => {
       return;
     }
 
-    // 👉 dispatch đến saga (payload theo API backend)
     dispatch(
       addToCart({
         productId: item.id,
-        quantity: 1, // mặc định thêm 1 sp
+        quantity: 1,
       })
     );
-  };
-
-  const handleBuyNow = (item) => {
-    if (!user) {
-      toast.error("Vui lòng đăng nhập để mua sản phẩm 🛒");
-      return;
-    }
-    navigate("/checkout", { state: { product: item } });
   };
 
   return (
@@ -47,7 +46,7 @@ const StorePage = () => {
       <Header />
 
       {/* Nút xem giỏ hàng */}
-      <div className="max-w-7xl mx-auto px-4 py-6 flex justify-end">
+      <div className="max-w-7xl mx-auto px-4 py-6 flex justify-end mt-20">
         <button
           onClick={() => {
             if (!user) {
@@ -73,36 +72,44 @@ const StorePage = () => {
         {error && <p className="text-red-500">Lỗi: {error}</p>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {product?.content?.map((item) => (
+          {product?.map((item) => (
             <div
               key={item.id}
-              className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 bg-amber-100 hover:scale-105"
+              className="flex flex-col justify-between h-full p-4 border rounded-lg shadow-sm 
+             hover:shadow-md transition-all duration-300 bg-amber-100 hover:scale-105"
             >
-              <img
-                src={item.imageUrl}
-                alt={item.name}
-                className="w-full h-40 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-lg font-semibold text-slate-800">
-                {item.name}
-              </h3>
-              <p className="text-sm text-slate-600">Giá: {item.price} VND</p>
-              <div className="flex gap-2 mt-3">
+              {/* Phần trên: ảnh + tiêu đề */}
+              <div>
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-full h-40 object-cover rounded-lg mb-4 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                  onClick={() => navigate(`/product/${item.id}`)}
+                />
+                <h3
+                  className="text-lg font-semibold text-slate-800 line-clamp-2 cursor-pointer hover:text-amber-600 transition-colors duration-200"
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
+                  {item.name}
+                </h3>
+              </div>
+
+              {/* Phần dưới: giá + nút */}
+              <div className="mt-4">
+                <p className="text-sm text-slate-600 mb-3">
+                  Giá:{" "}
+                  <span className="font-medium">
+                    {formatPrice(item.price)} VND
+                  </span>
+                </p>
+
+                {/* 👉 Nút Thêm vào giỏ — kéo dài toàn chiều ngang */}
                 <button
                   onClick={() => handleAddToCart(item)}
-                  className="flex-1 rounded-md bg-amber-500 text-white py-1.5 text-sm font-medium shadow-sm 
-                    hover:bg-amber-600 hover:shadow-md transition-all duration-300 hover:scale-105"
+                  className="w-full rounded-md bg-amber-500 text-white py-2 text-sm font-medium shadow-sm 
+                 hover:bg-amber-600 hover:shadow-md transition-all duration-300 hover:scale-105"
                 >
                   Thêm vào giỏ
-                </button>
-
-                <button
-                  onClick={() => handleBuyNow(item)}
-                  className="flex-1 rounded-md bg-gradient-to-r from-indigo-500 to-purple-500 text-white 
-                    py-1.5 text-sm font-medium shadow-sm 
-                    hover:from-indigo-600 hover:to-purple-600 hover:shadow-md transition-all duration-300 hover:scale-105"
-                >
-                  Mua ngay
                 </button>
               </div>
             </div>
