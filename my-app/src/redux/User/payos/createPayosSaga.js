@@ -8,7 +8,7 @@ import {
 } from "./createPayosSlice";
 import { toast } from "react-toastify";
 
-const URL_API = "https://podcast-shoppings-1.onrender.com";
+const URL_API = import.meta.env.VITE_API_URL;
 
 function* createPayosSaga(action) {
   try {
