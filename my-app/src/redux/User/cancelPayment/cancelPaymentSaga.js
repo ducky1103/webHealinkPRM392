@@ -7,7 +7,7 @@ import {
 } from "./cancelPaymentSlice";
 import { toast } from "react-toastify";
 
-const URL_API = "https://podcast-shoppings-1.onrender.com";
+const URL_API = import.meta.env.VITE_API_URL;
 function* cancelPaymentSaga(action) {
   try {
     const token = yield select((state) => state.account.token);
