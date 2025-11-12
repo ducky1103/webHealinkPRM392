@@ -24,8 +24,13 @@ const StorePage = () => {
   };
 
   useEffect(() => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để truy cập cửa hàng 🔒");
+      navigate("/login");
+      return;
+    }
     dispatch(getAllProduct({ page: 1, size: 10 }));
-  }, [dispatch]);
+  }, [dispatch, user, navigate]);
 
   const handleAddToCart = (item) => {
     if (!user) {
