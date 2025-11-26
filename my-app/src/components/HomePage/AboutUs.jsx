@@ -205,12 +205,12 @@ function AboutUs() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { name: "Lê Văn A", role: "Founder", avatar: "👨‍💼" },
-                { name: "Nguyễn Thị B", role: "Co-Founder", avatar: "👩‍💼" },
-                { name: "Trần Văn C", role: "Marketing", avatar: "👨‍💻" },
-                { name: "Phạm Thị D", role: "Designer", avatar: "👩‍🎨" },
-                { name: "Hoàng Văn E", role: "Developer", avatar: "👨‍💻" },
-                { name: "Ngô Thị F", role: "Content Writer", avatar: "👩‍✍️" },
+                { name: "Nguyễn Xuân Huy", role: "COO", avatar: "👨‍💼" },
+                { name: "Vũ Minh Đức", role: "CTO", avatar: "👨‍💻" },
+                { name: "Danh Tuấn Đạt", role: "Developer", avatar: "👨‍💻" },
+                { name: "Lê Thị Cao Ngân", role: "CFO", avatar: "👩‍💼" },
+                { name: "Nguyễn Ngọc Xuân Thùy", role: "CMO", avatar: "👩‍✍️" },
+                { name: "Trần Ngọc Minh", role: "CMO", avatar: "👩‍🎨" },
               ].map((member, i) => (
                 <div
                   key={i}

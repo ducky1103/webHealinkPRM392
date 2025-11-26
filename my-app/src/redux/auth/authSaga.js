@@ -96,7 +96,7 @@ export function* fetchLogin(action) {
     } else if (error.response?.status === 401) {
       errorMessage = "Tài khoản hoặc mật khẩu không đúng!";
     } else if (error.response?.status === 500) {
-      errorMessage = "Lỗi server, vui lòng thử lại sau!";
+      errorMessage = "Tài khoản hoặc mật khẩu không đúng!";
     } else if (error.response?.data?.message) {
       errorMessage = error.response.data.message;
     }
