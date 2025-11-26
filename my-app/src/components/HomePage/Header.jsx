@@ -50,6 +50,10 @@ function Header() {
             <LinkItem href="/about-us" label="Về chúng tôi" />
             <LinkItem href="/store" label="Cửa hàng" />
             <LinkItem href="/favorites" label="Yêu thích" />
+            <LinkItem href="/game" label="Game" />
+            <LinkItem href="/topPodcast" label="Top Podcast" />
+            <LinkItem href="/topProduct" label="Top Product" />
+
             {/* 🔹 Truyền cartCount xuống */}
             <CartButton user={user} cartCount={cartCount} />
           </nav>

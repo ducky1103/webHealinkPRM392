@@ -30,6 +30,8 @@ import ChangePasswordPage from "../../components/HomePage/ChangePassword/ChangeP
 import Game from "../../components/Game/Game";
 import FavoritePage from "../../components/FavoritePage/FavoritePage";
 import ProductDetailPage from "../../components/ProductDetailPage/ProductDetailPage";
+import TopPodcast from "../../components/HomePage/TopPodcast/TopPodcast";
+import TopProduct from "../../components/HomePage/TopProduct/TopProduct";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +59,8 @@ const router = createBrowserRouter([
       { path: "game", element: <Game /> },
       { path: "favorites", element: <FavoritePage /> },
       { path: "product/:id", element: <ProductDetailPage /> },
+      { path: "/topPodcast", element: <TopPodcast /> },
+      { path: "/topProduct", element: <TopProduct /> },
       {
         element: <PrivateRoute allowedRoles={["User", "admin"]} />,
         children: [

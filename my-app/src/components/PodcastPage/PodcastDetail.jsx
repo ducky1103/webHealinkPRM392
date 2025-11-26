@@ -34,7 +34,8 @@ import { useAudioPlayer } from "../../contexts/AudioPlayerContext";
 const PodcastDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { playPodcast, currentPodcast, isPlaying, togglePlayPause } = useAudioPlayer();
+  const { playPodcast, currentPodcast, isPlaying, togglePlayPause } =
+    useAudioPlayer();
   const { fetchPodcast: podcasts, loading: loadingPodcasts } = useSelector(
     (state) => state.fetchPodcast
   );
@@ -335,7 +336,7 @@ const PodcastDetail = () => {
             {/* Gradient Background with Glass Effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-orange-500/20 to-amber-600/20 backdrop-blur-md"></div>
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-            
+
             <div className="relative z-10 p-8 border border-amber-700/30">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
@@ -344,14 +345,20 @@ const PodcastDetail = () => {
                     <Headset className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">Nghe Podcast</h2>
-                    <p className="text-amber-200 text-sm">Nhấn play để nghe trên mini player</p>
+                    <h2 className="text-2xl font-bold text-white">
+                      Nghe Podcast
+                    </h2>
+                    <p className="text-amber-200 text-sm">
+                      Nhấn play để nghe trên mini player
+                    </p>
                   </div>
                 </div>
                 {podcast.duration && (
                   <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-900/40 backdrop-blur-sm border border-amber-600/30">
                     <Clock className="w-4 h-4 text-amber-300" />
-                    <span className="text-amber-100 font-medium">{podcast.duration}</span>
+                    <span className="text-amber-100 font-medium">
+                      {podcast.duration}
+                    </span>
                   </div>
                 )}
               </div>
@@ -379,9 +386,15 @@ const PodcastDetail = () => {
                           className="w-16 h-16 flex items-center justify-center rounded-full bg-amber-500 hover:bg-amber-400 transition-all shadow-xl hover:scale-110"
                         >
                           {currentPodcast?.id === podcast.id && isPlaying ? (
-                            <Pause className="w-8 h-8 text-white" fill="currentColor" />
+                            <Pause
+                              className="w-8 h-8 text-white"
+                              fill="currentColor"
+                            />
                           ) : (
-                            <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
+                            <Play
+                              className="w-8 h-8 text-white ml-1"
+                              fill="currentColor"
+                            />
                           )}
                         </button>
                       </div>
@@ -393,9 +406,9 @@ const PodcastDetail = () => {
                         {podcast.title}
                       </h3>
                       <p className="text-amber-200 mb-6">
-                        {podcast.author || 'Unknown Artist'}
+                        {podcast.author || "Unknown Artist"}
                       </p>
-                      
+
                       <button
                         onClick={() => {
                           if (currentPodcast?.id === podcast.id) {
@@ -436,27 +449,33 @@ const PodcastDetail = () => {
                       </div>
                       <div>
                         <p className="text-xs text-amber-300">Chất lượng</p>
-                        <p className="text-sm font-semibold text-white">HD Audio</p>
+                        <p className="text-sm font-semibold text-white">
+                          HD Audio
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-900/30 backdrop-blur-sm border border-amber-700/30 hover:bg-amber-900/40 transition-all">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                         <span className="text-white text-sm">⚡</span>
                       </div>
                       <div>
                         <p className="text-xs text-amber-300">Mini Player</p>
-                        <p className="text-sm font-semibold text-white">Enabled</p>
+                        <p className="text-sm font-semibold text-white">
+                          Enabled
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-900/30 backdrop-blur-sm border border-amber-700/30 hover:bg-amber-900/40 transition-all">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
                         <span className="text-white text-sm">🔊</span>
                       </div>
                       <div>
                         <p className="text-xs text-amber-300">Streaming</p>
-                        <p className="text-sm font-semibold text-white">Online</p>
+                        <p className="text-sm font-semibold text-white">
+                          Online
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -466,7 +485,9 @@ const PodcastDetail = () => {
                   <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center opacity-50">
                     <Headset className="w-10 h-10 text-white" />
                   </div>
-                  <p className="text-lg text-amber-200">Audio chưa được upload cho podcast này.</p>
+                  <p className="text-lg text-amber-200">
+                    Audio chưa được upload cho podcast này.
+                  </p>
                 </div>
               )}
             </div>
